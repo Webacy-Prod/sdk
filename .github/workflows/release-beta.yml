@@ -2,6 +2,7 @@ name: Release Beta
 
 on:
   push:
+    branches: [staging]
     tags:
       - 'beta-*'
 
