@@ -1,0 +1,55 @@
+name: Release Beta
+
+on:
+  push:
+    tags:
+      - 'beta-*'
+
+jobs:
+  validate:
+    uses: ./.github/workflows/ci.yml
+
+  publish-beta:
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm build
+
+      - name: Publish @webacy/sdk-core (beta)
+        run: pnpm --filter @webacy/sdk-core publish --access public --no-git-checks --tag beta
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish @webacy/sdk-threat (beta)
+        run: pnpm --filter @webacy/sdk-threat publish --access public --no-git-checks --tag beta
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish @webacy/sdk-trading (beta)
+        run: pnpm --filter @webacy/sdk-trading publish --access public --no-git-checks --tag beta
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish @webacy/sdk (beta)
+        run: pnpm --filter @webacy/sdk publish --access public --no-git-checks --tag beta
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

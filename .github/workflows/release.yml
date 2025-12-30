@@ -2,8 +2,7 @@ name: Release
 
 on:
   push:
-    tags:
-      - 'v*'
+    branches: [main]
 
 jobs:
   validate:
@@ -12,6 +11,9 @@ jobs:
   publish:
     needs: validate
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      published: ${{ steps.check.outputs.skip == 'false' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -28,34 +30,56 @@ jobs:
           cache: 'pnpm'
           registry-url: 'https://registry.npmjs.org'
 
+      - name: Get version
+        id: version
+        run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+
+      - name: Check if version already published
+        id: check
+        run: |
+          if npm view @webacy/sdk@${{ steps.version.outputs.version }} version 2>/dev/null; then
+            echo "Version ${{ steps.version.outputs.version }} already published, skipping..."
+            echo "skip=true" >> $GITHUB_OUTPUT
+          else
+            echo "Publishing version ${{ steps.version.outputs.version }}"
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Install dependencies
+        if: steps.check.outputs.skip == 'false'
         run: pnpm install --frozen-lockfile
 
       - name: Build
+        if: steps.check.outputs.skip == 'false'
         run: pnpm build
 
       - name: Publish @webacy/sdk-core
+        if: steps.check.outputs.skip == 'false'
         run: pnpm --filter @webacy/sdk-core publish --access public --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish @webacy/sdk-threat
+        if: steps.check.outputs.skip == 'false'
         run: pnpm --filter @webacy/sdk-threat publish --access public --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish @webacy/sdk-trading
+        if: steps.check.outputs.skip == 'false'
         run: pnpm --filter @webacy/sdk-trading publish --access public --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish @webacy/sdk
+        if: steps.check.outputs.skip == 'false'
         run: pnpm --filter @webacy/sdk publish --access public --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
   github-release:
     needs: publish
+    if: needs.publish.outputs.published == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -66,4 +90,6 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: v${{ needs.publish.outputs.version }}
+          name: v${{ needs.publish.outputs.version }}
           generate_release_notes: true
