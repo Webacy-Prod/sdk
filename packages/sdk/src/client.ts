@@ -150,20 +150,20 @@ export class WebacyClient extends BaseClient {
 
     // Initialize trading namespace
     this.trading = {
-      holderAnalysis: new HolderAnalysisResource(this.httpClient),
-      tradingLite: new TradingLiteResource(this.httpClient),
-      tokens: new TokensResource(this.httpClient),
+      holderAnalysis: new HolderAnalysisResource(this.httpClient, this.defaultChain),
+      tradingLite: new TradingLiteResource(this.httpClient, this.defaultChain),
+      tokens: new TokensResource(this.httpClient, this.defaultChain),
     };
 
     // Initialize threat namespace
     this.threat = {
-      addresses: new AddressesResource(this.httpClient),
-      contracts: new ContractsResource(this.httpClient),
-      url: new UrlResource(this.httpClient),
-      wallets: new WalletsResource(this.httpClient),
-      ledger: new LedgerResource(this.httpClient),
-      accountTrace: new AccountTraceResource(this.httpClient),
-      usage: new UsageResource(this.httpClient),
+      addresses: new AddressesResource(this.httpClient, this.defaultChain),
+      contracts: new ContractsResource(this.httpClient, this.defaultChain),
+      url: new UrlResource(this.httpClient), // Chain-agnostic
+      wallets: new WalletsResource(this.httpClient, this.defaultChain),
+      ledger: new LedgerResource(this.httpClient), // Chain-agnostic
+      accountTrace: new AccountTraceResource(this.httpClient, this.defaultChain),
+      usage: new UsageResource(this.httpClient), // Chain-agnostic
     };
   }
 
