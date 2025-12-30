@@ -29,6 +29,9 @@ pnpm-debug.log*
 .env.local
 .env.*.local
 
+# Test files with potential secrets
+test-real-api.js
+
 # Turbo
 .turbo/
 
