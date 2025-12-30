@@ -90,6 +90,7 @@ describe('isEvmChain', () => {
 describe('CHAIN_NAMES', () => {
   it('should have human-readable names for all chains', () => {
     expect(CHAIN_NAMES[Chain.ETH]).toBe('Ethereum');
+    expect(CHAIN_NAMES[Chain.SEP]).toBe('Sepolia');
     expect(CHAIN_NAMES[Chain.SOL]).toBe('Solana');
     expect(CHAIN_NAMES[Chain.BASE]).toBe('Base');
     expect(CHAIN_NAMES[Chain.BSC]).toBe('BNB Smart Chain');
