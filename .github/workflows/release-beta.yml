@@ -31,13 +31,44 @@ jobs:
           cache: 'pnpm'
           registry-url: 'https://registry.npmjs.org'
 
+      - name: Get version
+        id: version
+        run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+
+      - name: Check if all packages already published
+        id: check
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          PACKAGES=("@webacy/sdk-core" "@webacy/sdk-threat" "@webacy/sdk-trading" "@webacy/sdk")
+          ALL_PUBLISHED=true
+
+          for pkg in "${PACKAGES[@]}"; do
+            if npm view "${pkg}@${VERSION}" version 2>/dev/null; then
+              echo "✓ ${pkg}@${VERSION} already published"
+            else
+              echo "✗ ${pkg}@${VERSION} not published"
+              ALL_PUBLISHED=false
+            fi
+          done
+
+          if [ "$ALL_PUBLISHED" = true ]; then
+            echo "All packages at version ${VERSION} already published, skipping..."
+            echo "skip=true" >> $GITHUB_OUTPUT
+          else
+            echo "Publishing version ${VERSION} with beta tag"
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Install dependencies
+        if: steps.check.outputs.skip == 'false'
         run: pnpm install --frozen-lockfile
 
       - name: Build
+        if: steps.check.outputs.skip == 'false'
         run: pnpm build
 
       - name: Publish all packages (beta)
+        if: steps.check.outputs.skip == 'false'
         run: pnpm publish -r --access public --no-git-checks --tag beta
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
