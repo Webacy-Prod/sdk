@@ -24,12 +24,36 @@ jobs:
           echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
           git checkout HEAD -- package.json
 
-      - name: Compare versions
+      - name: Compare versions (semver)
         run: |
-          if [ "${{ steps.pr_version.outputs.version }}" == "${{ steps.main_version.outputs.version }}" ]; then
+          PR_VERSION="${{ steps.pr_version.outputs.version }}"
+          MAIN_VERSION="${{ steps.main_version.outputs.version }}"
+
+          echo "Main version: $MAIN_VERSION"
+          echo "PR version:   $PR_VERSION"
+
+          # Semver comparison using node
+          RESULT=$(node -e "
+            const pr = '$PR_VERSION'.split('.').map(Number);
+            const main = '$MAIN_VERSION'.split('.').map(Number);
+            for (let i = 0; i < 3; i++) {
+              if (pr[i] > main[i]) { console.log('greater'); process.exit(0); }
+              if (pr[i] < main[i]) { console.log('less'); process.exit(0); }
+            }
+            console.log('equal');
+          ")
+
+          if [ "$RESULT" == "greater" ]; then
+            echo "✅ Version bumped: $MAIN_VERSION → $PR_VERSION"
+          elif [ "$RESULT" == "equal" ]; then
             echo "❌ Version has not been bumped!"
-            echo "Current version on main: ${{ steps.main_version.outputs.version }}"
+            echo "Current version on main: $MAIN_VERSION"
             echo "Please bump the version in package.json before merging."
             exit 1
+          else
+            echo "❌ Version downgrade detected!"
+            echo "Main version: $MAIN_VERSION"
+            echo "PR version:   $PR_VERSION"
+            echo "PR version must be greater than main version."
+            exit 1
           fi
-          echo "✅ Version bumped: ${{ steps.main_version.outputs.version }} → ${{ steps.pr_version.outputs.version }}"
