@@ -33,20 +33,36 @@ const analysis = await client.tradingLite.analyze('pump_token_address');
 ## Response Structure
 
 ```typescript
-interface TradingLiteAnalysis {
-  TokenAddress: string;
+interface AddressHolding {
+  address: string;
+  initiallyAcquiredPercentage: number;
+  initiallyAcquiredAmount: number;
+  currentHoldingPercentage: number;
+  currentHoldingAmount: number;
+}
 
-  // Sniper/Bundler metrics
+interface TradingLiteAnalysis {
+  // Token & Developer addresses
+  CA: string;                      // Contract/Token Address (mint)
+  DA: string;                      // Deployer Address (developer)
+
+  // Sniper metrics
   SniperPercentageOnLaunch: number;
   SniperPercentageHolding: number;
+  SniperAddresses: AddressHolding[];
+  SniperConfidence: number | null; // Confidence score (0-100)
+
+  // Bundler metrics
   BundlerPercentageOnLaunch: number;
   BundlerPercentageHolding: number;
+  BundlerAddresses: AddressHolding[];
 
-  // Top holder concentration
-  Top10HoldingPercent: number;
+  // Holder metrics
+  Top10Holders: number;            // Percentage held by top 10
+  TotalHolders: number;            // Total unique holders
 
   // Developer activity
-  DevPercentageHolding: number;
+  DevHoldingPercentage: number;
   DevLaunched24Hours: number;
 
   // Token permissions
@@ -54,7 +70,11 @@ interface TradingLiteAnalysis {
   freezable: boolean;
 
   // Promotion status
-  dexScreenerPaid: boolean;
+  DexScreenerPaid: boolean;
+
+  // Analysis metadata
+  lastAnalyzedSlot?: number;
+  analysisTimestamp?: number;
 }
 ```
 
@@ -109,8 +129,8 @@ function calculateRiskScore(analysis: TradingLiteAnalysis): number {
   score += Math.min(analysis.BundlerPercentageOnLaunch, 25);
 
   // Concentration risk (0-20 points)
-  if (analysis.Top10HoldingPercent > 50) {
-    score += (analysis.Top10HoldingPercent - 50) * 0.4;
+  if (analysis.Top10Holders > 50) {
+    score += (analysis.Top10Holders - 50) * 0.4;
   }
 
   // Dev risk (0-15 points)
@@ -141,8 +161,8 @@ First calls run full analysis and persist data. Subsequent calls return cached s
 |---------|-------------|-----------------|
 | Response Time | Faster | Slower |
 | Detail Level | Summary | Comprehensive |
-| Sniper Addresses | ❌ | ✅ |
-| Bundled Addresses | ❌ | ✅ |
+| Sniper Addresses | ✅ | ✅ |
+| Bundled Addresses | ✅ | ✅ |
 | Time Analysis | ❌ | ✅ |
 | Use Case | Quick checks | Deep analysis |
 
