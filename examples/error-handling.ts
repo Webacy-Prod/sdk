@@ -34,7 +34,7 @@ async function main() {
   // Example 1: Basic error handling
   console.log('\n=== Example 1: Basic Error Handling ===');
   try {
-    const risk = await client.addresses.analyze('0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb', {
+    const risk = await client.addresses.analyze('0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0', {
       chain: Chain.ETH,
     });
     console.log('Risk score:', risk.overallRisk);
@@ -136,7 +136,7 @@ async function main() {
     }
   }
 
-  const fallbackResult = await analyzeWithFallback('0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb');
+  const fallbackResult = await analyzeWithFallback('0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0');
   console.log('Result:', fallbackResult);
 
   // Example 6: Check error properties

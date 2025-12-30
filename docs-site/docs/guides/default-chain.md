@@ -15,7 +15,7 @@ const client = new ThreatClient({
 });
 
 // No need to specify chain - uses ETH by default
-const risk = await client.addresses.analyze('0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb');
+const risk = await client.addresses.analyze('0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0');
 const sanctioned = await client.addresses.checkSanctioned('0x742d35Cc...');
 const contract = await client.contracts.analyze('0xdAC17F958D2ee523a2206206994597C13D831ec7');
 ```

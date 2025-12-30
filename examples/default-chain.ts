@@ -17,7 +17,7 @@ async function main() {
 
   // No need to specify chain - uses ETH by default
   const ethRisk = await ethClient.addresses.analyze(
-    '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb'
+    '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0'
   );
   console.log('ETH address risk:', ethRisk.overallRisk);
 
@@ -65,8 +65,8 @@ async function main() {
   }
 
   const results = await Promise.all([
-    analyzeMultiChain('0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb', Chain.ETH),
-    analyzeMultiChain('0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb', Chain.BSC),
+    analyzeMultiChain('0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0', Chain.ETH),
+    analyzeMultiChain('0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0', Chain.BSC),
   ]);
 
   console.log('Multi-chain results:', results);

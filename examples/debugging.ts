@@ -16,7 +16,7 @@ async function main() {
   });
 
   try {
-    await debugClient.addresses.analyze('0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb', {
+    await debugClient.addresses.analyze('0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0', {
       chain: Chain.ETH,
     });
   } catch {
@@ -30,7 +30,7 @@ async function main() {
     debug: 'requests',
   });
 
-  await requestLogClient.addresses.analyze('0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb', {
+  await requestLogClient.addresses.analyze('0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0', {
     chain: Chain.ETH,
   });
 
@@ -64,7 +64,7 @@ async function main() {
     logger: customLogger,
   });
 
-  await customLogClient.addresses.analyze('0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb', {
+  await customLogClient.addresses.analyze('0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0', {
     chain: Chain.ETH,
   });
 
@@ -106,7 +106,7 @@ async function main() {
     return error;
   });
 
-  await interceptorClient.addresses.analyze('0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb', {
+  await interceptorClient.addresses.analyze('0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0', {
     chain: Chain.ETH,
   });
 
@@ -136,10 +136,10 @@ async function main() {
   });
 
   // Make some requests
-  await perfClient.addresses.analyze('0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb', {
+  await perfClient.addresses.analyze('0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0', {
     chain: Chain.ETH,
   });
-  await perfClient.addresses.checkSanctioned('0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb', {
+  await perfClient.addresses.checkSanctioned('0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0', {
     chain: Chain.ETH,
   });
 
