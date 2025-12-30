@@ -57,27 +57,9 @@ jobs:
         if: steps.check.outputs.skip == 'false'
         run: pnpm build
 
-      - name: Publish @webacy/sdk-core
+      - name: Publish all packages
         if: steps.check.outputs.skip == 'false'
-        run: pnpm --filter @webacy/sdk-core publish --access public --no-git-checks
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Publish @webacy/sdk-threat
-        if: steps.check.outputs.skip == 'false'
-        run: pnpm --filter @webacy/sdk-threat publish --access public --no-git-checks
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Publish @webacy/sdk-trading
-        if: steps.check.outputs.skip == 'false'
-        run: pnpm --filter @webacy/sdk-trading publish --access public --no-git-checks
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Publish @webacy/sdk
-        if: steps.check.outputs.skip == 'false'
-        run: pnpm --filter @webacy/sdk publish --access public --no-git-checks
+        run: pnpm publish -r --access public --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 

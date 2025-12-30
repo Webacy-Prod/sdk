@@ -39,22 +39,7 @@ jobs:
       - name: Build
         run: pnpm build
 
-      - name: Publish @webacy/sdk-core (beta)
-        run: pnpm --filter @webacy/sdk-core publish --access public --no-git-checks --tag beta
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Publish @webacy/sdk-threat (beta)
-        run: pnpm --filter @webacy/sdk-threat publish --access public --no-git-checks --tag beta
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Publish @webacy/sdk-trading (beta)
-        run: pnpm --filter @webacy/sdk-trading publish --access public --no-git-checks --tag beta
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Publish @webacy/sdk (beta)
-        run: pnpm --filter @webacy/sdk publish --access public --no-git-checks --tag beta
+      - name: Publish all packages (beta)
+        run: pnpm publish -r --access public --no-git-checks --tag beta
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
