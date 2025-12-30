@@ -54,9 +54,9 @@ import { Chain } from '@webacy/sdk';
 // EVM Chains
 Chain.ETH    // Ethereum
 Chain.BSC    // BNB Smart Chain
-Chain.MATIC  // Polygon
+Chain.POL    // Polygon
 Chain.ARB    // Arbitrum
-Chain.OP     // Optimism
+Chain.OPT    // Optimism
 Chain.BASE   // Base
 
 // Non-EVM Chains
