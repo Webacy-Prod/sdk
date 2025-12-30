@@ -1,0 +1,54 @@
+{
+  "name": "@rlajous/webacy-sdk-core",
+  "version": "1.0.0",
+  "description": "Core utilities for Webacy SDK packages",
+  "author": "Webacy",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Webacy-Prod/webacy-sdk.git",
+    "directory": "packages/core"
+  },
+  "bugs": {
+    "url": "https://github.com/Webacy-Prod/webacy-sdk/issues"
+  },
+  "homepage": "https://github.com/Webacy-Prod/webacy-sdk/tree/main/packages/core#readme",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/types/index.d.ts",
+        "default": "./dist/esm/index.js"
+      },
+      "require": {
+        "types": "./dist/types/index.d.ts",
+        "default": "./dist/cjs/index.js"
+      }
+    }
+  },
+  "files": ["dist", "README.md"],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "build": "npm run build:esm && npm run build:cjs && npm run build:types && npm run postbuild",
+    "build:esm": "tsc -p tsconfig.esm.json",
+    "build:cjs": "tsc -p tsconfig.cjs.json",
+    "build:types": "tsc -p tsconfig.types.json",
+    "postbuild": "echo '{\"type\":\"module\"}' > dist/esm/package.json && echo '{\"type\":\"commonjs\"}' > dist/cjs/package.json",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest watch",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "keywords": ["webacy", "sdk", "blockchain", "risk", "security", "web3"]
+}
