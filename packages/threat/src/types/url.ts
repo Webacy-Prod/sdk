@@ -5,7 +5,7 @@ export interface UrlRiskResponse {
   /** Blacklist status */
   blacklist: string;
   /** Prediction result (benign/malicious) */
-  prediction: 'benign' | 'malicious' | string;
+  prediction: string;
   /** Whitelist status */
   whitelist: string;
   /** Additional details */

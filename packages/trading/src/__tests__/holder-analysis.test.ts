@@ -25,25 +25,25 @@ describe('HolderAnalysisResource', () => {
 
   describe('get', () => {
     it('should throw ValidationError for invalid Solana token address', async () => {
-      await expect(
-        holderAnalysis.get('invalid-address', { chain: Chain.SOL })
-      ).rejects.toThrow(ValidationError);
+      await expect(holderAnalysis.get('invalid-address', { chain: Chain.SOL })).rejects.toThrow(
+        ValidationError
+      );
 
-      await expect(
-        holderAnalysis.get('0x1234', { chain: Chain.SOL })
-      ).rejects.toThrow('Invalid Solana token address');
+      await expect(holderAnalysis.get('0x1234', { chain: Chain.SOL })).rejects.toThrow(
+        'Invalid Solana token address'
+      );
 
       expect(mockHttpClient.get).not.toHaveBeenCalled();
     });
 
     it('should throw ValidationError for invalid Ethereum token address', async () => {
-      await expect(
-        holderAnalysis.get('invalid', { chain: Chain.ETH })
-      ).rejects.toThrow(ValidationError);
+      await expect(holderAnalysis.get('invalid', { chain: Chain.ETH })).rejects.toThrow(
+        ValidationError
+      );
 
-      await expect(
-        holderAnalysis.get('short', { chain: Chain.ETH })
-      ).rejects.toThrow('Invalid Ethereum token address');
+      await expect(holderAnalysis.get('short', { chain: Chain.ETH })).rejects.toThrow(
+        'Invalid Ethereum token address'
+      );
     });
 
     it('should make API call with valid Solana address', async () => {

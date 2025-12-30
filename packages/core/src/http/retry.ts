@@ -39,8 +39,7 @@ export function calculateRetryDelay(
   }
 
   // Exponential backoff with jitter
-  const exponentialDelay =
-    config.initialDelay * Math.pow(config.backoffMultiplier, attempt);
+  const exponentialDelay = config.initialDelay * Math.pow(config.backoffMultiplier, attempt);
   const jitter = Math.random() * 0.3 * exponentialDelay; // 30% jitter
   const delay = exponentialDelay + jitter;
 
@@ -50,10 +49,7 @@ export function calculateRetryDelay(
 /**
  * Check if a status code is retryable
  */
-export function isRetryableStatusCode(
-  statusCode: number,
-  config: RetryConfig
-): boolean {
+export function isRetryableStatusCode(statusCode: number, config: RetryConfig): boolean {
   return config.retryableStatusCodes.includes(statusCode);
 }
 

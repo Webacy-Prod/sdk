@@ -25,13 +25,11 @@ describe('TradingLiteResource', () => {
 
   describe('analyze', () => {
     it('should throw ValidationError for invalid Solana address', async () => {
-      await expect(
-        tradingLite.analyze('invalid-address')
-      ).rejects.toThrow(ValidationError);
+      await expect(tradingLite.analyze('invalid-address')).rejects.toThrow(ValidationError);
 
-      await expect(
-        tradingLite.analyze('0x1234567890abcdef')
-      ).rejects.toThrow('Invalid Solana token address');
+      await expect(tradingLite.analyze('0x1234567890abcdef')).rejects.toThrow(
+        'Invalid Solana token address'
+      );
 
       expect(mockHttpClient.get).not.toHaveBeenCalled();
     });
@@ -39,9 +37,7 @@ describe('TradingLiteResource', () => {
     it('should throw ValidationError for Ethereum address', async () => {
       // TradingLite only supports Solana
       const ethereumAddress = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e';
-      await expect(
-        tradingLite.analyze(ethereumAddress)
-      ).rejects.toThrow(ValidationError);
+      await expect(tradingLite.analyze(ethereumAddress)).rejects.toThrow(ValidationError);
     });
 
     it('should make API call with valid Solana address', async () => {

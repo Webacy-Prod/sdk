@@ -81,10 +81,7 @@ export class AccountTraceResource {
    * }
    * ```
    */
-  async trace(
-    address: string,
-    options: AccountTraceOptions = {}
-  ): Promise<AccountTraceResponse> {
+  async trace(address: string, options: AccountTraceOptions = {}): Promise<AccountTraceResponse> {
     const chain = this.resolveChain(options);
 
     // Validate address format before making API call

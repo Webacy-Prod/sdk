@@ -161,7 +161,7 @@ export class HttpClient {
       return body;
     }
     // Remove potentially sensitive fields from logs
-    const sanitized = { ...body as Record<string, unknown> };
+    const sanitized = { ...(body as Record<string, unknown>) };
     const sensitiveKeys = ['apiKey', 'api_key', 'secret', 'password', 'token'];
     for (const key of sensitiveKeys) {
       if (key in sanitized) {
@@ -213,11 +213,7 @@ export class HttpClient {
   /**
    * Make a PUT request
    */
-  async put<T>(
-    path: string,
-    body?: unknown,
-    config?: HttpRequestConfig
-  ): Promise<HttpResponse<T>> {
+  async put<T>(path: string, body?: unknown, config?: HttpRequestConfig): Promise<HttpResponse<T>> {
     return this.request<T>(path, { ...config, method: 'PUT', body });
   }
 
@@ -242,10 +238,7 @@ export class HttpClient {
   /**
    * Make an HTTP request with retry support
    */
-  private async request<T>(
-    path: string,
-    config: HttpRequestConfig = {}
-  ): Promise<HttpResponse<T>> {
+  private async request<T>(path: string, config: HttpRequestConfig = {}): Promise<HttpResponse<T>> {
     const url = `${this.baseUrl}${path.startsWith('/') ? path : `/${path}`}`;
 
     // Apply request interceptors
@@ -282,8 +275,7 @@ export class HttpClient {
         }
 
         // Calculate retry delay
-        const retryAfter =
-          lastError instanceof RateLimitError ? lastError.retryAfter : undefined;
+        const retryAfter = lastError instanceof RateLimitError ? lastError.retryAfter : undefined;
         const delay = calculateRetryDelay(attempt, this.retryConfig, retryAfter);
 
         await sleep(delay);
@@ -392,7 +384,7 @@ export class HttpClient {
     let errorBody: { message?: string; error?: string; errors?: Record<string, string[]> } = {};
 
     try {
-      errorBody = await response.json();
+      errorBody = (await response.json()) as typeof errorBody;
     } catch {
       // Ignore JSON parse errors
     }
@@ -427,7 +419,10 @@ export class HttpClient {
 
       default:
         if (isRetryableStatusCode(response.status, this.retryConfig)) {
-          return new NetworkError(message, { cause: new Error(`HTTP ${response.status}`), endpoint });
+          return new NetworkError(message, {
+            cause: new Error(`HTTP ${response.status}`),
+            endpoint,
+          });
         }
         return new WebacyError(message, {
           status: response.status,

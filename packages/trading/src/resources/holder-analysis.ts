@@ -87,10 +87,7 @@ export class HolderAnalysisResource {
    * }
    * ```
    */
-  async get(
-    address: string,
-    options: HolderAnalysisOptions = {}
-  ): Promise<HolderAnalysisResult> {
+  async get(address: string, options: HolderAnalysisOptions = {}): Promise<HolderAnalysisResult> {
     const chain = this.resolveChain(options);
 
     // Validate token address format before making API call

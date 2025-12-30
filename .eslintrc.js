@@ -12,6 +12,7 @@ module.exports = {
     ecmaVersion: 2022,
     sourceType: 'module',
     project: ['./packages/*/tsconfig.json'],
+    tsconfigRootDir: __dirname,
   },
   env: {
     node: true,
@@ -25,5 +26,5 @@ module.exports = {
     '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
     'prettier/prettier': 'error',
   },
-  ignorePatterns: ['dist', 'node_modules', '*.js', '*.mjs'],
+  ignorePatterns: ['dist', 'node_modules', '*.js', '*.mjs', '**/__tests__/**', '**/*.test.ts', '**/*.spec.ts'],
 };

@@ -2,11 +2,7 @@
 export { TradingClient } from './client';
 
 // Resources
-export {
-  HolderAnalysisResource,
-  TradingLiteResource,
-  TokensResource,
-} from './resources';
+export { HolderAnalysisResource, TradingLiteResource, TokensResource } from './resources';
 
 // Types
 export type {

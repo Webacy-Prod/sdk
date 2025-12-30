@@ -20,10 +20,7 @@ export function isValidSolanaAddress(address: string): boolean {
  */
 export function isValidBitcoinAddress(address: string): boolean {
   // P2PKH (starts with 1), P2SH (starts with 3), Bech32 (starts with bc1)
-  return (
-    /^[13][a-km-zA-HJ-NP-Z1-9]{25,34}$/.test(address) ||
-    /^bc1[a-z0-9]{39,59}$/.test(address)
-  );
+  return /^[13][a-km-zA-HJ-NP-Z1-9]{25,34}$/.test(address) || /^bc1[a-z0-9]{39,59}$/.test(address);
 }
 
 /**

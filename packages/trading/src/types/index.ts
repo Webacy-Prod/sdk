@@ -11,11 +11,7 @@ export type {
   HolderAnalysisOptions,
 } from './holder-analysis';
 
-export type {
-  AddressHolding,
-  TradingLiteAnalysis,
-  TradingLiteOptions,
-} from './trading-lite';
+export type { AddressHolding, TradingLiteAnalysis, TradingLiteOptions } from './trading-lite';
 
 export type {
   VolumeData,

@@ -32,11 +32,7 @@ export type {
 } from './contract';
 
 // URL types
-export type {
-  UrlRiskResponse,
-  UrlAddResponse,
-  UrlCheckOptions,
-} from './url';
+export type { UrlRiskResponse, UrlAddResponse, UrlCheckOptions } from './url';
 
 // Wallet types
 export type {

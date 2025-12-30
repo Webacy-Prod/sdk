@@ -25,25 +25,25 @@ describe('AddressesResource', () => {
 
   describe('analyze', () => {
     it('should throw ValidationError for invalid Ethereum address', async () => {
-      await expect(
-        addresses.analyze('invalid-address', { chain: Chain.ETH })
-      ).rejects.toThrow(ValidationError);
+      await expect(addresses.analyze('invalid-address', { chain: Chain.ETH })).rejects.toThrow(
+        ValidationError
+      );
 
-      await expect(
-        addresses.analyze('invalid-address', { chain: Chain.ETH })
-      ).rejects.toThrow('Invalid Ethereum address');
+      await expect(addresses.analyze('invalid-address', { chain: Chain.ETH })).rejects.toThrow(
+        'Invalid Ethereum address'
+      );
 
       expect(mockHttpClient.get).not.toHaveBeenCalled();
     });
 
     it('should throw ValidationError for invalid Solana address', async () => {
-      await expect(
-        addresses.analyze('0x1234567890abcdef', { chain: Chain.SOL })
-      ).rejects.toThrow(ValidationError);
+      await expect(addresses.analyze('0x1234567890abcdef', { chain: Chain.SOL })).rejects.toThrow(
+        ValidationError
+      );
 
-      await expect(
-        addresses.analyze('0x1234567890abcdef', { chain: Chain.SOL })
-      ).rejects.toThrow('Invalid Solana address');
+      await expect(addresses.analyze('0x1234567890abcdef', { chain: Chain.SOL })).rejects.toThrow(
+        'Invalid Solana address'
+      );
     });
 
     it('should make API call with valid Ethereum address', async () => {
@@ -125,9 +125,9 @@ describe('AddressesResource', () => {
 
   describe('checkSanctioned', () => {
     it('should throw ValidationError for invalid address', async () => {
-      await expect(
-        addresses.checkSanctioned('invalid', { chain: Chain.ETH })
-      ).rejects.toThrow(ValidationError);
+      await expect(addresses.checkSanctioned('invalid', { chain: Chain.ETH })).rejects.toThrow(
+        ValidationError
+      );
     });
 
     it('should make API call with valid address', async () => {
@@ -150,9 +150,9 @@ describe('AddressesResource', () => {
 
   describe('checkPoisoning', () => {
     it('should throw ValidationError for invalid address', async () => {
-      await expect(
-        addresses.checkPoisoning('invalid', { chain: Chain.ETH })
-      ).rejects.toThrow(ValidationError);
+      await expect(addresses.checkPoisoning('invalid', { chain: Chain.ETH })).rejects.toThrow(
+        ValidationError
+      );
     });
 
     it('should make API call with valid address', async () => {

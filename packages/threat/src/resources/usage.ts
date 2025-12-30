@@ -1,10 +1,5 @@
 import { HttpClient, HttpResponse } from '@webacy/sdk-core';
-import {
-  UsageData,
-  CurrentUsageResponse,
-  UsagePlansResponse,
-  UsageOptions,
-} from '../types';
+import { UsageData, CurrentUsageResponse, UsagePlansResponse, UsageOptions } from '../types';
 
 /**
  * Resource for API usage and quota management

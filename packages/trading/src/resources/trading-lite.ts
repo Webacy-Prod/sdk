@@ -25,7 +25,10 @@ import { TradingLiteAnalysis, TradingLiteOptions } from '../types';
 export class TradingLiteResource {
   // Note: defaultChain parameter accepted for consistency but not used
   // since trading-lite only supports Solana
-  constructor(private readonly httpClient: HttpClient, _defaultChain?: Chain) {}
+  constructor(
+    private readonly httpClient: HttpClient,
+    _defaultChain?: Chain
+  ) {}
 
   /**
    * Get simplified bundling and sniper analysis for a token
@@ -68,10 +71,7 @@ export class TradingLiteResource {
    * }
    * ```
    */
-  async analyze(
-    address: string,
-    options: TradingLiteOptions = {}
-  ): Promise<TradingLiteAnalysis> {
+  async analyze(address: string, options: TradingLiteOptions = {}): Promise<TradingLiteAnalysis> {
     // Trading lite only supports Solana - always use Chain.SOL
     const chain = options.chain ?? Chain.SOL;
 

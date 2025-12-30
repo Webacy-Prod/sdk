@@ -151,13 +151,10 @@ export class TokensResource {
     const queryString = queryParams.toString();
     const path = queryString ? `/tokens/trending?${queryString}` : '/tokens/trending';
 
-    const response: HttpResponse<TrendingTokensResponse> = await this.httpClient.get(
-      path,
-      {
-        timeout: options.timeout,
-        signal: options.signal,
-      }
-    );
+    const response: HttpResponse<TrendingTokensResponse> = await this.httpClient.get(path, {
+      timeout: options.timeout,
+      signal: options.signal,
+    });
 
     return response.data;
   }
@@ -197,17 +194,12 @@ export class TokensResource {
     }
 
     const queryString = queryParams.toString();
-    const path = queryString
-      ? `/tokens/pools/trending?${queryString}`
-      : '/tokens/pools/trending';
+    const path = queryString ? `/tokens/pools/trending?${queryString}` : '/tokens/pools/trending';
 
-    const response: HttpResponse<TrendingPoolsResponse> = await this.httpClient.get(
-      path,
-      {
-        timeout: options.timeout,
-        signal: options.signal,
-      }
-    );
+    const response: HttpResponse<TrendingPoolsResponse> = await this.httpClient.get(path, {
+      timeout: options.timeout,
+      signal: options.signal,
+    });
 
     return response.data;
   }
