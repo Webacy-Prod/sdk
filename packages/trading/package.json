@@ -1,5 +1,5 @@
 {
-  "name": "@rlajous/webacy-sdk-trading",
+  "name": "@webacy/sdk-trading",
   "version": "1.0.0",
   "description": "Webacy SDK for token trading analysis - holder analysis, sniper detection, bundler detection",
   "main": "dist/cjs/index.js",
@@ -34,7 +34,7 @@
     "test:watch": "vitest watch"
   },
   "dependencies": {
-    "@rlajous/webacy-sdk-core": "workspace:*"
+    "@webacy/sdk-core": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",

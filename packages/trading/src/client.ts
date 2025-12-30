@@ -4,7 +4,7 @@ import {
   RequestInterceptor,
   ResponseInterceptor,
   ErrorInterceptor,
-} from '@rlajous/webacy-sdk-core';
+} from '@webacy/sdk-core';
 import { HolderAnalysisResource } from './resources/holder-analysis';
 import { TradingLiteResource } from './resources/trading-lite';
 import { TokensResource } from './resources/tokens';

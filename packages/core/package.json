@@ -1,5 +1,5 @@
 {
-  "name": "@rlajous/webacy-sdk-core",
+  "name": "@webacy/sdk-core",
   "version": "1.0.0",
   "description": "Core utilities for Webacy SDK packages",
   "author": "Webacy",

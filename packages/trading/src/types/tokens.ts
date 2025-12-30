@@ -1,4 +1,4 @@
-import { Chain, TokenMetadata } from '@rlajous/webacy-sdk-core';
+import { Chain, TokenMetadata } from '@webacy/sdk-core';
 
 /**
  * Volume data across different time periods

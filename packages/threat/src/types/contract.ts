@@ -1,4 +1,4 @@
-import { Chain, RiskTag, RiskCategory, TokenMetadata } from '@rlajous/webacy-sdk-core';
+import { Chain, RiskTag, RiskCategory, TokenMetadata } from '@webacy/sdk-core';
 import { AddressRiskResponse } from './address';
 
 /**

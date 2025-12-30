@@ -6,7 +6,7 @@ import {
   RiskModule,
   TypeOfAddress,
   TokenStandard,
-} from '@rlajous/webacy-sdk-core';
+} from '@webacy/sdk-core';
 
 /**
  * Risk issue details

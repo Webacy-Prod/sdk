@@ -1,4 +1,4 @@
-import { HttpClient, HttpResponse } from '@rlajous/webacy-sdk-core';
+import { HttpClient, HttpResponse } from '@webacy/sdk-core';
 import { UrlRiskResponse, UrlAddResponse, UrlCheckOptions } from '../types';
 
 /**

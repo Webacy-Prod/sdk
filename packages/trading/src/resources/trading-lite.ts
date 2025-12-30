@@ -4,7 +4,7 @@ import {
   ValidationError,
   isValidSolanaAddress,
   Chain,
-} from '@rlajous/webacy-sdk-core';
+} from '@webacy/sdk-core';
 import { TradingLiteAnalysis, TradingLiteOptions } from '../types';
 
 /**

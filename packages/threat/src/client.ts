@@ -4,7 +4,7 @@ import {
   RequestInterceptor,
   ResponseInterceptor,
   ErrorInterceptor,
-} from '@rlajous/webacy-sdk-core';
+} from '@webacy/sdk-core';
 import { AddressesResource } from './resources/addresses';
 import { ContractsResource } from './resources/contracts';
 import { UrlResource } from './resources/url';

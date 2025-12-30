@@ -5,7 +5,7 @@ import {
   isValidAddress,
   CHAIN_NAMES,
   Chain,
-} from '@rlajous/webacy-sdk-core';
+} from '@webacy/sdk-core';
 import {
   WalletTransactionsResponse,
   WalletApprovalsResponse,

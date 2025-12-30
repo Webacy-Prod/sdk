@@ -97,4 +97,4 @@ export {
   type InformationalTag,
   type RiskCategory,
   type TokenMetadata,
-} from '@rlajous/webacy-sdk-core';
+} from '@webacy/sdk-core';

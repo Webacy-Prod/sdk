@@ -54,4 +54,4 @@ export {
   type TokenMetadata,
   type OwnershipDistribution,
   type TopHolder,
-} from '@rlajous/webacy-sdk-core';
+} from '@webacy/sdk-core';

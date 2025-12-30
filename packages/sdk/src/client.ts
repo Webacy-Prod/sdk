@@ -4,12 +4,12 @@ import {
   RequestInterceptor,
   ResponseInterceptor,
   ErrorInterceptor,
-} from '@rlajous/webacy-sdk-core';
+} from '@webacy/sdk-core';
 import {
   HolderAnalysisResource,
   TradingLiteResource,
   TokensResource,
-} from '@rlajous/webacy-sdk-trading';
+} from '@webacy/sdk-trading';
 import {
   AddressesResource,
   ContractsResource,
@@ -18,7 +18,7 @@ import {
   LedgerResource,
   AccountTraceResource,
   UsageResource,
-} from '@rlajous/webacy-sdk-threat';
+} from '@webacy/sdk-threat';
 
 /**
  * Trading namespace containing all trading-related resources

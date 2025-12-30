@@ -1,4 +1,4 @@
-import { Chain } from '@rlajous/webacy-sdk-core';
+import { Chain } from '@webacy/sdk-core';
 
 /**
  * Account trace response

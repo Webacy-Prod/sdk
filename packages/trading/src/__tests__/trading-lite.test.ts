@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TradingLiteResource } from '../resources/trading-lite';
-import { Chain, ValidationError, HttpClient } from '@rlajous/webacy-sdk-core';
+import { Chain, ValidationError, HttpClient } from '@webacy/sdk-core';
 
 // Mock HttpClient
 const createMockHttpClient = () => ({
