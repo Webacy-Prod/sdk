@@ -103,6 +103,8 @@ Run `/finish` to create the pull request
 - Pushes branch to remote
 - Creates PR against `main` branch
 
+**Tip:** Use `gh pr create --draft` if your changes are still in progress and you want early feedback before marking the PR ready for review.
+
 **Usage:**
 
 ```bash
@@ -250,7 +252,7 @@ Creates GitHub release with detailed notes
 
 **What it does:**
 
-- Can be run from any branch (feature branches, main)
+- Runs from any branch (feature branches, main)
 - Runs tests and builds
 - Publishes with `--tag beta` (doesn't affect `latest`)
 - Auto-increments beta number (1.0.0-beta.0, beta.1, etc.)
