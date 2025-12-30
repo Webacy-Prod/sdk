@@ -230,6 +230,10 @@ This file is automatically cleaned up after `/finish` completes.
 
 For publishing to npm, use these automated release commands:
 
+### `/beta` - Publish Beta Version
+
+Publishes a beta version for testing without affecting the stable release
+
 ### `/release` - Create Release and Publish
 
 Creates release, bumps version, and publishes to npm
@@ -237,6 +241,57 @@ Creates release, bumps version, and publishes to npm
 ### `/release-notes` - Create GitHub Release
 
 Creates GitHub release with detailed notes
+
+---
+
+## Beta Testing Workflow
+
+### `/beta` - Publish Beta Version
+
+**What it does:**
+
+- Can be run from any branch (feature branches, main)
+- Runs tests and builds
+- Publishes with `--tag beta` (doesn't affect `latest`)
+- Auto-increments beta number (1.0.0-beta.0, beta.1, etc.)
+- Reverts package.json after publish
+
+**Usage:**
+
+```bash
+# From any branch
+/beta
+```
+
+**Example Flow:**
+
+```
+Current stable version: 1.0.0
+Publishing: 1.0.0-beta.0
+
+Running tests...
+Building packages...
+Publishing to npm with --tag beta...
+
+Published (as beta):
+- @webacy/sdk@1.0.0-beta.0
+
+To install: npm install @webacy/sdk@beta
+Stable version unchanged: npm install @webacy/sdk
+```
+
+**Installing Beta Versions:**
+
+```bash
+# Install latest beta
+npm install @webacy/sdk@beta
+
+# Install specific beta
+npm install @webacy/sdk@1.0.0-beta.3
+
+# Install stable (default, unaffected)
+npm install @webacy/sdk
+```
 
 ---
 
