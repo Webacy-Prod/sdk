@@ -56,13 +56,13 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Webacy-Prod/webacy-sdk.git",
+    "url": "https://github.com/Webacy-Prod/sdk.git",
     "directory": "packages/trading"
   },
   "bugs": {
-    "url": "https://github.com/Webacy-Prod/webacy-sdk/issues"
+    "url": "https://github.com/Webacy-Prod/sdk/issues"
   },
-  "homepage": "https://github.com/Webacy-Prod/webacy-sdk/tree/main/packages/trading#readme",
+  "homepage": "https://github.com/Webacy-Prod/sdk/tree/main/packages/trading#readme",
   "engines": {
     "node": ">=18.0.0"
   },
