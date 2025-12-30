@@ -80,15 +80,17 @@ async function main() {
     return config;
   });
 
-  // Log all responses with timing
-  let requestStart: number;
+  // Log all responses with timing (using Map to avoid race conditions)
+  const requestTimings = new Map<string, number>();
   interceptorClient.addRequestInterceptor((url, config) => {
-    requestStart = Date.now();
+    requestTimings.set(url, Date.now());
     return config;
   });
 
   interceptorClient.addResponseInterceptor((response) => {
-    const duration = Date.now() - requestStart;
+    const startTime = requestTimings.get(response.endpoint ?? '');
+    const duration = startTime ? Date.now() - startTime : 0;
+    requestTimings.delete(response.endpoint ?? ''); // Clean up to prevent memory leaks
     console.log(`[Response] Status ${response.status} in ${duration}ms`);
     console.log(`[Request ID] ${response.requestId}`);
     return response;
@@ -117,20 +119,22 @@ async function main() {
   });
 
   const requestTimes: { endpoint: string; duration: number }[] = [];
-  let currentRequest: { url: string; start: number } | null = null;
+  const perfTimings = new Map<string, number>();
 
   perfClient.addRequestInterceptor((url, config) => {
-    currentRequest = { url, start: Date.now() };
+    perfTimings.set(url, Date.now());
     return config;
   });
 
   perfClient.addResponseInterceptor((response) => {
-    if (currentRequest) {
+    const endpoint = response.endpoint ?? '';
+    const startTime = perfTimings.get(endpoint);
+    if (startTime) {
       requestTimes.push({
-        endpoint: currentRequest.url,
-        duration: Date.now() - currentRequest.start,
+        endpoint,
+        duration: Date.now() - startTime,
       });
-      currentRequest = null;
+      perfTimings.delete(endpoint); // Clean up to prevent memory leaks
     }
     return response;
   });
