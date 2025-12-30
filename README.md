@@ -272,7 +272,7 @@ pnpm test:integration:api
 
 ### Project Structure
 
-```
+```text
 webacy-sdk/
 ├── packages/
 │   ├── sdk/        # @webacy/sdk - unified entry point

@@ -56,7 +56,7 @@ Create a file `.claude/.pr-context.json` with the following structure:
 
 Output a confirmation message:
 
-```
+```text
 Created branch: {branch_name}
 
 Next steps:

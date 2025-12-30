@@ -45,14 +45,14 @@ const client = new ThreatClient({
 
 When enabled, the SDK logs to the console with the `[Webacy SDK]` prefix:
 
-```
+```text
 [Webacy SDK] → GET https://api.webacy.com/addresses/0x742d35...?chain=eth
 [Webacy SDK] ← GET https://api.webacy.com/addresses/0x742d35...?chain=eth 200 (245ms)
 ```
 
 Error logs include additional context:
 
-```
+```text
 [Webacy SDK] ✗ GET https://api.webacy.com/addresses/invalid - VALIDATION_ERROR: Invalid address
 ```
 

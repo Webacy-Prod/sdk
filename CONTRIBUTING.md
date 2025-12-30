@@ -25,7 +25,7 @@ pnpm build
 
 ### Project Structure
 
-```
+```text
 webacy-sdk/
 ├── packages/
 │   ├── core/           # Core utilities (HTTP client, errors, types)
@@ -114,7 +114,7 @@ pnpm clean
 
 Use conventional commit format:
 
-```
+```text
 type(scope): description
 
 [optional body]

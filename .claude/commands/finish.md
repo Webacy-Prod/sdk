@@ -110,7 +110,7 @@ EOF
 
 Output a confirmation message:
 
-```
+```text
 Branch pushed: {branch_name}
 PR created: {PR_URL}
 Title: {PR_TITLE}

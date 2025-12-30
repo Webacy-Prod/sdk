@@ -28,6 +28,7 @@
     "lint:fix": "turbo run lint:fix",
     "format": "prettier --write \"packages/*/src/**/*.ts\"",
     "format:check": "prettier --check \"packages/*/src/**/*.ts\"",
+    "lint:md": "markdownlint-cli2 \"**/*.md\" \"#**/node_modules\" \"#docs-site/.docusaurus\" \"#docs-site/build\"",
     "clean": "turbo run clean && rm -rf node_modules",
     "typecheck": "turbo run typecheck",
     "docs": "cd docs-site && pnpm start",
@@ -42,6 +43,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.11.0",
+    "markdownlint-cli2": "^0.14.0",
     "@typescript-eslint/eslint-plugin": "^7.0.0",
     "@typescript-eslint/parser": "^7.0.0",
     "eslint": "^8.57.0",

@@ -46,7 +46,7 @@ Generates comprehensive PR description and creates the pull request
 
 **Output:**
 
-```
+```text
 Created branch: fix/add-retry-logic
 
 Next steps:
@@ -85,7 +85,7 @@ git commit -m "fix: add retry logic to HTTP client"
 
 **Output:**
 
-```
+```text
 Staged 5 files
 Committed with message: fix: add retry logic to HTTP client
 
@@ -127,7 +127,7 @@ gh pr create --base main --title "fix: add retry logic" --body "..."
 
 **Output:**
 
-```
+```text
 Branch pushed: fix/add-retry-logic
 PR created: https://github.com/Webacy-Prod/sdk/pull/2
 
@@ -267,7 +267,7 @@ Creates GitHub release with detailed notes
 
 **Example Flow:**
 
-```
+```text
 Current stable version: 1.0.0
 Publishing: 1.0.0-beta.0
 
@@ -324,7 +324,7 @@ npm install @webacy/sdk
 
 **Example Flow:**
 
-```
+```text
 Current version: 1.0.0
 New version will be: 1.1.0
 
@@ -360,7 +360,7 @@ Tag v1.1.0 created and pushed
 
 **Example Output:**
 
-```
+```text
 GitHub release v1.1.0 created
 Release URL: https://github.com/Webacy-Prod/sdk/releases/tag/v1.1.0
 ```

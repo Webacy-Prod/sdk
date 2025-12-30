@@ -14,7 +14,7 @@ git pull origin main
 ```
 
 If not on main:
-```
+```text
 You should be on main branch after publishing.
 Please run: git checkout main && git pull
 ```
@@ -29,7 +29,7 @@ TAG_NAME="v${VERSION}"
 ```
 
 Show the user:
-```
+```text
 Current version: {VERSION}
 Release tag: v{VERSION}
 ```
@@ -43,7 +43,7 @@ git tag -l v{VERSION}
 ```
 
 If tag doesn't exist:
-```
+```text
 Tag v{VERSION} not found. Did you run `/release` first?
 ```
 
@@ -82,7 +82,7 @@ Read the relevant section from CHANGELOG.md for this version to include in relea
 
 Use the following template:
 
-```markdown
+~~~markdown
 ## What's New in v{VERSION}
 
 {Summary from CHANGELOG or auto-generated}
@@ -117,7 +117,7 @@ pnpm add @webacy/sdk@{VERSION}
 | @webacy/sdk-trading | {VERSION} |
 
 **Full Changelog**: https://github.com/Webacy-Prod/sdk/compare/{PREV_TAG}...v{VERSION}
-```
+~~~
 
 ## Step 8: Create GitHub Release
 
@@ -134,7 +134,7 @@ EOF
 
 Output a confirmation message:
 
-```
+```text
 GitHub release v{VERSION} created!
 Release URL: https://github.com/Webacy-Prod/sdk/releases/tag/v{VERSION}
 
@@ -162,7 +162,7 @@ Release complete!
 
 ## Example Release Notes
 
-```markdown
+~~~markdown
 ## What's New in v1.1.0
 
 This release adds debug logging support and improves error handling.
@@ -199,4 +199,4 @@ npm install @webacy/sdk@1.1.0
 | @webacy/sdk-trading | 1.1.0 |
 
 **Full Changelog**: https://github.com/Webacy-Prod/sdk/compare/v1.0.0...v1.1.0
-```
+~~~
