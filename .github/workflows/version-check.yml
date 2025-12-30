@@ -8,21 +8,29 @@ jobs:
   check-version:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
       - name: Get version from PR
         id: pr_version
-        run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+        run: |
+          # Use packages/sdk as source of truth (unified versioning)
+          echo "version=$(node -p "require('./packages/sdk/package.json').version")" >> $GITHUB_OUTPUT
 
       - name: Get version from main
         id: main_version
         run: |
           git fetch origin main
-          git checkout origin/main -- package.json
-          echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
-          git checkout HEAD -- package.json
+          git checkout origin/main -- packages/sdk/package.json
+          echo "version=$(node -p "require('./packages/sdk/package.json').version")" >> $GITHUB_OUTPUT
+          git checkout HEAD -- packages/sdk/package.json
 
       - name: Compare versions (semver)
         run: |
@@ -48,7 +56,9 @@ jobs:
           elif [ "$RESULT" == "equal" ]; then
             echo "❌ Version has not been bumped!"
             echo "Current version on main: $MAIN_VERSION"
-            echo "Please bump the version in package.json before merging."
+            echo "Please bump the version in all packages before merging."
+            echo ""
+            echo "Run: pnpm version:patch (or version:minor / version:major)"
             exit 1
           else
             echo "❌ Version downgrade detected!"
