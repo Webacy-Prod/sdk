@@ -15,13 +15,13 @@ git status
 ```
 
 If not on main:
-```
+```text
 You must be on main branch to create a release.
 Please run: git checkout main && git pull
 ```
 
 If there are uncommitted changes:
-```
+```text
 You have uncommitted changes. Please commit or stash them first.
 ```
 
@@ -44,7 +44,7 @@ CURRENT_VERSION=$(node -p "require('./package.json').version")
 ```
 
 Show the user:
-```
+```text
 Current version: 1.0.0
 New version will be: 1.1.0
 ```
@@ -71,7 +71,7 @@ pnpm build
 ```
 
 If build fails:
-```
+```text
 Build failed. Please fix build errors before releasing.
 ```
 
@@ -141,7 +141,7 @@ git push origin main --follow-tags
 
 Output a confirmation message:
 
-```
+```text
 Release v{VERSION} completed!
 
 Published packages:
