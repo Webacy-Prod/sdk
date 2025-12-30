@@ -69,7 +69,7 @@ cd packages/core && npx vitest run src/__tests__/errors.test.ts
 
 ## Package Structure
 
-```
+```text
 packages/
 ├── core/           # @webacy/sdk-core
 │   ├── src/
@@ -104,7 +104,7 @@ packages/
 
 ### Package Dependency Graph
 
-```
+```text
 @webacy/sdk (unified entry point)
 ├── @webacy/sdk-trading (token analysis)
 │   └── @webacy/sdk-core
