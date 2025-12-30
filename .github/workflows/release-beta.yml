@@ -6,6 +6,10 @@ on:
     tags:
       - 'beta-*'
 
+concurrency:
+  group: release-beta-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   validate:
     uses: ./.github/workflows/ci.yml
