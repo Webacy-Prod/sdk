@@ -58,7 +58,7 @@ pnpm test
 ```
 
 If tests fail:
-```
+```text
 Tests failed. Please fix failing tests before releasing.
 ```
 

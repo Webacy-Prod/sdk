@@ -23,7 +23,7 @@ git diff --name-only
 
 Display the list of modified files to the user:
 
-```
+```text
 The following files will be staged:
 - packages/core/src/http/client.ts
 - packages/core/src/__tests__/retry.test.ts
@@ -54,7 +54,7 @@ Ask the user for a commit message summary (use AskUserQuestion tool):
 
 Format the commit message following [Conventional Commits](https://www.conventionalcommits.org/):
 
-```
+```text
 {type}: {summary}
 ```
 
@@ -103,7 +103,7 @@ Update `.claude/.pr-context.json` with the commit information:
 
 Output a confirmation message:
 
-```
+```text
 Staged {N} files
 Committed with message: {commit_message}
 
