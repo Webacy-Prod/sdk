@@ -77,7 +77,7 @@ async function main() {
     ethereum: Chain.ETH,
     solana: Chain.SOL,
     bsc: Chain.BSC,
-    polygon: Chain.MATIC,
+    polygon: Chain.POL,
   };
 
   // Get chain from environment (defaults to ETH)
