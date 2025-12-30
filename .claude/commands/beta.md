@@ -16,7 +16,7 @@ git status
 **Note**: Beta releases can be made from any branch (feature branches, main, etc.)
 
 If there are uncommitted changes:
-```
+```text
 You have uncommitted changes. Please commit or stash them first.
 ```
 
@@ -39,7 +39,7 @@ Calculate next beta version:
 - If beta.N exists: `{CURRENT_VERSION}-beta.{N+1}`
 
 Show the user:
-```
+```text
 Current stable version: 1.0.0
 Next beta version will be: 1.0.0-beta.0
 
@@ -66,7 +66,7 @@ pnpm test
 ```
 
 If tests fail, warn but allow continuing (betas can have known issues):
-```
+```text
 Tests failed. Do you want to continue with the beta release anyway?
 This is not recommended for production testing.
 ```
@@ -80,7 +80,7 @@ pnpm build
 ```
 
 If build fails:
-```
+```text
 Build failed. Cannot publish a broken beta.
 ```
 
@@ -145,7 +145,7 @@ git checkout -- package.json packages/*/package.json pnpm-lock.yaml
 
 Output a confirmation message:
 
-```
+```text
 Beta v{BETA_VERSION} published!
 
 Published packages (tagged as 'beta'):
