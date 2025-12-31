@@ -142,7 +142,11 @@ export interface TokenPoolsOptions {
  * Options for trending requests
  */
 export interface TrendingOptions {
-  /** Target blockchain */
+  /**
+   * Target blockchain
+   *
+   * Optional if `defaultChain` was set in the client configuration.
+   */
   chain?: Chain;
   /** Number of results to return */
   limit?: number;

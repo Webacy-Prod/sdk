@@ -15,6 +15,7 @@ jobs:
   publish:
     needs: validate
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     outputs:
       version: ${{ steps.version.outputs.version }}
       published: ${{ steps.check.outputs.skip == 'false' }}
@@ -78,6 +79,7 @@ jobs:
     needs: publish
     if: needs.publish.outputs.published == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
       contents: write
     steps:

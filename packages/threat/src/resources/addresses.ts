@@ -59,6 +59,19 @@ export class AddressesResource {
   }
 
   /**
+   * Validate address format for the given chain
+   * @throws ValidationError if address format is invalid for the chain
+   */
+  private validateAddress(address: string, chain: Chain): void {
+    if (!isValidAddress(address, chain)) {
+      const chainName = CHAIN_NAMES[chain] || chain;
+      throw new ValidationError(
+        `Invalid ${chainName} address: "${address}". Please provide a valid address format for the ${chainName} blockchain.`
+      );
+    }
+  }
+
+  /**
    * Analyze an address for security risks
    *
    * Returns comprehensive risk analysis including:
@@ -101,14 +114,7 @@ export class AddressesResource {
     options: AddressAnalysisOptions = {}
   ): Promise<AddressRiskResponse> {
     const chain = this.resolveChain(options);
-
-    // Validate address format before making API call
-    if (!isValidAddress(address, chain)) {
-      const chainName = CHAIN_NAMES[chain] || chain;
-      throw new ValidationError(
-        `Invalid ${chainName} address: "${address}". Please provide a valid address format for the ${chainName} blockchain.`
-      );
-    }
+    this.validateAddress(address, chain);
 
     const queryParams = new URLSearchParams();
     queryParams.append('chain', chain);
@@ -167,14 +173,7 @@ export class AddressesResource {
     options: SanctionsOptions = {}
   ): Promise<SanctionedResponse> {
     const chain = this.resolveChain(options);
-
-    // Validate address format before making API call
-    if (!isValidAddress(address, chain)) {
-      const chainName = CHAIN_NAMES[chain] || chain;
-      throw new ValidationError(
-        `Invalid ${chainName} address: "${address}". Please provide a valid address format for the ${chainName} blockchain.`
-      );
-    }
+    this.validateAddress(address, chain);
 
     const queryParams = new URLSearchParams();
     queryParams.append('chain', chain);
@@ -220,14 +219,7 @@ export class AddressesResource {
     options: PoisoningOptions = {}
   ): Promise<PoisoningResponse> {
     const chain = this.resolveChain(options);
-
-    // Validate address format before making API call
-    if (!isValidAddress(address, chain)) {
-      const chainName = CHAIN_NAMES[chain] || chain;
-      throw new ValidationError(
-        `Invalid ${chainName} address: "${address}". Please provide a valid address format for the ${chainName} blockchain.`
-      );
-    }
+    this.validateAddress(address, chain);
 
     const queryParams = new URLSearchParams();
     queryParams.append('chain', chain);
