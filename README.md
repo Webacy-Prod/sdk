@@ -251,8 +251,8 @@ import type {
 
 ```bash
 # Clone the repository
-git clone https://github.com/Webacy-Prod/webacy-sdk.git
-cd webacy-sdk
+git clone https://github.com/Webacy-Prod/sdk.git
+cd sdk
 
 # Install dependencies (requires pnpm)
 pnpm install
