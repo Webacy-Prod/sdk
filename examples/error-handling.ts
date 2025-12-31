@@ -22,8 +22,13 @@ function sleep(ms: number): Promise<void> {
 }
 
 async function main() {
+  const apiKey = process.env.WEBACY_API_KEY;
+  if (!apiKey) {
+    throw new Error('WEBACY_API_KEY environment variable is required');
+  }
+
   const client = new ThreatClient({
-    apiKey: process.env.WEBACY_API_KEY!,
+    apiKey,
     retry: {
       maxRetries: 3,
       initialDelay: 1000,
@@ -94,7 +99,7 @@ async function main() {
   // Example 4: Using error interceptors
   console.log('\n=== Example 4: Error Interceptors ===');
   const monitoredClient = new ThreatClient({
-    apiKey: process.env.WEBACY_API_KEY!,
+    apiKey,
   });
 
   // Add error interceptor for monitoring
