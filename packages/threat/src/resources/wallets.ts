@@ -55,6 +55,19 @@ export class WalletsResource {
   }
 
   /**
+   * Validate wallet address format
+   * @throws ValidationError if address format is invalid for the chain
+   */
+  private validateAddress(address: string, chain: Chain): void {
+    if (!isValidAddress(address, chain)) {
+      const chainName = CHAIN_NAMES[chain] || chain;
+      throw new ValidationError(
+        `Invalid ${chainName} wallet address: "${address}". Please provide a valid address format for the ${chainName} blockchain.`
+      );
+    }
+  }
+
+  /**
    * Get wallet transaction risk analysis
    *
    * Analyzes recent transactions for security risks including:
@@ -92,14 +105,7 @@ export class WalletsResource {
     options: WalletTransactionsOptions = {}
   ): Promise<WalletTransactionsResponse> {
     const chain = this.resolveChain(options);
-
-    // Validate wallet address format before making API call
-    if (!isValidAddress(address, chain)) {
-      const chainName = CHAIN_NAMES[chain] || chain;
-      throw new ValidationError(
-        `Invalid ${chainName} wallet address: "${address}". Please provide a valid address format for the ${chainName} blockchain.`
-      );
-    }
+    this.validateAddress(address, chain);
 
     const queryParams = new URLSearchParams();
     queryParams.append('chain', chain);
@@ -159,14 +165,7 @@ export class WalletsResource {
     options: WalletApprovalsOptions = {}
   ): Promise<WalletApprovalsResponse> {
     const chain = this.resolveChain(options);
-
-    // Validate wallet address format before making API call
-    if (!isValidAddress(address, chain)) {
-      const chainName = CHAIN_NAMES[chain] || chain;
-      throw new ValidationError(
-        `Invalid ${chainName} wallet address: "${address}". Please provide a valid address format for the ${chainName} blockchain.`
-      );
-    }
+    this.validateAddress(address, chain);
 
     const queryParams = new URLSearchParams();
     queryParams.append('chain', chain);

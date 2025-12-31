@@ -68,6 +68,6 @@ Next steps:
 ## Important Notes
 
 - If the branch already exists, ask the user if they want to switch to it or create a new one
-- If `.claude/.pr-context.json` already exists, ask the user if they want to overwrite it
+- If `.claude/.pr-context.json` already exists, confirm whether to overwrite it
 - Always pull latest main before creating the branch
 - Use conventional commit type prefixes for branch names
