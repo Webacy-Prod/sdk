@@ -1,6 +1,6 @@
 {
   "name": "@webacy/sdk-core",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Core utilities for Webacy SDK packages",
   "author": "Webacy",
   "license": "MIT",
@@ -28,7 +28,10 @@
       }
     }
   },
-  "files": ["dist", "README.md"],
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "sideEffects": false,
   "engines": {
     "node": ">=18.0.0"
@@ -38,7 +41,7 @@
     "build:esm": "tsc -p tsconfig.esm.json",
     "build:cjs": "tsc -p tsconfig.cjs.json",
     "build:types": "tsc -p tsconfig.types.json",
-    "postbuild": "echo '{\"type\":\"module\"}' > dist/esm/package.json && echo '{\"type\":\"commonjs\"}' > dist/cjs/package.json",
+    "postbuild": "node ../../scripts/fix-esm-imports.mjs dist/esm && echo '{\"type\":\"module\"}' > dist/esm/package.json && echo '{\"type\":\"commonjs\"}' > dist/cjs/package.json",
     "clean": "rm -rf dist",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
@@ -50,5 +53,12 @@
     "access": "public",
     "registry": "https://registry.npmjs.org/"
   },
-  "keywords": ["webacy", "sdk", "blockchain", "risk", "security", "web3"]
+  "keywords": [
+    "webacy",
+    "sdk",
+    "blockchain",
+    "risk",
+    "security",
+    "web3"
+  ]
 }
