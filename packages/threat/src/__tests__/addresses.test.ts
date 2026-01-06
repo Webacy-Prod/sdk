@@ -121,6 +121,55 @@ describe('AddressesResource', () => {
         expect.any(Object)
       );
     });
+
+    it('should include deployerRisk flag when provided', async () => {
+      const validAddress = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e';
+      mockHttpClient.get.mockResolvedValueOnce({
+        data: { overallRisk: 25 },
+        status: 200,
+        headers: new Headers(),
+      });
+
+      await addresses.analyze(validAddress, {
+        chain: Chain.ETH,
+        deployerRisk: true,
+      });
+
+      expect(mockHttpClient.get).toHaveBeenCalledWith(
+        expect.stringContaining('deployer_risk=true'),
+        expect.any(Object)
+      );
+    });
+
+    it('should throw ValidationError when chain is not provided and no default is set', async () => {
+      const validAddress = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e';
+
+      await expect(addresses.analyze(validAddress)).rejects.toThrow(ValidationError);
+      await expect(addresses.analyze(validAddress)).rejects.toThrow('Chain is required');
+
+      expect(mockHttpClient.get).not.toHaveBeenCalled();
+    });
+
+    it('should use default chain when no chain is provided in options', async () => {
+      const validAddress = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e';
+      const addressesWithDefault = new AddressesResource(
+        mockHttpClient as unknown as HttpClient,
+        Chain.ETH
+      );
+
+      mockHttpClient.get.mockResolvedValueOnce({
+        data: { overallRisk: 25 },
+        status: 200,
+        headers: new Headers(),
+      });
+
+      await addressesWithDefault.analyze(validAddress);
+
+      expect(mockHttpClient.get).toHaveBeenCalledWith(
+        expect.stringContaining('chain=eth'),
+        expect.any(Object)
+      );
+    });
   });
 
   describe('checkSanctioned', () => {

@@ -1,11 +1,4 @@
-import {
-  HttpClient,
-  HttpResponse,
-  ValidationError,
-  isValidAddress,
-  CHAIN_NAMES,
-  Chain,
-} from '@webacy/sdk-core';
+import { HttpResponse, BaseResource } from '@webacy/sdk-core';
 import { HolderAnalysisResult, HolderAnalysisOptions } from '../types';
 
 /**
@@ -30,26 +23,7 @@ import { HolderAnalysisResult, HolderAnalysisOptions } from '../types';
  * const analysis = await client.holderAnalysis.get('token_address'); // Uses SOL
  * ```
  */
-export class HolderAnalysisResource {
-  constructor(
-    private readonly httpClient: HttpClient,
-    private readonly defaultChain?: Chain
-  ) {}
-
-  /**
-   * Resolve the chain to use for a request
-   * @throws ValidationError if no chain is specified and no default is set
-   */
-  private resolveChain(options?: { chain?: Chain }): Chain {
-    const chain = options?.chain ?? this.defaultChain;
-    if (!chain) {
-      throw new ValidationError(
-        'Chain is required. Either specify chain in options or set defaultChain in client configuration.'
-      );
-    }
-    return chain;
-  }
-
+export class HolderAnalysisResource extends BaseResource {
   /**
    * Get comprehensive holder analysis for a token
    *
@@ -89,14 +63,7 @@ export class HolderAnalysisResource {
    */
   async get(address: string, options: HolderAnalysisOptions = {}): Promise<HolderAnalysisResult> {
     const chain = this.resolveChain(options);
-
-    // Validate token address format before making API call
-    if (!isValidAddress(address, chain)) {
-      const chainName = CHAIN_NAMES[chain] || chain;
-      throw new ValidationError(
-        `Invalid ${chainName} token address: "${address}". Please provide a valid token address format for the ${chainName} blockchain.`
-      );
-    }
+    this.validateAddress(address, chain);
 
     const queryParams = new URLSearchParams();
     queryParams.append('chain', chain);

@@ -80,18 +80,20 @@ async function main() {
     return config;
   });
 
-  // Log all responses with timing (using Map to avoid race conditions)
-  const requestTimings = new Map<string, number>();
+  // Log all responses with timing
+  // Use a queue since requests complete in order for sequential calls
+  const pendingRequests: { url: string; startTime: number }[] = [];
+
   interceptorClient.addRequestInterceptor((url, config) => {
-    requestTimings.set(url, Date.now());
+    pendingRequests.push({ url, startTime: Date.now() });
     return config;
   });
 
   interceptorClient.addResponseInterceptor((response) => {
-    const startTime = requestTimings.get(response.endpoint ?? '');
-    const duration = startTime ? Date.now() - startTime : 0;
-    requestTimings.delete(response.endpoint ?? ''); // Clean up to prevent memory leaks
-    console.log(`[Response] Status ${response.status} in ${duration}ms`);
+    const pending = pendingRequests.shift(); // Get oldest pending request
+    const duration = pending ? Date.now() - pending.startTime : 0;
+    const endpoint = pending?.url ?? 'unknown';
+    console.log(`[Response] ${endpoint.split('?')[0]} - Status ${response.status} in ${duration}ms`);
     console.log(`[Request ID] ${response.requestId}`);
     return response;
   });
@@ -119,22 +121,21 @@ async function main() {
   });
 
   const requestTimes: { endpoint: string; duration: number }[] = [];
-  const perfTimings = new Map<string, number>();
+  // Use a queue to track pending requests in order
+  const perfPendingRequests: { url: string; startTime: number }[] = [];
 
   perfClient.addRequestInterceptor((url, config) => {
-    perfTimings.set(url, Date.now());
+    perfPendingRequests.push({ url, startTime: Date.now() });
     return config;
   });
 
   perfClient.addResponseInterceptor((response) => {
-    const endpoint = response.endpoint ?? '';
-    const startTime = perfTimings.get(endpoint);
-    if (startTime) {
+    const pending = perfPendingRequests.shift(); // Get oldest pending request
+    if (pending) {
       requestTimes.push({
-        endpoint,
-        duration: Date.now() - startTime,
+        endpoint: pending.url,
+        duration: Date.now() - pending.startTime,
       });
-      perfTimings.delete(endpoint); // Clean up to prevent memory leaks
     }
     return response;
   });

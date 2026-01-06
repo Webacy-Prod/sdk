@@ -155,17 +155,39 @@ export class HttpClient {
 
   /**
    * Sanitize request body for logging (remove sensitive data)
+   * Recursively processes nested objects and arrays
    */
   private sanitizeBody(body: unknown): unknown {
     if (typeof body !== 'object' || body === null) {
       return body;
     }
+
+    // Handle arrays recursively
+    if (Array.isArray(body)) {
+      return body.map((item) => this.sanitizeBody(item));
+    }
+
     // Remove potentially sensitive fields from logs
-    const sanitized = { ...(body as Record<string, unknown>) };
-    const sensitiveKeys = ['apiKey', 'api_key', 'secret', 'password', 'token'];
-    for (const key of sensitiveKeys) {
-      if (key in sanitized) {
+    const sanitized: Record<string, unknown> = {};
+    const sensitiveKeys = [
+      'apikey',
+      'api_key',
+      'secret',
+      'password',
+      'token',
+      'authorization',
+      'auth',
+      'credentials',
+      'bearer',
+    ];
+
+    for (const [key, value] of Object.entries(body)) {
+      if (sensitiveKeys.includes(key.toLowerCase())) {
         sanitized[key] = '[REDACTED]';
+      } else if (typeof value === 'object' && value !== null) {
+        sanitized[key] = this.sanitizeBody(value);
+      } else {
+        sanitized[key] = value;
       }
     }
     return sanitized;
@@ -403,8 +425,8 @@ export class HttpClient {
         const retryAfter = response.headers.get('retry-after');
         const resetAt = response.headers.get('x-ratelimit-reset');
         return new RateLimitError(message, {
-          retryAfter: retryAfter ? parseInt(retryAfter, 10) : undefined,
-          resetAt: resetAt ? parseInt(resetAt, 10) : undefined,
+          retryAfter: this.parseRetryAfter(retryAfter),
+          resetAt: this.parseRetryAfter(resetAt),
           requestId,
           endpoint,
         });
@@ -444,6 +466,33 @@ export class HttpClient {
       return new NetworkError(error.message, { cause: error });
     }
     return new NetworkError('An unknown error occurred');
+  }
+
+  /**
+   * Parse and validate Retry-After header value
+   *
+   * Handles edge cases:
+   * - NaN from non-numeric strings (e.g., HTTP-date format)
+   * - Negative values
+   * - Extremely large values (capped at 5 minutes)
+   *
+   * @param value - Raw header value
+   * @returns Validated retry delay in seconds, or undefined if invalid
+   */
+  private parseRetryAfter(value: string | null): number | undefined {
+    if (!value) return undefined;
+
+    const parsed = parseInt(value, 10);
+
+    // Handle NaN (e.g., from HTTP-date format like "Wed, 21 Oct 2015 07:28:00 GMT")
+    // and negative values
+    if (Number.isNaN(parsed) || parsed < 0) {
+      return undefined;
+    }
+
+    // Cap at 5 minutes to prevent excessive delays from malformed headers
+    const MAX_RETRY_AFTER_SECONDS = 300;
+    return Math.min(parsed, MAX_RETRY_AFTER_SECONDS);
   }
 
   /**

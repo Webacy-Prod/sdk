@@ -201,10 +201,15 @@ import {
   NetworkError,
 } from '@webacy/sdk';
 
-async function analyzeAddressSafely(address: string) {
+const MAX_RATE_LIMIT_RETRIES = 3;
+
+async function analyzeAddressSafely(
+  address: string,
+  retries = 0
+): Promise<AddressRiskResponse | null> {
   const client = new ThreatClient({
     apiKey: process.env.WEBACY_API_KEY!,
-    retry: { maxRetries: 3 },
+    retry: { maxRetries: 3 }, // SDK handles network error retries
   });
 
   try {
@@ -223,10 +228,21 @@ async function analyzeAddressSafely(address: string) {
     }
 
     if (error instanceof RateLimitError) {
-      // Rate limited - wait and retry
-      console.warn('Rate limited, waiting...');
-      await sleep((error.retryAfter ?? 60) * 1000);
-      return analyzeAddressSafely(address); // Recursive retry
+      // Check retry limit to prevent infinite recursion
+      if (retries >= MAX_RATE_LIMIT_RETRIES) {
+        console.error(
+          `Rate limit retry limit (${MAX_RATE_LIMIT_RETRIES}) exceeded`
+        );
+        return null;
+      }
+
+      // Rate limited - wait and retry with incremented counter
+      const waitTime = (error.retryAfter ?? 60) * 1000;
+      console.warn(
+        `Rate limited, waiting ${waitTime}ms (retry ${retries + 1}/${MAX_RATE_LIMIT_RETRIES})...`
+      );
+      await sleep(waitTime);
+      return analyzeAddressSafely(address, retries + 1);
     }
 
     if (error instanceof NetworkError) {

@@ -30,7 +30,7 @@ describe('HolderAnalysisResource', () => {
       );
 
       await expect(holderAnalysis.get('0x1234', { chain: Chain.SOL })).rejects.toThrow(
-        'Invalid Solana token address'
+        'Invalid Solana address'
       );
 
       expect(mockHttpClient.get).not.toHaveBeenCalled();
@@ -42,7 +42,7 @@ describe('HolderAnalysisResource', () => {
       );
 
       await expect(holderAnalysis.get('short', { chain: Chain.ETH })).rejects.toThrow(
-        'Invalid Ethereum token address'
+        'Invalid Ethereum address'
       );
     });
 

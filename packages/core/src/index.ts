@@ -11,6 +11,9 @@ export {
 // Base client
 export { BaseClient } from './client-base';
 
+// Base resource
+export { BaseResource } from './resources';
+
 // HTTP client
 export {
   HttpClient,
@@ -75,4 +78,5 @@ export {
   isValidStellarAddress,
   normalizeAddress,
   normalizeEvmAddress,
+  isValidUrl,
 } from './utils';

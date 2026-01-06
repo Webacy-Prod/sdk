@@ -9,3 +9,5 @@ export {
   normalizeAddress,
   normalizeEvmAddress,
 } from './address-validation';
+
+export { isValidUrl } from './url-validation';

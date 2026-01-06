@@ -1,11 +1,4 @@
-import {
-  HttpClient,
-  HttpResponse,
-  ValidationError,
-  isValidAddress,
-  CHAIN_NAMES,
-  Chain,
-} from '@webacy/sdk-core';
+import { HttpResponse, BaseResource } from '@webacy/sdk-core';
 import { AccountTraceResponse, AccountTraceOptions } from '../types';
 
 /**
@@ -24,26 +17,7 @@ import { AccountTraceResponse, AccountTraceOptions } from '../types';
  * const trace = await client.accountTrace.trace('0x...'); // Uses ETH
  * ```
  */
-export class AccountTraceResource {
-  constructor(
-    private readonly httpClient: HttpClient,
-    private readonly defaultChain?: Chain
-  ) {}
-
-  /**
-   * Resolve the chain to use for a request
-   * @throws ValidationError if no chain is specified and no default is set
-   */
-  private resolveChain(options?: { chain?: Chain }): Chain {
-    const chain = options?.chain ?? this.defaultChain;
-    if (!chain) {
-      throw new ValidationError(
-        'Chain is required. Either specify chain in options or set defaultChain in client configuration.'
-      );
-    }
-    return chain;
-  }
-
+export class AccountTraceResource extends BaseResource {
   /**
    * Trace account fund flows
    *
@@ -83,14 +57,7 @@ export class AccountTraceResource {
    */
   async trace(address: string, options: AccountTraceOptions = {}): Promise<AccountTraceResponse> {
     const chain = this.resolveChain(options);
-
-    // Validate address format before making API call
-    if (!isValidAddress(address, chain)) {
-      const chainName = CHAIN_NAMES[chain] || chain;
-      throw new ValidationError(
-        `Invalid ${chainName} address: "${address}". Please provide a valid address format for the ${chainName} blockchain.`
-      );
-    }
+    this.validateAddress(address, chain);
 
     const queryParams = new URLSearchParams();
     queryParams.append('chain', chain);

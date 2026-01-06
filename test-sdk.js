@@ -2,7 +2,7 @@
  * Integration test script for the Webacy SDK
  * Tests the compiled CJS output
  *
- * Run with: node test-sdk.cjs
+ * Run with: node test-sdk.js
  */
 
 const { WebacyClient, TradingClient, ThreatClient } = require('./packages/sdk/dist/cjs/index.js');
@@ -77,6 +77,9 @@ async function testApiCalls() {
     baseUrl: 'http://localhost:3033/api/v2',
   });
 
+  let success = true;
+  const failures = [];
+
   // Test holder analysis
   console.log('Testing holder analysis...');
   try {
@@ -91,6 +94,8 @@ async function testApiCalls() {
       console.log('⚠️  Holder analysis: Authentication required (expected without valid API key)');
     } else {
       console.log(`❌ Holder analysis failed: ${error.message}`);
+      success = false;
+      failures.push(`Holder analysis: ${error.message}`);
     }
   }
 
@@ -107,8 +112,12 @@ async function testApiCalls() {
       console.log('⚠️  Address analysis: Authentication required (expected without valid API key)');
     } else {
       console.log(`❌ Address analysis failed: ${error.message}`);
+      success = false;
+      failures.push(`Address analysis: ${error.message}`);
     }
   }
+
+  return { success, failures };
 }
 
 async function main() {
@@ -125,15 +134,32 @@ async function main() {
 
   // Only test API calls if requested
   const shouldTestApi = process.argv.includes('--with-api');
+  let apiTestResult = { success: true, failures: [] };
+
   if (shouldTestApi) {
-    await testApiCalls();
+    apiTestResult = await testApiCalls();
   } else {
     console.log('\n⚠️  Skipping API tests (run with --with-api to test against local server)');
   }
 
   console.log('\n========================================');
-  console.log('  ✅ All Tests Passed!');
-  console.log('========================================\n');
+
+  if (apiTestResult.success) {
+    console.log('  ✅ All Tests Passed!');
+    console.log('========================================\n');
+  } else {
+    console.log('  ❌ Some Tests Failed!');
+    console.log('========================================');
+    console.log('\nFailures:');
+    for (const failure of apiTestResult.failures) {
+      console.log(`  - ${failure}`);
+    }
+    console.log('');
+    process.exit(1);
+  }
 }
 
-main().catch(console.error);
+main().catch((error) => {
+  console.error('Unexpected error:', error);
+  process.exit(1);
+});

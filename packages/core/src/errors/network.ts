@@ -38,7 +38,7 @@ export class NetworkError extends WebacyError {
   }
 
   override getRecoverySuggestion(): string {
-    if (this.message.includes('timed out')) {
+    if (this.message.toLowerCase().includes('timed out')) {
       return 'The request timed out. Try increasing the timeout option or check your network connection.';
     }
     return 'Check your network connection and try again. If the problem persists, the Webacy API may be temporarily unavailable.';

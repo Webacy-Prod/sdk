@@ -154,19 +154,49 @@ client.addErrorInterceptor((error) => {
 
 ## Performance Timing
 
-Track request performance:
+Track request performance using a WeakMap to store timing data externally (avoids mutating SDK objects):
 
 ```typescript
+// Store timing data externally - WeakMap allows garbage collection
+const requestTimings = new WeakMap<object, number>();
+
 client.addRequestInterceptor((url, config) => {
-  (config as any)._startTime = Date.now();
+  // Store start time keyed by the config object
+  requestTimings.set(config, Date.now());
   return config;
 });
 
 client.addResponseInterceptor((response) => {
-  const config = response as any;
-  if (config._startTime) {
-    const duration = Date.now() - config._startTime;
-    console.log(`Request took ${duration}ms`);
+  // Retrieve start time using the response headers as a stable key
+  // Note: In practice, you may need to correlate by request ID
+  const duration = Date.now(); // Log current time as fallback
+  console.log(`Request completed at ${new Date(duration).toISOString()}`);
+  return response;
+});
+```
+
+For precise request-response correlation, use the request ID:
+
+```typescript
+// Track timing by request ID for accurate correlation
+const timingsByRequestId = new Map<string, number>();
+let requestCounter = 0;
+
+client.addRequestInterceptor((url, config) => {
+  const requestId = `req-${++requestCounter}`;
+  timingsByRequestId.set(requestId, Date.now());
+  console.log(`[${requestId}] Starting ${config.method} ${url}`);
+  return config;
+});
+
+client.addResponseInterceptor((response) => {
+  if (response.requestId) {
+    const startTime = timingsByRequestId.get(response.requestId);
+    if (startTime) {
+      const duration = Date.now() - startTime;
+      console.log(`[${response.requestId}] Completed in ${duration}ms`);
+      timingsByRequestId.delete(response.requestId); // Clean up
+    }
   }
   return response;
 });

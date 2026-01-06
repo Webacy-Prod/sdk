@@ -1,11 +1,4 @@
-import {
-  HttpClient,
-  HttpResponse,
-  ValidationError,
-  isValidAddress,
-  CHAIN_NAMES,
-  Chain,
-} from '@webacy/sdk-core';
+import { HttpResponse, BaseResource } from '@webacy/sdk-core';
 import {
   PoolsResponse,
   TrendingTokensResponse,
@@ -35,25 +28,7 @@ import {
  * const pools = await client.tokens.getPools('token_address'); // Uses SOL
  * ```
  */
-export class TokensResource {
-  constructor(
-    private readonly httpClient: HttpClient,
-    private readonly defaultChain?: Chain
-  ) {}
-
-  /**
-   * Resolve the chain to use for a request
-   * @throws ValidationError if no chain is specified and no default is set
-   */
-  private resolveChain(options?: { chain?: Chain }): Chain {
-    const chain = options?.chain ?? this.defaultChain;
-    if (!chain) {
-      throw new ValidationError(
-        'Chain is required. Either specify chain in options or set defaultChain in client configuration.'
-      );
-    }
-    return chain;
-  }
+export class TokensResource extends BaseResource {
 
   /**
    * Get liquidity pools for a token with risk analysis
@@ -88,14 +63,7 @@ export class TokensResource {
    */
   async getPools(address: string, options: TokenPoolsOptions = {}): Promise<PoolsResponse> {
     const chain = this.resolveChain(options);
-
-    // Validate token address format before making API call
-    if (!isValidAddress(address, chain)) {
-      const chainName = CHAIN_NAMES[chain] || chain;
-      throw new ValidationError(
-        `Invalid ${chainName} token address: "${address}". Please provide a valid token address format for the ${chainName} blockchain.`
-      );
-    }
+    this.validateAddress(address, chain);
 
     const queryParams = new URLSearchParams();
     queryParams.append('chain', chain);

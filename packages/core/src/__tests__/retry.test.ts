@@ -46,6 +46,14 @@ describe('isRetryableStatusCode', () => {
     expect(isRetryableStatusCode(404, config)).toBe(false);
   });
 
+  it('should return true for 408 (Request Timeout) when configured', () => {
+    const configWith408: RetryConfig = {
+      ...config,
+      retryableStatusCodes: [...config.retryableStatusCodes, 408],
+    };
+    expect(isRetryableStatusCode(408, configWith408)).toBe(true);
+  });
+
   it('should return false for success codes', () => {
     expect(isRetryableStatusCode(200, config)).toBe(false);
     expect(isRetryableStatusCode(201, config)).toBe(false);

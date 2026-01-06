@@ -1,11 +1,4 @@
-import {
-  HttpClient,
-  HttpResponse,
-  ValidationError,
-  isValidAddress,
-  CHAIN_NAMES,
-  Chain,
-} from '@webacy/sdk-core';
+import { HttpResponse, BaseResource } from '@webacy/sdk-core';
 import {
   AddressRiskResponse,
   SanctionedResponse,
@@ -38,39 +31,7 @@ import {
  * const risk = await client.addresses.analyze('0x...'); // Uses ETH
  * ```
  */
-export class AddressesResource {
-  constructor(
-    private readonly httpClient: HttpClient,
-    private readonly defaultChain?: Chain
-  ) {}
-
-  /**
-   * Resolve the chain to use for a request
-   * @throws ValidationError if no chain is specified and no default is set
-   */
-  private resolveChain(options?: { chain?: Chain }): Chain {
-    const chain = options?.chain ?? this.defaultChain;
-    if (!chain) {
-      throw new ValidationError(
-        'Chain is required. Either specify chain in options or set defaultChain in client configuration.'
-      );
-    }
-    return chain;
-  }
-
-  /**
-   * Validate address format for the given chain
-   * @throws ValidationError if address format is invalid for the chain
-   */
-  private validateAddress(address: string, chain: Chain): void {
-    if (!isValidAddress(address, chain)) {
-      const chainName = CHAIN_NAMES[chain] || chain;
-      throw new ValidationError(
-        `Invalid ${chainName} address: "${address}". Please provide a valid address format for the ${chainName} blockchain.`
-      );
-    }
-  }
-
+export class AddressesResource extends BaseResource {
   /**
    * Analyze an address for security risks
    *

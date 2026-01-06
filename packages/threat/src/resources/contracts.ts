@@ -1,11 +1,4 @@
-import {
-  HttpClient,
-  HttpResponse,
-  ValidationError,
-  isValidAddress,
-  CHAIN_NAMES,
-  Chain,
-} from '@webacy/sdk-core';
+import { HttpResponse, BaseResource } from '@webacy/sdk-core';
 import {
   ContractRiskResponse,
   ContractSourceCodeResponse,
@@ -40,26 +33,7 @@ import {
  * const risk = await client.contracts.analyze('0x...'); // Uses ETH
  * ```
  */
-export class ContractsResource {
-  constructor(
-    private readonly httpClient: HttpClient,
-    private readonly defaultChain?: Chain
-  ) {}
-
-  /**
-   * Resolve the chain to use for a request
-   * @throws ValidationError if no chain is specified and no default is set
-   */
-  private resolveChain(options?: { chain?: Chain }): Chain {
-    const chain = options?.chain ?? this.defaultChain;
-    if (!chain) {
-      throw new ValidationError(
-        'Chain is required. Either specify chain in options or set defaultChain in client configuration.'
-      );
-    }
-    return chain;
-  }
-
+export class ContractsResource extends BaseResource {
   /**
    * Analyze a smart contract for security risks
    *
@@ -99,14 +73,7 @@ export class ContractsResource {
     options: ContractAnalysisOptions = {}
   ): Promise<ContractRiskResponse> {
     const chain = this.resolveChain(options);
-
-    // Validate contract address format before making API call
-    if (!isValidAddress(address, chain)) {
-      const chainName = CHAIN_NAMES[chain] || chain;
-      throw new ValidationError(
-        `Invalid ${chainName} contract address: "${address}". Please provide a valid address format for the ${chainName} blockchain.`
-      );
-    }
+    this.validateAddress(address, chain);
 
     const queryParams = new URLSearchParams();
     queryParams.append('chain', chain);
@@ -157,14 +124,7 @@ export class ContractsResource {
     options: SourceCodeOptions = {}
   ): Promise<ContractSourceCodeResponse> {
     const chain = this.resolveChain(options);
-
-    // Validate contract address format before making API call
-    if (!isValidAddress(address, chain)) {
-      const chainName = CHAIN_NAMES[chain] || chain;
-      throw new ValidationError(
-        `Invalid ${chainName} contract address: "${address}". Please provide a valid address format for the ${chainName} blockchain.`
-      );
-    }
+    this.validateAddress(address, chain);
 
     const queryParams = new URLSearchParams();
     queryParams.append('chain', chain);
@@ -206,14 +166,7 @@ export class ContractsResource {
    */
   async getTaxes(address: string, options: TaxOptions = {}): Promise<TokenTaxResponse> {
     const chain = this.resolveChain(options);
-
-    // Validate token contract address format before making API call
-    if (!isValidAddress(address, chain)) {
-      const chainName = CHAIN_NAMES[chain] || chain;
-      throw new ValidationError(
-        `Invalid ${chainName} token contract address: "${address}". Please provide a valid address format for the ${chainName} blockchain.`
-      );
-    }
+    this.validateAddress(address, chain);
 
     const queryParams = new URLSearchParams();
     queryParams.append('chain', chain);

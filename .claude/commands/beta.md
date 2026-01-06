@@ -102,7 +102,30 @@ cd packages/trading && npm version ${BETA_VERSION} --no-git-tag-version && cd ..
 cd packages/sdk && npm version ${BETA_VERSION} --no-git-tag-version && cd ../..
 ```
 
-Also update inter-package dependencies to the beta version.
+Also update inter-package dependencies to the beta version in these files:
+
+**packages/threat/package.json** - update `@webacy/sdk-core` dependency:
+```json
+"dependencies": {
+  "@webacy/sdk-core": "^{BETA_VERSION}"
+}
+```
+
+**packages/trading/package.json** - update `@webacy/sdk-core` dependency:
+```json
+"dependencies": {
+  "@webacy/sdk-core": "^{BETA_VERSION}"
+}
+```
+
+**packages/sdk/package.json** - update all internal dependencies:
+```json
+"dependencies": {
+  "@webacy/sdk-core": "^{BETA_VERSION}",
+  "@webacy/sdk-threat": "^{BETA_VERSION}",
+  "@webacy/sdk-trading": "^{BETA_VERSION}"
+}
+```
 
 ## Step 7: Publish to npm with Beta Tag
 

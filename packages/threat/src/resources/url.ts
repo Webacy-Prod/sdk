@@ -1,4 +1,4 @@
-import { HttpClient, HttpResponse } from '@webacy/sdk-core';
+import { HttpClient, HttpResponse, ValidationError, isValidUrl } from '@webacy/sdk-core';
 import { UrlRiskResponse, UrlAddResponse, UrlCheckOptions } from '../types';
 
 /**
@@ -48,6 +48,12 @@ export class UrlResource {
    * ```
    */
   async check(url: string, options?: UrlCheckOptions): Promise<UrlRiskResponse> {
+    if (!isValidUrl(url)) {
+      throw new ValidationError(
+        `Invalid URL: "${url}". Please provide a valid HTTP or HTTPS URL.`
+      );
+    }
+
     const response: HttpResponse<UrlRiskResponse> = await this.httpClient.post(
       '/url',
       { url },
@@ -78,6 +84,12 @@ export class UrlResource {
    * ```
    */
   async add(url: string, options?: UrlCheckOptions): Promise<UrlAddResponse> {
+    if (!isValidUrl(url)) {
+      throw new ValidationError(
+        `Invalid URL: "${url}". Please provide a valid HTTP or HTTPS URL.`
+      );
+    }
+
     const response: HttpResponse<UrlAddResponse> = await this.httpClient.post(
       '/url/add',
       { url },

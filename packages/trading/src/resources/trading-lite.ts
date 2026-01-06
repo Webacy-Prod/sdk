@@ -72,8 +72,13 @@ export class TradingLiteResource {
    * ```
    */
   async analyze(address: string, options: TradingLiteOptions = {}): Promise<TradingLiteAnalysis> {
-    // Trading lite only supports Solana - always use Chain.SOL
-    const chain = options.chain ?? Chain.SOL;
+    // Trading lite only supports Solana - reject other chains explicitly
+    if (options.chain && options.chain !== Chain.SOL) {
+      throw new ValidationError(
+        `Trading Lite only supports Solana. Received chain: "${options.chain}". Please use Chain.SOL or omit the chain parameter.`
+      );
+    }
+    const chain = Chain.SOL;
 
     // Trading lite only supports Solana - validate address format
     if (!isValidSolanaAddress(address)) {

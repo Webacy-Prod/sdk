@@ -20,8 +20,10 @@ export interface TokenHolder {
  * Enhanced holder activity data (available for EVM chains)
  */
 export interface TokenHolderActivity {
-  firstTransactionDate?: Date;
-  lastTransactionDate?: Date;
+  /** First transaction date (ISO 8601 string) */
+  firstTransactionDate?: string;
+  /** Last transaction date (ISO 8601 string) */
+  lastTransactionDate?: string;
   totalIncomingTransactions?: number;
   totalIncomingAmount?: number;
   totalOutgoingTransactions?: number;
