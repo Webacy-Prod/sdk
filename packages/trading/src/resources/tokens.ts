@@ -29,7 +29,6 @@ import {
  * ```
  */
 export class TokensResource extends BaseResource {
-
   /**
    * Get liquidity pools for a token with risk analysis
    *

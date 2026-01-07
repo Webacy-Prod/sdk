@@ -98,14 +98,19 @@ async function main() {
     return response;
   });
 
-  // Log errors with full context
+  // Log errors with full context and clean up pending requests
   interceptorClient.addErrorInterceptor((error) => {
+    // Remove the corresponding entry from pendingRequests to prevent queue drift
+    const pending = pendingRequests.shift();
+    const duration = pending ? Date.now() - pending.startTime : 0;
+
     console.error('[Error Details]', {
       code: error.code,
       message: error.message,
-      endpoint: error.endpoint,
+      endpoint: error.endpoint ?? pending?.url,
       requestId: error.requestId,
       retryable: error.isRetryable(),
+      duration: `${duration}ms`,
     });
     return error;
   });

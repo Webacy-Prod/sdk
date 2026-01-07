@@ -318,7 +318,11 @@ export class HttpClient {
     const method = config.method ?? 'GET';
     const timeout = config.timeout ?? this.defaultTimeout;
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), timeout);
+    let didTimeout = false;
+    const timeoutId = setTimeout(() => {
+      didTimeout = true;
+      controller.abort();
+    }, timeout);
     const startTime = Date.now();
 
     // Log the outgoing request
@@ -382,7 +386,15 @@ export class HttpClient {
       let networkError: NetworkError;
       if (error instanceof Error) {
         if (error.name === 'AbortError') {
-          networkError = new NetworkError('Request timed out', { cause: error, endpoint: url });
+          // Distinguish between timeout and user-cancelled requests
+          if (didTimeout) {
+            networkError = new NetworkError('Request timed out', { cause: error, endpoint: url });
+          } else {
+            networkError = new NetworkError('Request was cancelled by the caller', {
+              cause: error,
+              endpoint: url,
+            });
+          }
         } else {
           networkError = new NetworkError(error.message, { cause: error, endpoint: url });
         }
