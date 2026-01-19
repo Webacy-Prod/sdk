@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { AddressesResource } from '../resources/addresses';
-import { Chain, ValidationError, HttpClient } from '@webacy/sdk-core';
+import { Chain, ValidationError, HttpClient } from '@webacy-xyz/sdk-core';
 
 // Mock HttpClient
 const createMockHttpClient = () => ({

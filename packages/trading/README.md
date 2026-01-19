@@ -1,23 +1,23 @@
-# @webacy/sdk-trading
+# @webacy-xyz/sdk-trading
 
 Token trading analysis SDK for the Webacy Risk Score API. Analyze token holder distribution, detect snipers and bundlers, and identify trading patterns.
 
 ## Installation
 
 ```bash
-npm install @webacy/sdk-trading
+npm install @webacy-xyz/sdk-trading
 ```
 
 Or install the full SDK:
 
 ```bash
-npm install @webacy/sdk
+npm install @webacy-xyz/sdk
 ```
 
 ## Quick Start
 
 ```typescript
-import { TradingClient } from '@webacy/sdk-trading';
+import { TradingClient } from '@webacy-xyz/sdk-trading';
 
 const client = new TradingClient({
   apiKey: process.env.WEBACY_API_KEY!,
@@ -142,7 +142,7 @@ const client = new TradingClient({
 ## Error Handling
 
 ```typescript
-import { TradingClient, RateLimitError, NotFoundError } from '@webacy/sdk-trading';
+import { TradingClient, RateLimitError, NotFoundError } from '@webacy-xyz/sdk-trading';
 
 try {
   const holders = await client.holderAnalysis.get('token', { chain: 'sol' });

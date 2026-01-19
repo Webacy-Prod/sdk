@@ -1,24 +1,24 @@
-# @webacy/sdk
+# @webacy-xyz/sdk
 
 The official TypeScript/JavaScript SDK for the Webacy Risk Score API. This is the full SDK that includes both trading and threat analysis capabilities.
 
 ## Installation
 
 ```bash
-npm install @webacy/sdk
+npm install @webacy-xyz/sdk
 ```
 
 Or install only what you need:
 
 ```bash
-npm install @webacy/sdk-trading   # Trading analysis only
-npm install @webacy/sdk-threat    # Threat analysis only
+npm install @webacy-xyz/sdk-trading   # Trading analysis only
+npm install @webacy-xyz/sdk-threat    # Threat analysis only
 ```
 
 ## Quick Start
 
 ```typescript
-import { WebacyClient, Chain, RiskModule } from '@webacy/sdk';
+import { WebacyClient, Chain, RiskModule } from '@webacy-xyz/sdk';
 
 const client = new WebacyClient({
   apiKey: process.env.WEBACY_API_KEY!,
@@ -112,7 +112,7 @@ import {
   RateLimitError,
   ValidationError,
   NotFoundError,
-} from '@webacy/sdk';
+} from '@webacy-xyz/sdk';
 
 try {
   const risk = await client.threat.addresses.analyze('0x...', { chain: 'eth' });
@@ -175,7 +175,7 @@ import type {
   Chain,
   RiskModule,
   RiskTag,
-} from '@webacy/sdk';
+} from '@webacy-xyz/sdk';
 ```
 
 ## Supported Chains

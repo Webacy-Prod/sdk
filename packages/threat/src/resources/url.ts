@@ -1,4 +1,4 @@
-import { HttpClient, HttpResponse, ValidationError, isValidUrl } from '@webacy/sdk-core';
+import { HttpClient, HttpResponse, ValidationError, isValidUrl } from '@webacy-xyz/sdk-core';
 import { UrlRiskResponse, UrlAddResponse, UrlCheckOptions } from '../types';
 
 /**

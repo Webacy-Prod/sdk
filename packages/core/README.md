@@ -1,15 +1,15 @@
-# @webacy/sdk-core
+# @webacy-xyz/sdk-core
 
-Core utilities and shared internals for Webacy SDK packages. This package is automatically installed as a dependency of `@webacy/sdk-trading` and `@webacy/sdk-threat`.
+Core utilities and shared internals for Webacy SDK packages. This package is automatically installed as a dependency of `@webacy-xyz/sdk-trading` and `@webacy-xyz/sdk-threat`.
 
 ## Installation
 
 This package is typically not installed directly. Instead, install one of the SDK packages:
 
 ```bash
-npm install @webacy/sdk           # Full SDK
-npm install @webacy/sdk-trading   # Trading analysis only
-npm install @webacy/sdk-threat    # Threat analysis only
+npm install @webacy-xyz/sdk           # Full SDK
+npm install @webacy-xyz/sdk-trading   # Trading analysis only
+npm install @webacy-xyz/sdk-threat    # Threat analysis only
 ```
 
 ## What's Included
@@ -17,7 +17,7 @@ npm install @webacy/sdk-threat    # Threat analysis only
 ### Chain Support
 
 ```typescript
-import { Chain, isEvmChain, CHAIN_IDS, CHAIN_NAMES } from '@webacy/sdk-core';
+import { Chain, isEvmChain, CHAIN_IDS, CHAIN_NAMES } from '@webacy-xyz/sdk-core';
 
 // Check if a chain is EVM-compatible
 if (isEvmChain(Chain.ETH)) {
@@ -39,7 +39,7 @@ import {
   ValidationError,
   NotFoundError,
   NetworkError,
-} from '@webacy/sdk-core';
+} from '@webacy-xyz/sdk-core';
 
 try {
   await client.addresses.analyze('0x...');
@@ -59,7 +59,7 @@ import type {
   RiskCategory,
   TokenMetadata,
   OwnershipDistribution,
-} from '@webacy/sdk-core';
+} from '@webacy-xyz/sdk-core';
 ```
 
 ### Address Validation
@@ -69,7 +69,7 @@ import {
   isValidAddress,
   isValidEvmAddress,
   isValidSolanaAddress,
-} from '@webacy/sdk-core';
+} from '@webacy-xyz/sdk-core';
 
 isValidAddress('0x742d35Cc...', Chain.ETH); // true
 isValidSolanaAddress('EPjFWdd5Aufq...'); // true

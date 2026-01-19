@@ -1,4 +1,4 @@
-import { HttpClient, HttpResponse } from '@webacy/sdk-core';
+import { HttpClient, HttpResponse } from '@webacy-xyz/sdk-core';
 import {
   LedgerFamily,
   LedgerScanRequest,

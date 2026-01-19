@@ -1,4 +1,4 @@
-import { HttpResponse, BaseResource } from '@webacy/sdk-core';
+import { HttpResponse, BaseResource } from '@webacy-xyz/sdk-core';
 import {
   AddressRiskResponse,
   SanctionedResponse,

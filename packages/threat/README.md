@@ -1,23 +1,23 @@
-# @webacy/sdk-threat
+# @webacy-xyz/sdk-threat
 
 Threat and risk analysis SDK for the Webacy Risk Score API. Analyze addresses, contracts, and URLs for security risks.
 
 ## Installation
 
 ```bash
-npm install @webacy/sdk-threat
+npm install @webacy-xyz/sdk-threat
 ```
 
 Or install the full SDK:
 
 ```bash
-npm install @webacy/sdk
+npm install @webacy-xyz/sdk
 ```
 
 ## Quick Start
 
 ```typescript
-import { ThreatClient, RiskModule } from '@webacy/sdk-threat';
+import { ThreatClient, RiskModule } from '@webacy-xyz/sdk-threat';
 
 const client = new ThreatClient({
   apiKey: process.env.WEBACY_API_KEY!,
@@ -242,7 +242,7 @@ const client = new ThreatClient({
 ## Risk Modules
 
 ```typescript
-import { RiskModule } from '@webacy/sdk-threat';
+import { RiskModule } from '@webacy-xyz/sdk-threat';
 
 const modules = [
   RiskModule.FUND_FLOW_SCREENING,
@@ -270,7 +270,7 @@ const modules = [
 ## Error Handling
 
 ```typescript
-import { ThreatClient, RateLimitError, AuthenticationError } from '@webacy/sdk-threat';
+import { ThreatClient, RateLimitError, AuthenticationError } from '@webacy-xyz/sdk-threat';
 
 try {
   const risk = await client.addresses.analyze('0x...', { chain: 'eth' });

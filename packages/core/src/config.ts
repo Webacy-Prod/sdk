@@ -110,7 +110,7 @@ export interface WebacyClientConfig {
    *
    * @example
    * ```typescript
-   * import { Chain } from '@webacy/sdk';
+   * import { Chain } from '@webacy-xyz/sdk';
    *
    * const client = new WebacyClient({
    *   apiKey: 'your-api-key',

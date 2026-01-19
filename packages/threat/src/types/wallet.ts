@@ -1,4 +1,4 @@
-import { Chain, RiskTag, RiskCategory, TokenStandard } from '@webacy/sdk-core';
+import { Chain, RiskTag, RiskCategory, TokenStandard } from '@webacy-xyz/sdk-core';
 
 /**
  * Transaction risk issue

@@ -1,4 +1,4 @@
-import { Chain } from '@webacy/sdk-core';
+import { Chain } from '@webacy-xyz/sdk-core';
 
 /**
  * Address holding details with initial and current amounts

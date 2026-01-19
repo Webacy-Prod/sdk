@@ -29,7 +29,7 @@ export type {
   TrendingPoolsResponse,
   TokenPoolsOptions,
   TrendingOptions,
-} from '@webacy/sdk-trading';
+} from '@webacy-xyz/sdk-trading';
 
 // Re-export threat types
 export type {
@@ -92,7 +92,7 @@ export type {
   UsagePlan,
   UsagePlansResponse,
   UsageOptions,
-} from '@webacy/sdk-threat';
+} from '@webacy-xyz/sdk-threat';
 
 // Re-export core types and utilities
 export {
@@ -129,7 +129,7 @@ export {
   isValidStellarAddress,
   normalizeAddress,
   normalizeEvmAddress,
-} from '@webacy/sdk-core';
+} from '@webacy-xyz/sdk-core';
 
 // Re-export core types
 export type {
@@ -154,8 +154,8 @@ export type {
   RequestInterceptor,
   ResponseInterceptor,
   ErrorInterceptor,
-} from '@webacy/sdk-core';
+} from '@webacy-xyz/sdk-core';
 
 // Re-export individual clients for advanced usage
-export { TradingClient } from '@webacy/sdk-trading';
-export { ThreatClient } from '@webacy/sdk-threat';
+export { TradingClient } from '@webacy-xyz/sdk-trading';
+export { ThreatClient } from '@webacy-xyz/sdk-threat';

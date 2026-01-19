@@ -1,5 +1,5 @@
 {
-  "name": "@webacy/sdk",
+  "name": "@webacy-xyz/sdk",
   "version": "1.0.1",
   "description": "Webacy SDK - Complete blockchain security and trading analysis toolkit",
   "main": "dist/cjs/index.js",
@@ -33,9 +33,9 @@
     "test": "echo \"No tests yet\""
   },
   "dependencies": {
-    "@webacy/sdk-core": "workspace:*",
-    "@webacy/sdk-trading": "workspace:*",
-    "@webacy/sdk-threat": "workspace:*"
+    "@webacy-xyz/sdk-core": "workspace:*",
+    "@webacy-xyz/sdk-trading": "workspace:*",
+    "@webacy-xyz/sdk-threat": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

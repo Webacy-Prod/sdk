@@ -4,7 +4,7 @@ import {
   RequestInterceptor,
   ResponseInterceptor,
   ErrorInterceptor,
-} from '@webacy/sdk-core';
+} from '@webacy-xyz/sdk-core';
 import { AddressesResource } from './resources/addresses';
 import { ContractsResource } from './resources/contracts';
 import { UrlResource } from './resources/url';
@@ -21,7 +21,7 @@ import { UsageResource } from './resources/usage';
  *
  * @example
  * ```typescript
- * import { ThreatClient, Chain, RiskModule } from '@webacy/sdk-threat';
+ * import { ThreatClient, Chain, RiskModule } from '@webacy-xyz/sdk-threat';
  *
  * const client = new ThreatClient({
  *   apiKey: process.env.WEBACY_API_KEY!,

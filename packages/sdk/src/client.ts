@@ -4,8 +4,8 @@ import {
   RequestInterceptor,
   ResponseInterceptor,
   ErrorInterceptor,
-} from '@webacy/sdk-core';
-import { HolderAnalysisResource, TradingLiteResource, TokensResource } from '@webacy/sdk-trading';
+} from '@webacy-xyz/sdk-core';
+import { HolderAnalysisResource, TradingLiteResource, TokensResource } from '@webacy-xyz/sdk-trading';
 import {
   AddressesResource,
   ContractsResource,
@@ -14,7 +14,7 @@ import {
   LedgerResource,
   AccountTraceResource,
   UsageResource,
-} from '@webacy/sdk-threat';
+} from '@webacy-xyz/sdk-threat';
 
 /**
  * Trading namespace containing all trading-related resources
@@ -60,7 +60,7 @@ export interface ThreatNamespace {
  *
  * @example
  * ```typescript
- * import { WebacyClient, Chain, RiskModule } from '@webacy/sdk';
+ * import { WebacyClient, Chain, RiskModule } from '@webacy-xyz/sdk';
  *
  * const client = new WebacyClient({
  *   apiKey: process.env.WEBACY_API_KEY!,

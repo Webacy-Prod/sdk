@@ -1,4 +1,4 @@
-import { Chain, OwnershipDistribution, TokenMetadata } from '@webacy/sdk-core';
+import { Chain, OwnershipDistribution, TokenMetadata } from '@webacy-xyz/sdk-core';
 
 /**
  * Token holder information

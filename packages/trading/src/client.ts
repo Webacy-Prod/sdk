@@ -4,7 +4,7 @@ import {
   RequestInterceptor,
   ResponseInterceptor,
   ErrorInterceptor,
-} from '@webacy/sdk-core';
+} from '@webacy-xyz/sdk-core';
 import { HolderAnalysisResource } from './resources/holder-analysis';
 import { TradingLiteResource } from './resources/trading-lite';
 import { TokensResource } from './resources/tokens';
@@ -17,7 +17,7 @@ import { TokensResource } from './resources/tokens';
  *
  * @example
  * ```typescript
- * import { TradingClient, Chain } from '@webacy/sdk-trading';
+ * import { TradingClient, Chain } from '@webacy-xyz/sdk-trading';
  *
  * const client = new TradingClient({
  *   apiKey: process.env.WEBACY_API_KEY!,

@@ -52,13 +52,13 @@ importers:
 
   packages/sdk:
     dependencies:
-      '@webacy/sdk-core':
+      '@webacy-xyz/sdk-core':
         specifier: workspace:*
         version: link:../core
-      '@webacy/sdk-threat':
+      '@webacy-xyz/sdk-threat':
         specifier: workspace:*
         version: link:../threat
-      '@webacy/sdk-trading':
+      '@webacy-xyz/sdk-trading':
         specifier: workspace:*
         version: link:../trading
     devDependencies:
@@ -71,7 +71,7 @@ importers:
 
   packages/threat:
     dependencies:
-      '@webacy/sdk-core':
+      '@webacy-xyz/sdk-core':
         specifier: workspace:*
         version: link:../core
     devDependencies:
@@ -84,7 +84,7 @@ importers:
 
   packages/trading:
     dependencies:
-      '@webacy/sdk-core':
+      '@webacy-xyz/sdk-core':
         specifier: workspace:*
         version: link:../core
     devDependencies:

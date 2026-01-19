@@ -1,5 +1,5 @@
 {
-  "name": "@webacy/sdk-threat",
+  "name": "@webacy-xyz/sdk-threat",
   "version": "1.0.1",
   "description": "Webacy SDK for threat and risk analysis - address risk, sanctions, contracts, URL safety",
   "main": "dist/cjs/index.js",
@@ -34,7 +34,7 @@
     "test:watch": "vitest watch"
   },
   "dependencies": {
-    "@webacy/sdk-core": "workspace:*"
+    "@webacy-xyz/sdk-core": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

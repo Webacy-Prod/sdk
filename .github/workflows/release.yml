@@ -41,7 +41,7 @@ jobs:
         id: check
         run: |
           VERSION="${{ steps.version.outputs.version }}"
-          PACKAGES=("@webacy/sdk-core" "@webacy/sdk-threat" "@webacy/sdk-trading" "@webacy/sdk")
+          PACKAGES=("@webacy-xyz/sdk-core" "@webacy-xyz/sdk-threat" "@webacy-xyz/sdk-trading" "@webacy-xyz/sdk")
           ALL_PUBLISHED=true
 
           for pkg in "${PACKAGES[@]}"; do
