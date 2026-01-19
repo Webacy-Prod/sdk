@@ -1,0 +1,76 @@
+{
+  "name": "@webacy-xyz/sdk",
+  "version": "1.0.1",
+  "description": "Webacy SDK - Complete blockchain security and trading analysis toolkit",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/types/index.d.ts",
+        "default": "./dist/esm/index.js"
+      },
+      "require": {
+        "types": "./dist/types/index.d.ts",
+        "default": "./dist/cjs/index.js"
+      }
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "npm run build:esm && npm run build:cjs && npm run build:types && npm run postbuild",
+    "build:esm": "tsc -p tsconfig.esm.json",
+    "build:cjs": "tsc -p tsconfig.cjs.json",
+    "build:types": "tsc -p tsconfig.types.json",
+    "postbuild": "node ../../scripts/fix-esm-imports.mjs dist/esm && echo '{\"type\":\"module\"}' > dist/esm/package.json && echo '{\"type\":\"commonjs\"}' > dist/cjs/package.json",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src --ext .ts",
+    "test": "echo \"No tests yet\""
+  },
+  "dependencies": {
+    "@webacy-xyz/sdk-core": "workspace:*",
+    "@webacy-xyz/sdk-trading": "workspace:*",
+    "@webacy-xyz/sdk-threat": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.0"
+  },
+  "keywords": [
+    "webacy",
+    "sdk",
+    "blockchain",
+    "security",
+    "risk",
+    "trading",
+    "token-analysis",
+    "threat-detection",
+    "crypto",
+    "defi",
+    "web3"
+  ],
+  "author": "Webacy",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Webacy-Prod/sdk.git",
+    "directory": "packages/sdk"
+  },
+  "bugs": {
+    "url": "https://github.com/Webacy-Prod/sdk/issues"
+  },
+  "homepage": "https://github.com/Webacy-Prod/sdk#readme",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  }
+}
