@@ -5,7 +5,11 @@ import {
   ResponseInterceptor,
   ErrorInterceptor,
 } from '@webacy-xyz/sdk-core';
-import { HolderAnalysisResource, TradingLiteResource, TokensResource } from '@webacy-xyz/sdk-trading';
+import {
+  HolderAnalysisResource,
+  TradingLiteResource,
+  TokensResource,
+} from '@webacy-xyz/sdk-trading';
 import {
   AddressesResource,
   ContractsResource,
