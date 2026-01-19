@@ -35,6 +35,9 @@ test-real-api.js
 # Turbo
 .turbo/
 
+# Claude Code
+.claude/.pr-context.json
+
 # Lock files (using pnpm)
 package-lock.json
 yarn.lock
