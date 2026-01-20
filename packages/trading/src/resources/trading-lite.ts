@@ -1,5 +1,5 @@
 import {
-  HttpClient,
+  BaseResource,
   HttpResponse,
   ValidationError,
   isValidSolanaAddress,
@@ -22,13 +22,8 @@ import { TradingLiteAnalysis, TradingLiteOptions } from '../types';
  * console.log(`Bundler % holding: ${analysis.BundlerPercentageHolding}`);
  * ```
  */
-export class TradingLiteResource {
-  // Note: defaultChain parameter accepted for consistency but not used
-  // since trading-lite only supports Solana
-  constructor(
-    private readonly httpClient: HttpClient,
-    _defaultChain?: Chain
-  ) {}
+export class TradingLiteResource extends BaseResource {
+  // Note: defaultChain parameter accepted for consistency but trading-lite only supports Solana
 
   /**
    * Get simplified bundling and sniper analysis for a token

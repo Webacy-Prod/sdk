@@ -9,6 +9,7 @@ import {
   QuickProfileResponse,
   QuickProfileOptions,
 } from '../types';
+import { SUPPORTED_QUICK_PROFILE_CHAINS } from '../constants';
 
 /**
  * Resource for address risk analysis
@@ -199,19 +200,6 @@ export class AddressesResource extends BaseResource {
   }
 
   /**
-   * Supported chains for quick profile
-   */
-  private static readonly SUPPORTED_QUICK_PROFILE_CHAINS: Chain[] = [
-    Chain.ETH,
-    Chain.BASE,
-    Chain.BSC,
-    Chain.POL,
-    Chain.OPT,
-    Chain.ARB,
-    Chain.SOL,
-  ];
-
-  /**
    * Get a quick risk profile for an address
    *
    * Returns a lightweight risk assessment including:
@@ -287,9 +275,9 @@ export class AddressesResource extends BaseResource {
         'Chain is required. Either specify chain in options or set defaultChain in client configuration.'
       );
     }
-    if (!AddressesResource.SUPPORTED_QUICK_PROFILE_CHAINS.includes(chain)) {
+    if (!SUPPORTED_QUICK_PROFILE_CHAINS.includes(chain)) {
       throw new ValidationError(
-        `Chain "${chain}" is not supported for quick profile. Supported chains: ${AddressesResource.SUPPORTED_QUICK_PROFILE_CHAINS.join(', ')}`
+        `Chain "${chain}" is not supported for quick profile. Supported chains: ${SUPPORTED_QUICK_PROFILE_CHAINS.join(', ')}`
       );
     }
     return chain;

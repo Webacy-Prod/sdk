@@ -1,4 +1,4 @@
-import { HttpClient, HttpResponse, ValidationError } from '@webacy-xyz/sdk-core';
+import { BaseResource, HttpResponse, ValidationError, Chain } from '@webacy-xyz/sdk-core';
 import {
   UsageData,
   CurrentUsageResponse,
@@ -13,14 +13,19 @@ import {
  * Provides access to API usage statistics, current quota,
  * and available plans.
  *
+ * Note: Usage endpoints are chain-agnostic, so the chain parameter is not used.
+ *
  * @example
  * ```typescript
  * const current = await client.usage.getCurrent();
  * console.log(`Used: ${current.calls_used}/${current.calls_limit}`);
  * ```
  */
-export class UsageResource {
-  constructor(private readonly httpClient: HttpClient) {}
+export class UsageResource extends BaseResource {
+  // Note: Usage endpoints are chain-agnostic, defaultChain is accepted for interface consistency
+  constructor(httpClient: import('@webacy-xyz/sdk-core').HttpClient, _defaultChain?: Chain) {
+    super(httpClient, _defaultChain);
+  }
 
   /**
    * Get historical usage data

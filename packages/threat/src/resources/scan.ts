@@ -1,17 +1,12 @@
-import { HttpClient, HttpResponse, ValidationError } from '@webacy-xyz/sdk-core';
+import { BaseResource, HttpResponse, ValidationError, Chain } from '@webacy-xyz/sdk-core';
 import {
   ScanTransactionRequest,
   ScanEip712Request,
   ScanResponse,
   ScanEip712Response,
   ScanOptions,
-  ScanChainId,
 } from '../types/scan';
-
-/**
- * Valid chain IDs for transaction scanning
- */
-const VALID_SCAN_CHAIN_IDS: ScanChainId[] = [1, 56, 137, 10, 42161, 8453];
+import { VALID_SCAN_CHAIN_IDS } from '../constants';
 
 /**
  * Resource for transaction and message scanning
@@ -19,6 +14,9 @@ const VALID_SCAN_CHAIN_IDS: ScanChainId[] = [1, 56, 137, 10, 42161, 8453];
  * Provides pre-signing security analysis for:
  * - Raw transaction scanning
  * - EIP-712 typed message scanning
+ *
+ * Note: This resource uses numeric chain IDs (1, 56, 137, etc.) in the request body
+ * rather than the Chain enum, as required by the underlying API.
  *
  * @example
  * ```typescript
@@ -37,8 +35,11 @@ const VALID_SCAN_CHAIN_IDS: ScanChainId[] = [1, 56, 137, 10, 42161, 8453];
  * });
  * ```
  */
-export class ScanResource {
-  constructor(private readonly httpClient: HttpClient) {}
+export class ScanResource extends BaseResource {
+  // Note: Scan uses numeric chain IDs in request body, defaultChain is accepted for consistency
+  constructor(httpClient: import('@webacy-xyz/sdk-core').HttpClient, _defaultChain?: Chain) {
+    super(httpClient, _defaultChain);
+  }
 
   /**
    * Scan a transaction for security risks before signing
@@ -85,7 +86,7 @@ export class ScanResource {
     request: ScanTransactionRequest,
     options: ScanOptions = {}
   ): Promise<ScanResponse> {
-    this.validateAddress(fromAddress);
+    this.validateSignerAddress(fromAddress);
     this.validateTransactionRequest(request);
 
     const queryParams = new URLSearchParams();
@@ -171,7 +172,7 @@ export class ScanResource {
     request: ScanEip712Request,
     options: ScanOptions = {}
   ): Promise<ScanEip712Response> {
-    this.validateAddress(fromAddress);
+    this.validateSignerAddress(fromAddress);
     this.validateEip712Request(request);
 
     const queryParams = new URLSearchParams();
@@ -191,9 +192,12 @@ export class ScanResource {
   }
 
   /**
-   * Validate address format
+   * Validate signer address format (basic non-empty check)
+   *
+   * Note: This is a simpler validation than the chain-aware validation in BaseResource,
+   * as scan requests accept EVM addresses only.
    */
-  private validateAddress(address: string): void {
+  private validateSignerAddress(address: string): void {
     if (!address || typeof address !== 'string' || address.trim() === '') {
       throw new ValidationError('Address is required and must be a non-empty string.');
     }
@@ -250,8 +254,14 @@ export class ScanResource {
     if (typeof request.msg.data.domain.chainId !== 'number') {
       throw new ValidationError('EIP-712 domain chainId (msg.data.domain.chainId) is required.');
     }
+    if (request.msg.data.domain.chainId <= 0) {
+      throw new ValidationError('EIP-712 domain chainId must be a positive integer.');
+    }
     if (!request.msg.data.message || typeof request.msg.data.message !== 'object') {
       throw new ValidationError('EIP-712 message (msg.data.message) is required.');
+    }
+    if (Object.keys(request.msg.data.message).length === 0) {
+      throw new ValidationError('EIP-712 message (msg.data.message) cannot be empty.');
     }
   }
 }

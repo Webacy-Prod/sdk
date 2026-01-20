@@ -1,19 +1,6 @@
-import { HttpClient, HttpResponse, ValidationError, Chain } from '@webacy-xyz/sdk-core';
+import { BaseResource, HttpResponse, ValidationError, Chain } from '@webacy-xyz/sdk-core';
 import { TransactionRiskResponse, TransactionOptions } from '../types/transaction';
-
-/**
- * Supported chains for transaction analysis
- */
-const SUPPORTED_TX_CHAINS: Chain[] = [
-  Chain.ETH,
-  Chain.BASE,
-  Chain.BSC,
-  Chain.POL,
-  Chain.OPT,
-  Chain.ARB,
-  Chain.SOL,
-  Chain.STELLAR,
-];
+import { SUPPORTED_TX_CHAINS } from '../constants';
 
 /**
  * Resource for transaction risk analysis
@@ -35,12 +22,7 @@ const SUPPORTED_TX_CHAINS: Chain[] = [
  * });
  * ```
  */
-export class TransactionsResource {
-  constructor(
-    private readonly httpClient: HttpClient,
-    private readonly defaultChain?: Chain
-  ) {}
-
+export class TransactionsResource extends BaseResource {
   /**
    * Analyze a transaction for security risks
    *
@@ -94,19 +76,6 @@ export class TransactionsResource {
     );
 
     return response.data;
-  }
-
-  /**
-   * Resolve the chain to use for a request
-   */
-  private resolveChain(options?: { chain?: Chain }): Chain {
-    const chain = options?.chain ?? this.defaultChain;
-    if (!chain) {
-      throw new ValidationError(
-        'Chain is required. Either specify chain in options or set defaultChain in client configuration.'
-      );
-    }
-    return chain;
   }
 
   /**

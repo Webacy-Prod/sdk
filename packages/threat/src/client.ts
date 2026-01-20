@@ -1,10 +1,4 @@
-import {
-  BaseClient,
-  WebacyClientConfig,
-  RequestInterceptor,
-  ResponseInterceptor,
-  ErrorInterceptor,
-} from '@webacy-xyz/sdk-core';
+import { BaseClient, WebacyClientConfig } from '@webacy-xyz/sdk-core';
 import { AddressesResource } from './resources/addresses';
 import { ContractsResource } from './resources/contracts';
 import { UrlResource } from './resources/url';
@@ -140,57 +134,15 @@ export class ThreatClient extends BaseClient {
     // Initialize resources with the HTTP client and default chain
     this.addresses = new AddressesResource(this.httpClient, this.defaultChain);
     this.contracts = new ContractsResource(this.httpClient, this.defaultChain);
-    this.url = new UrlResource(this.httpClient);
+    this.url = new UrlResource(this.httpClient, this.defaultChain);
     this.wallets = new WalletsResource(this.httpClient, this.defaultChain);
-    this.ledger = new LedgerResource(this.httpClient);
+    this.ledger = new LedgerResource(this.httpClient, this.defaultChain);
     this.accountTrace = new AccountTraceResource(this.httpClient, this.defaultChain);
-    this.usage = new UsageResource(this.httpClient);
+    this.usage = new UsageResource(this.httpClient, this.defaultChain);
     this.transactions = new TransactionsResource(this.httpClient, this.defaultChain);
-    this.scan = new ScanResource(this.httpClient);
+    this.scan = new ScanResource(this.httpClient, this.defaultChain);
   }
 
-  /**
-   * Add a request interceptor
-   *
-   * @example
-   * ```typescript
-   * client.addRequestInterceptor((url, config) => {
-   *   console.log(`Making request to ${url}`);
-   *   return config;
-   * });
-   * ```
-   */
-  override addRequestInterceptor(interceptor: RequestInterceptor): void {
-    super.addRequestInterceptor(interceptor);
-  }
-
-  /**
-   * Add a response interceptor
-   *
-   * @example
-   * ```typescript
-   * client.addResponseInterceptor((response) => {
-   *   console.log(`Received ${response.status} response`);
-   *   return response;
-   * });
-   * ```
-   */
-  override addResponseInterceptor(interceptor: ResponseInterceptor): void {
-    super.addResponseInterceptor(interceptor);
-  }
-
-  /**
-   * Add an error interceptor
-   *
-   * @example
-   * ```typescript
-   * client.addErrorInterceptor((error) => {
-   *   console.error(`Request failed: ${error.message}`);
-   *   return error;
-   * });
-   * ```
-   */
-  override addErrorInterceptor(interceptor: ErrorInterceptor): void {
-    super.addErrorInterceptor(interceptor);
-  }
+  // Interceptor methods (addRequestInterceptor, addResponseInterceptor, addErrorInterceptor)
+  // are inherited from BaseClient and don't need to be overridden.
 }

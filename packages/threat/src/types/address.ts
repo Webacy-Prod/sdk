@@ -132,8 +132,24 @@ export interface AddressDetails {
   buy_sell_taxes?: TaxInfo;
   /** Tokens launched by developer in 24h */
   dev_launched_tokens_in_24_hours?: number | null;
-  /** Source code analysis */
-  source_code_analysis?: unknown;
+  /** Source code analysis - structure varies by contract type */
+  source_code_analysis?: {
+    /** Whether source code is verified */
+    is_verified?: boolean;
+    /** Compiler version */
+    compiler_version?: string;
+    /** Contract name */
+    contract_name?: string;
+    /** Security score */
+    security_score?: number;
+    /** Vulnerabilities found */
+    vulnerabilities?: Array<{
+      id: string;
+      severity: 'low' | 'medium' | 'high' | 'critical';
+      title: string;
+      description: string;
+    }>;
+  } | null;
   /** Token security features */
   token_security?: {
     is_mintable: boolean;

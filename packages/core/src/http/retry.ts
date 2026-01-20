@@ -27,6 +27,12 @@ export const DEFAULT_RETRY_CONFIG: RetryConfig = {
 
 /**
  * Calculate delay for a retry attempt using exponential backoff with jitter
+ *
+ * Uses the "full jitter" approach recommended by AWS:
+ * delay = random(0, min(maxDelay, baseDelay * 2^attempt))
+ *
+ * This is modified to use a range of [exponentialDelay, exponentialDelay * 1.3]
+ * to ensure a minimum delay while still adding randomness.
  */
 export function calculateRetryDelay(
   attempt: number,
@@ -38,10 +44,18 @@ export function calculateRetryDelay(
     return Math.min(retryAfter * 1000, config.maxDelay);
   }
 
-  // Exponential backoff with jitter
+  // Calculate exponential backoff base
   const exponentialDelay = config.initialDelay * Math.pow(config.backoffMultiplier, attempt);
-  const jitter = Math.random() * 0.3 * exponentialDelay; // 30% jitter
-  const delay = exponentialDelay + jitter;
+
+  // Cap the exponential delay first to prevent overflow
+  const cappedExponentialDelay = Math.min(exponentialDelay, config.maxDelay);
+
+  // Add jitter: 0-30% of the capped delay
+  const maxJitter = 0.3 * cappedExponentialDelay;
+  const jitter = Math.random() * maxJitter;
+
+  // Final delay is base + jitter, capped at maxDelay
+  const delay = cappedExponentialDelay + jitter;
 
   return Math.min(delay, config.maxDelay);
 }

@@ -23,6 +23,9 @@ export type {
 
 // Contract types
 export type {
+  SimilarContract,
+  DeployedContractSummary,
+  ContractAnalysisData,
   ContractRiskResponse,
   SourceCodeAnalysis,
   Vulnerability,

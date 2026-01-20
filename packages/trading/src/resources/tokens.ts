@@ -11,6 +11,7 @@ import {
   PoolOhlcvOptions,
   OhlcvTimeFrame,
 } from '../types';
+import { SUPPORTED_TOKEN_ECONOMICS_CHAINS, VALID_TIME_FRAMES } from '../constants';
 
 /**
  * Resource for token pools and trending data
@@ -177,24 +178,6 @@ export class TokensResource extends BaseResource {
   }
 
   /**
-   * Supported chains for token economics
-   */
-  private static readonly SUPPORTED_TOKEN_ECONOMICS_CHAINS: Chain[] = [
-    Chain.ETH,
-    Chain.BASE,
-    Chain.BSC,
-    Chain.POL,
-    Chain.OPT,
-    Chain.ARB,
-    Chain.SOL,
-  ];
-
-  /**
-   * Valid time frames for OHLCV
-   */
-  private static readonly VALID_TIME_FRAMES: OhlcvTimeFrame[] = ['minute', 'hour', 'day'];
-
-  /**
    * Get token economics data
    *
    * Returns token economics metrics for a specific date including
@@ -306,23 +289,49 @@ export class TokensResource extends BaseResource {
    * Validate chain is supported for token economics
    */
   private validateTokenEconomicsChain(chain: Chain): void {
-    if (!TokensResource.SUPPORTED_TOKEN_ECONOMICS_CHAINS.includes(chain)) {
+    if (!SUPPORTED_TOKEN_ECONOMICS_CHAINS.includes(chain)) {
       throw new ValidationError(
-        `Chain "${chain}" is not supported for token economics. Supported chains: ${TokensResource.SUPPORTED_TOKEN_ECONOMICS_CHAINS.join(', ')}`
+        `Chain "${chain}" is not supported for token economics. Supported chains: ${SUPPORTED_TOKEN_ECONOMICS_CHAINS.join(', ')}`
       );
     }
   }
 
   /**
-   * Validate metrics date format (DD-MM-YYYY)
+   * Validate metrics date format (DD-MM-YYYY) and that it's a valid date
    */
   private validateMetricsDate(date: string): void {
     if (!date || typeof date !== 'string') {
       throw new ValidationError('Metrics date is required.');
     }
-    const dateRegex = /^\d{2}-\d{2}-\d{4}$/;
-    if (!dateRegex.test(date)) {
+    const dateRegex = /^(\d{2})-(\d{2})-(\d{4})$/;
+    const match = dateRegex.exec(date);
+    if (!match) {
       throw new ValidationError('Metrics date must be in DD-MM-YYYY format (e.g., "15-01-2024").');
+    }
+
+    const [, dayStr, monthStr, yearStr] = match;
+    const day = parseInt(dayStr, 10);
+    const month = parseInt(monthStr, 10);
+    const year = parseInt(yearStr, 10);
+
+    // Validate month range
+    if (month < 1 || month > 12) {
+      throw new ValidationError(`Invalid month "${monthStr}". Month must be between 01 and 12.`);
+    }
+
+    // Validate day range (basic check)
+    if (day < 1 || day > 31) {
+      throw new ValidationError(`Invalid day "${dayStr}". Day must be between 01 and 31.`);
+    }
+
+    // Validate actual date (handles leap years, month lengths)
+    const parsedDate = new Date(year, month - 1, day);
+    if (
+      parsedDate.getFullYear() !== year ||
+      parsedDate.getMonth() !== month - 1 ||
+      parsedDate.getDate() !== day
+    ) {
+      throw new ValidationError(`Invalid date "${date}". This date does not exist.`);
     }
   }
 
@@ -330,9 +339,9 @@ export class TokensResource extends BaseResource {
    * Validate time frame
    */
   private validateTimeFrame(timeFrame: OhlcvTimeFrame): void {
-    if (!TokensResource.VALID_TIME_FRAMES.includes(timeFrame)) {
+    if (!VALID_TIME_FRAMES.includes(timeFrame)) {
       throw new ValidationError(
-        `Invalid time frame "${timeFrame}". Valid time frames: ${TokensResource.VALID_TIME_FRAMES.join(', ')}`
+        `Invalid time frame "${timeFrame}". Valid time frames: ${VALID_TIME_FRAMES.join(', ')}`
       );
     }
   }
