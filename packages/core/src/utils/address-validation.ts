@@ -89,9 +89,10 @@ export function isValidSuiAddress(address: string): boolean {
  *
  * Supports both:
  * - Standard account ID (G... - base32 encoded, 56 chars)
- * - Asset identifier (CODE:ISSUER where CODE is 1-12 uppercase alphanumeric chars)
+ * - Asset identifier (CODE:ISSUER where CODE is 1-12 alphanumeric chars)
  *
- * Asset codes are case-sensitive and conventionally uppercase (per SEP-0001).
+ * Asset codes are case-sensitive and may include both upper and lowercase
+ * alphanumeric characters (per SEP-0001).
  */
 export function isValidStellarAddress(address: string): boolean {
   // Standard Stellar account ID (starts with G, base32 encoded)
@@ -99,8 +100,8 @@ export function isValidStellarAddress(address: string): boolean {
     return true;
   }
   // Asset identifier (CODE:ISSUER)
-  // Asset codes are 1-12 alphanumeric characters, uppercase only
-  if (/^[A-Z0-9]{1,12}:G[A-Z2-7]{55}$/.test(address)) {
+  // Asset codes are 1-12 alphanumeric characters (case-sensitive per SEP-0001)
+  if (/^[A-Za-z0-9]{1,12}:G[A-Z2-7]{55}$/.test(address)) {
     return true;
   }
   return false;

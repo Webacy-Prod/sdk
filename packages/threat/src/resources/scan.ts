@@ -5,6 +5,7 @@ import {
   ScanResponse,
   ScanEIP712Response,
   ScanOptions,
+  ScanChainId,
 } from '../types/scan';
 import { VALID_SCAN_CHAIN_IDS } from '../constants';
 
@@ -88,6 +89,7 @@ export class ScanResource extends BaseResource {
   ): Promise<ScanResponse> {
     this.validateSignerAddress(fromAddress);
     this.validateTransactionRequest(request);
+    this.validateSignerAddressMatch(fromAddress, request.tx.from, 'tx.from');
 
     const queryParams = new URLSearchParams();
     if (options.refreshCache !== undefined) {
@@ -174,6 +176,7 @@ export class ScanResource extends BaseResource {
   ): Promise<ScanEIP712Response> {
     this.validateSignerAddress(fromAddress);
     this.validateEip712Request(request);
+    this.validateSignerAddressMatch(fromAddress, request.msg.from, 'msg.from');
 
     const queryParams = new URLSearchParams();
     if (options.refreshCache !== undefined) {
@@ -200,6 +203,19 @@ export class ScanResource extends BaseResource {
   private validateSignerAddress(address: string): void {
     if (!address || typeof address !== 'string' || address.trim() === '') {
       throw new ValidationError('Address is required and must be a non-empty string.');
+    }
+  }
+
+  /**
+   * Validate that the signer address matches the address in the request
+   */
+  private validateSignerAddressMatch(
+    signerAddress: string,
+    requestAddress: string,
+    fieldName: string
+  ): void {
+    if (signerAddress.toLowerCase() !== requestAddress.toLowerCase()) {
+      throw new ValidationError(`Signer address must match ${fieldName}.`);
     }
   }
 
@@ -256,6 +272,11 @@ export class ScanResource extends BaseResource {
     }
     if (request.msg.data.domain.chainId <= 0) {
       throw new ValidationError('EIP-712 domain chainId must be a positive integer.');
+    }
+    if (!VALID_SCAN_CHAIN_IDS.includes(request.msg.data.domain.chainId as ScanChainId)) {
+      throw new ValidationError(
+        `Invalid chain ID in EIP-712 domain. Supported chain IDs: ${VALID_SCAN_CHAIN_IDS.join(', ')} (1=ETH, 56=BSC, 137=POL, 10=OPT, 42161=ARB, 8453=BASE)`
+      );
     }
     if (!request.msg.data.message || typeof request.msg.data.message !== 'object') {
       throw new ValidationError('EIP-712 message (msg.data.message) is required.');

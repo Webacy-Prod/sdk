@@ -74,6 +74,21 @@ describe('ScanResource', () => {
       ).rejects.toThrow('Invalid chain ID');
     });
 
+    it('should throw ValidationError for mismatched signer address', async () => {
+      await expect(
+        scan.scanTransaction('0xSigner', {
+          tx: { from: '0xDifferentAddress', raw: '0x02f8...' },
+          chain: 1,
+        })
+      ).rejects.toThrow(ValidationError);
+      await expect(
+        scan.scanTransaction('0xSigner', {
+          tx: { from: '0xDifferentAddress', raw: '0x02f8...' },
+          chain: 1,
+        })
+      ).rejects.toThrow('Signer address must match tx.from');
+    });
+
     it('should make API call with valid request', async () => {
       mockHttpClient.post.mockResolvedValueOnce({
         data: { riskLevel: 'low', warnings: [] },
@@ -218,6 +233,50 @@ describe('ScanResource', () => {
           },
         })
       ).rejects.toThrow(ValidationError);
+    });
+
+    it('should throw ValidationError for invalid domain.chainId', async () => {
+      await expect(
+        scan.scanEip712('0xSigner', {
+          msg: {
+            from: '0xSigner',
+            data: {
+              ...validRequest.msg.data,
+              domain: { chainId: 999 },
+            },
+          },
+        })
+      ).rejects.toThrow(ValidationError);
+      await expect(
+        scan.scanEip712('0xSigner', {
+          msg: {
+            from: '0xSigner',
+            data: {
+              ...validRequest.msg.data,
+              domain: { chainId: 999 },
+            },
+          },
+        })
+      ).rejects.toThrow('Invalid chain ID in EIP-712 domain');
+    });
+
+    it('should throw ValidationError for mismatched signer address', async () => {
+      await expect(
+        scan.scanEip712('0xSigner', {
+          msg: {
+            from: '0xDifferentAddress',
+            data: validRequest.msg.data,
+          },
+        })
+      ).rejects.toThrow(ValidationError);
+      await expect(
+        scan.scanEip712('0xSigner', {
+          msg: {
+            from: '0xDifferentAddress',
+            data: validRequest.msg.data,
+          },
+        })
+      ).rejects.toThrow('Signer address must match msg.from');
     });
 
     it('should make API call with valid request', async () => {
