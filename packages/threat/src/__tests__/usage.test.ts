@@ -39,7 +39,7 @@ describe('UsageResource', () => {
       ).rejects.toThrow(ValidationError);
       await expect(
         usage.getMaxRps({ organization: 'test-org', from: -1, to: 2000 })
-      ).rejects.toThrow('From timestamp must be a positive number');
+      ).rejects.toThrow('From timestamp must be a non-negative number');
     });
 
     it('should throw ValidationError for invalid to timestamp', async () => {
@@ -48,7 +48,7 @@ describe('UsageResource', () => {
       ).rejects.toThrow(ValidationError);
       await expect(
         usage.getMaxRps({ organization: 'test-org', from: 1000, to: -1 })
-      ).rejects.toThrow('To timestamp must be a positive number');
+      ).rejects.toThrow('To timestamp must be a non-negative number');
     });
 
     it('should throw ValidationError when from >= to', async () => {

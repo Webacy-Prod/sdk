@@ -177,10 +177,10 @@ export class UsageResource {
       throw new ValidationError('Organization name is required.');
     }
     if (typeof options.from !== 'number' || options.from < 0) {
-      throw new ValidationError('From timestamp must be a positive number (milliseconds).');
+      throw new ValidationError('From timestamp must be a non-negative number (milliseconds).');
     }
     if (typeof options.to !== 'number' || options.to < 0) {
-      throw new ValidationError('To timestamp must be a positive number (milliseconds).');
+      throw new ValidationError('To timestamp must be a non-negative number (milliseconds).');
     }
     if (options.from >= options.to) {
       throw new ValidationError('From timestamp must be less than to timestamp.');

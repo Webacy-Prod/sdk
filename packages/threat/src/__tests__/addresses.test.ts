@@ -295,17 +295,27 @@ describe('AddressesResource', () => {
     });
 
     it('should support all valid chains for quick profile', async () => {
-      const validAddress = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e';
-      const supportedChains = ['eth', 'base', 'bsc', 'pol', 'opt', 'arb'] as const;
+      const validEvmAddress = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e';
+      const validSolAddress = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v';
+      const supportedChains = [
+        Chain.ETH,
+        Chain.BASE,
+        Chain.BSC,
+        Chain.POL,
+        Chain.OPT,
+        Chain.ARB,
+        Chain.SOL,
+      ] as const;
 
       for (const chain of supportedChains) {
+        const address = chain === Chain.SOL ? validSolAddress : validEvmAddress;
         mockHttpClient.get.mockResolvedValueOnce({
-          data: { address: validAddress, chain },
+          data: { address, chain },
           status: 200,
           headers: new Headers(),
         });
 
-        await addresses.getQuickProfile(validAddress, { chain });
+        await addresses.getQuickProfile(address, { chain });
 
         expect(mockHttpClient.get).toHaveBeenCalledWith(
           expect.stringContaining(`chain=${chain}`),
