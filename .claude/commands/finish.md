@@ -17,8 +17,8 @@ If the file doesn't exist or is incomplete:
 Run the following commands to understand what changed:
 
 ```bash
-git diff --name-only main...HEAD
-git diff --stat main...HEAD
+git diff --name-only staging...HEAD
+git diff --stat staging...HEAD
 ```
 
 Show the user the list of changed files.
@@ -100,7 +100,7 @@ Examples:
 Run the following command:
 
 ```bash
-gh pr create --base main --title "{PR_TITLE}" --body "$(cat <<'EOF'
+gh pr create --base staging --title "{PR_TITLE}" --body "$(cat <<'EOF'
 {GENERATED_DESCRIPTION}
 EOF
 )"
@@ -126,7 +126,7 @@ rm .claude/.pr-context.json
 
 ## Important Notes
 
-- Always use `--base main` for the PR
+- Always use `--base staging` for the PR
 - The PR title should follow Conventional Commits format
 - Generate a comprehensive description
 - Show the PR URL to the user after creation

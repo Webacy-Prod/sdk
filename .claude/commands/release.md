@@ -1,12 +1,12 @@
 ---
-description: Create a release, bump version, and publish to npm
+description: Create a release branch, bump version, and create PR to main
 ---
 
-You are helping create a release for the Webacy SDK. Your task is to bump the version, run tests, build, and publish all packages to npm.
+You are helping create a release for the Webacy SDK. This command implements the release workflow: staging → release branch → version bump → PR to main → GitHub Actions publish.
 
-## Step 1: Verify Current State
+## Step 1: Verify on Staging
 
-Check that you're on main branch and it's clean:
+Check that you're on staging branch and it's clean:
 
 ```bash
 git branch --show-current
@@ -14,10 +14,10 @@ git fetch origin
 git status
 ```
 
-If not on main:
+If not on staging:
 ```text
-You must be on main branch to create a release.
-Please run: git checkout main && git pull
+You must be on staging branch to start a release.
+Please run: git checkout staging && git pull origin staging
 ```
 
 If there are uncommitted changes:
@@ -37,43 +37,39 @@ Ask the user which version bump to perform (use AskUserQuestion tool):
 
 ## Step 3: Calculate New Version
 
-Read current version from root package.json and calculate new version:
+Fetch the current published version from npm (this is the source of truth):
 
 ```bash
-CURRENT_VERSION=$(node -p "require('./package.json').version")
+CURRENT_VERSION=$(npm view @webacy/sdk version 2>/dev/null || echo "0.0.0")
 ```
 
-Show the user:
+Calculate the new version based on the bump type and show the user:
 ```text
-Current version: 1.0.0
+Current npm version: 1.0.0
 New version will be: 1.1.0
 ```
 
-## Step 4: Run Tests
+Note: If the package hasn't been published yet, it will default to 0.0.0.
 
-Run the full test suite:
+## Step 4: Auto-Extract Changes
 
-```bash
-pnpm test
-```
-
-If tests fail:
-```text
-Tests failed. Please fix failing tests before releasing.
-```
-
-## Step 5: Build All Packages
-
-Build all packages:
+Get commits between main and staging for the PR description:
 
 ```bash
-pnpm build
+git log origin/main..origin/staging --pretty=format:"- %s" --no-merges
 ```
 
-If build fails:
-```text
-Build failed. Please fix build errors before releasing.
+Store these for the PR body.
+
+## Step 5: Create Release Branch
+
+Create a release branch from staging:
+
+```bash
+git checkout -b release/{VERSION}
 ```
+
+For example: `release/1.1.0`
 
 ## Step 6: Bump Version in All Packages
 
@@ -92,91 +88,109 @@ cd packages/sdk && npm version {TYPE} --no-git-tag-version && cd ../..
 
 Also update the inter-package dependencies to the new version.
 
-## Step 7: Update CHANGELOG
+## Step 7: Commit Version Bump
 
-Ask the user to provide release notes or auto-generate from commits:
-
-```bash
-git log $(git describe --tags --abbrev=0)..HEAD --pretty=format:"- %s" --no-merges
-```
-
-Update CHANGELOG.md with the new version section.
-
-## Step 8: Commit Version Bump
+Commit the version changes:
 
 ```bash
 git add .
 git commit -m "chore: release v{VERSION}"
 ```
 
-## Step 9: Create Git Tag
+## Step 8: Push Release Branch
+
+Push the release branch to origin:
 
 ```bash
-git tag v{VERSION}
+git push -u origin release/{VERSION}
 ```
 
-## Step 10: Publish to npm
+## Step 9: Create PR to Main
 
-Publish each package in dependency order:
+Create a pull request targeting main:
 
 ```bash
-# Core first (no dependencies)
-cd packages/core && pnpm publish --access public && cd ../..
+gh pr create --base main --title "chore: release v{VERSION}" --body "$(cat <<'EOF'
+## Release v{VERSION}
 
-# Threat and Trading (depend on core)
-cd packages/threat && pnpm publish --access public && cd ../..
-cd packages/trading && pnpm publish --access public && cd ../..
+### Changes
+{COMMITS_FROM_STEP_4}
 
-# SDK last (depends on all)
-cd packages/sdk && pnpm publish --access public && cd ../..
+### Checklist
+- [ ] Version bumped in all packages
+- [ ] Inter-package dependencies updated
+- [ ] CI passes
+
+### Post-merge
+After merging this PR:
+1. GitHub Actions will publish packages to npm
+2. GitHub Actions will create git tag and GitHub release
+3. Run `/sync` to merge main back to staging
+EOF
+)"
 ```
 
-## Step 11: Push to Remote
+## Step 10: Confirm
 
-```bash
-git push origin main --follow-tags
-```
-
-## Step 12: Confirm
-
-Output a confirmation message:
+Output the PR URL and next steps:
 
 ```text
-Release v{VERSION} completed!
+Release PR created!
 
-Published packages:
-- @webacy/sdk@{VERSION}
-- @webacy/sdk-core@{VERSION}
-- @webacy/sdk-threat@{VERSION}
-- @webacy/sdk-trading@{VERSION}
+PR: {PR_URL}
 
-Git tag v{VERSION} pushed to origin
-
-Next step:
-Run `/release-notes` to create the GitHub release
+Next steps:
+1. Review the PR
+2. Merge to main (squash or merge commit)
+3. GitHub Actions will publish to npm and create the tag/release
+4. Run /sync to merge main back to staging
 ```
 
 ## Important Notes
 
-- Always run tests and build before releasing
-- Publish packages in dependency order (core -> threat/trading -> sdk)
+- Start from staging branch, not main
+- Version is fetched from npm (source of truth), not package.json
+- Release branch allows PR review before publishing
+- Merging to main triggers GitHub Actions
+- GitHub Actions publishes to npm and creates the git tag + GitHub release
+- After merge, run `/sync` to bring changes back to staging
 - Version must be bumped in ALL packages
 - Inter-package dependencies must also be updated
-- Git tag format is `v{VERSION}` (e.g., `v1.1.0`)
+
+## Release Flow Diagram
+
+```text
+staging (tested code)
+    │
+    ▼
+release/{VERSION} branch (created from staging)
+    │
+    ▼
+version bump (on release branch)
+    │
+    ▼
+PR: release/{VERSION} → main
+    │
+    ▼
+merge PR (version bump is in the PR)
+    │
+    ▼
+GitHub Actions: npm publish + create tag/release
+    │
+    ▼
+staging (sync from main via /sync)
+```
 
 ## Error Handling
 
-- If not on main: Instruct to checkout main
-- If tests fail: Stop release, show failures
-- If build fails: Stop release, show errors
-- If npm publish fails: Show error, may need `npm login`
-- If tag already exists: Ask user to choose different version
+- If not on staging: Instruct to checkout staging
+- If release branch exists: Delete or use different version
+- If PR creation fails: Check gh CLI authentication
+- If GitHub Actions fails: Check workflow logs, may need to re-run
 
 ## Pre-release Checklist
 
 Before running `/release`:
-- [ ] All features/fixes are merged to main
-- [ ] CHANGELOG.md is up to date
-- [ ] Documentation is updated
-- [ ] All tests pass locally
-- [ ] You are logged into npm (`npm whoami`)
+- [ ] All features/fixes are merged to staging
+- [ ] All tests pass locally on staging
+- [ ] GitHub Actions workflow is properly configured

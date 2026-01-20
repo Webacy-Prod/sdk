@@ -33,8 +33,8 @@ Examples:
 Run the following commands:
 
 ```bash
-git checkout main
-git pull origin main
+git checkout staging
+git pull origin staging
 git checkout -b {branch_name}
 ```
 
@@ -69,5 +69,5 @@ Next steps:
 
 - If the branch already exists, ask the user if they want to switch to it or create a new one
 - If `.claude/.pr-context.json` already exists, confirm whether to overwrite it
-- Always pull latest main before creating the branch
+- Always pull latest staging before creating the branch
 - Use conventional commit type prefixes for branch names
