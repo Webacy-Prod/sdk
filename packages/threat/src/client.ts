@@ -12,6 +12,8 @@ import { WalletsResource } from './resources/wallets';
 import { LedgerResource } from './resources/ledger';
 import { AccountTraceResource } from './resources/account-trace';
 import { UsageResource } from './resources/usage';
+import { TransactionsResource } from './resources/transactions';
+import { ScanResource } from './resources/scan';
 
 /**
  * Webacy Threat SDK Client
@@ -90,6 +92,20 @@ export class ThreatClient extends BaseClient {
   public readonly usage: UsageResource;
 
   /**
+   * Transactions resource
+   *
+   * Transaction risk analysis for blockchain transactions.
+   */
+  public readonly transactions: TransactionsResource;
+
+  /**
+   * Scan resource
+   *
+   * Pre-signing security analysis for transactions and EIP-712 messages.
+   */
+  public readonly scan: ScanResource;
+
+  /**
    * Create a new ThreatClient instance
    *
    * @param config - Client configuration
@@ -129,6 +145,8 @@ export class ThreatClient extends BaseClient {
     this.ledger = new LedgerResource(this.httpClient);
     this.accountTrace = new AccountTraceResource(this.httpClient, this.defaultChain);
     this.usage = new UsageResource(this.httpClient);
+    this.transactions = new TransactionsResource(this.httpClient, this.defaultChain);
+    this.scan = new ScanResource(this.httpClient);
   }
 
   /**

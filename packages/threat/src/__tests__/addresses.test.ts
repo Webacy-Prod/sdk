@@ -221,4 +221,97 @@ describe('AddressesResource', () => {
       expect(result.is_poisoned).toBe(false);
     });
   });
+
+  describe('getQuickProfile', () => {
+    it('should throw ValidationError for invalid address', async () => {
+      await expect(addresses.getQuickProfile('invalid', { chain: 'eth' })).rejects.toThrow(
+        ValidationError
+      );
+    });
+
+    it('should throw ValidationError for unsupported chain', async () => {
+      const validAddress = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e';
+      await expect(
+        addresses.getQuickProfile(validAddress, { chain: 'ton' as 'eth' })
+      ).rejects.toThrow(ValidationError);
+      await expect(
+        addresses.getQuickProfile(validAddress, { chain: 'ton' as 'eth' })
+      ).rejects.toThrow('not supported for quick profile');
+    });
+
+    it('should throw ValidationError when chain is not provided and no default is set', async () => {
+      const validAddress = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e';
+      await expect(addresses.getQuickProfile(validAddress)).rejects.toThrow(ValidationError);
+      await expect(addresses.getQuickProfile(validAddress)).rejects.toThrow('Chain is required');
+    });
+
+    it('should make API call with valid address', async () => {
+      const validAddress = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e';
+      mockHttpClient.get.mockResolvedValueOnce({
+        data: { address: validAddress, riskScore: 30 },
+        status: 200,
+        headers: new Headers(),
+      });
+
+      const result = await addresses.getQuickProfile(validAddress, { chain: 'eth' });
+
+      expect(mockHttpClient.get).toHaveBeenCalledWith(
+        `/quick-profile/${encodeURIComponent(validAddress)}?chain=eth`,
+        expect.any(Object)
+      );
+      expect(result.riskScore).toBe(30);
+    });
+
+    it('should include withApprovals when provided', async () => {
+      const validAddress = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e';
+      mockHttpClient.get.mockResolvedValueOnce({
+        data: { address: validAddress, approvals: [] },
+        status: 200,
+        headers: new Headers(),
+      });
+
+      await addresses.getQuickProfile(validAddress, { chain: 'eth', withApprovals: true });
+
+      expect(mockHttpClient.get).toHaveBeenCalledWith(
+        expect.stringContaining('withApprovals=true'),
+        expect.any(Object)
+      );
+    });
+
+    it('should include hideTrustFlags when provided', async () => {
+      const validAddress = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e';
+      mockHttpClient.get.mockResolvedValueOnce({
+        data: { address: validAddress },
+        status: 200,
+        headers: new Headers(),
+      });
+
+      await addresses.getQuickProfile(validAddress, { chain: 'eth', hideTrustFlags: true });
+
+      expect(mockHttpClient.get).toHaveBeenCalledWith(
+        expect.stringContaining('hide_trust_flags=true'),
+        expect.any(Object)
+      );
+    });
+
+    it('should support all valid chains for quick profile', async () => {
+      const validAddress = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e';
+      const supportedChains = ['eth', 'base', 'bsc', 'pol', 'opt', 'arb'] as const;
+
+      for (const chain of supportedChains) {
+        mockHttpClient.get.mockResolvedValueOnce({
+          data: { address: validAddress, chain },
+          status: 200,
+          headers: new Headers(),
+        });
+
+        await addresses.getQuickProfile(validAddress, { chain });
+
+        expect(mockHttpClient.get).toHaveBeenCalledWith(
+          expect.stringContaining(`chain=${chain}`),
+          expect.any(Object)
+        );
+      }
+    });
+  });
 });

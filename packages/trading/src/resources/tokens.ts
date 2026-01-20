@@ -1,10 +1,15 @@
-import { HttpResponse, BaseResource } from '@webacy-xyz/sdk-core';
+import { HttpResponse, BaseResource, ValidationError, Chain } from '@webacy-xyz/sdk-core';
 import {
   PoolsResponse,
   TrendingTokensResponse,
   TrendingPoolsResponse,
   TokenPoolsOptions,
   TrendingOptions,
+  TokenEconomicsResponse,
+  TokenEconomicsOptions,
+  PoolOhlcvResponse,
+  PoolOhlcvOptions,
+  OhlcvTimeFrame,
 } from '../types';
 
 /**
@@ -169,5 +174,166 @@ export class TokensResource extends BaseResource {
     });
 
     return response.data;
+  }
+
+  /**
+   * Supported chains for token economics
+   */
+  private static readonly SUPPORTED_TOKEN_ECONOMICS_CHAINS: Chain[] = [
+    Chain.ETH,
+    Chain.BASE,
+    Chain.BSC,
+    Chain.POL,
+    Chain.OPT,
+    Chain.ARB,
+    Chain.SOL,
+  ];
+
+  /**
+   * Valid time frames for OHLCV
+   */
+  private static readonly VALID_TIME_FRAMES: OhlcvTimeFrame[] = ['minute', 'hour', 'day'];
+
+  /**
+   * Get token economics data
+   *
+   * Returns token economics metrics for a specific date including
+   * supply, market cap, price, volume, and holder statistics.
+   *
+   * @param address - Token address
+   * @param options - Request options (chain and metricsDate required)
+   * @returns Token economics data
+   *
+   * @example
+   * ```typescript
+   * const token = await client.tokens.getToken('0x...', {
+   *   chain: Chain.ETH,
+   *   metricsDate: '15-01-2024', // DD-MM-YYYY
+   * });
+   *
+   * console.log(`Token: ${token.name} (${token.symbol})`);
+   * console.log(`Price: $${token.metrics.priceUsd}`);
+   * console.log(`Market Cap: $${token.metrics.marketCap}`);
+   * console.log(`24h Volume: $${token.metrics.volume24h}`);
+   * console.log(`Holders: ${token.metrics.holderCount}`);
+   * ```
+   */
+  async getToken(address: string, options: TokenEconomicsOptions): Promise<TokenEconomicsResponse> {
+    const { chain, metricsDate } = options;
+    this.validateTokenEconomicsChain(chain);
+    this.validateAddress(address, chain);
+    this.validateMetricsDate(metricsDate);
+
+    const queryParams = new URLSearchParams();
+    queryParams.append('chain', chain);
+    queryParams.append('metrics-date', metricsDate);
+
+    const response: HttpResponse<TokenEconomicsResponse> = await this.httpClient.get(
+      `/tokens/${encodeURIComponent(address)}?${queryParams.toString()}`,
+      {
+        timeout: options.timeout,
+        signal: options.signal,
+      }
+    );
+
+    return response.data;
+  }
+
+  /**
+   * Get pool OHLCV data
+   *
+   * Returns Open, High, Low, Close, Volume data for a liquidity pool
+   * at the specified time frame.
+   *
+   * @param poolAddress - Pool address
+   * @param options - Request options
+   * @returns Pool OHLCV data
+   *
+   * @example
+   * ```typescript
+   * // Get hourly OHLCV data
+   * const ohlcv = await client.tokens.getPoolOhlcv('0xPoolAddress', {
+   *   chain: Chain.ETH,
+   *   timeFrame: 'hour',
+   *   limit: 24, // Last 24 hours
+   * });
+   *
+   * console.log(`Pool: ${ohlcv.poolName}`);
+   * for (const candle of ohlcv.data) {
+   *   console.log(`${new Date(candle.timestamp * 1000).toISOString()}`);
+   *   console.log(`  O: ${candle.open} H: ${candle.high} L: ${candle.low} C: ${candle.close}`);
+   *   console.log(`  Volume: ${candle.volume}`);
+   * }
+   *
+   * // Get data before a specific timestamp
+   * const historical = await client.tokens.getPoolOhlcv('0xPoolAddress', {
+   *   chain: Chain.ETH,
+   *   timeFrame: 'day',
+   *   beforeTimestamp: 1705363200, // Unix timestamp
+   *   limit: 30,
+   * });
+   * ```
+   */
+  async getPoolOhlcv(poolAddress: string, options: PoolOhlcvOptions): Promise<PoolOhlcvResponse> {
+    const { chain, timeFrame } = options;
+    this.validateTokenEconomicsChain(chain);
+    this.validateAddress(poolAddress, chain);
+    this.validateTimeFrame(timeFrame);
+
+    const queryParams = new URLSearchParams();
+    queryParams.append('chain', chain);
+    queryParams.append('timeFrame', timeFrame);
+
+    if (options.beforeTimestamp !== undefined) {
+      queryParams.append('beforeTimestamp', String(options.beforeTimestamp));
+    }
+    if (options.limit !== undefined) {
+      queryParams.append('limit', String(options.limit));
+    }
+
+    const response: HttpResponse<PoolOhlcvResponse> = await this.httpClient.get(
+      `/tokens/pools/${encodeURIComponent(poolAddress)}?${queryParams.toString()}`,
+      {
+        timeout: options.timeout,
+        signal: options.signal,
+      }
+    );
+
+    return response.data;
+  }
+
+  /**
+   * Validate chain is supported for token economics
+   */
+  private validateTokenEconomicsChain(chain: Chain): void {
+    if (!TokensResource.SUPPORTED_TOKEN_ECONOMICS_CHAINS.includes(chain)) {
+      throw new ValidationError(
+        `Chain "${chain}" is not supported for token economics. Supported chains: ${TokensResource.SUPPORTED_TOKEN_ECONOMICS_CHAINS.join(', ')}`
+      );
+    }
+  }
+
+  /**
+   * Validate metrics date format (DD-MM-YYYY)
+   */
+  private validateMetricsDate(date: string): void {
+    if (!date || typeof date !== 'string') {
+      throw new ValidationError('Metrics date is required.');
+    }
+    const dateRegex = /^\d{2}-\d{2}-\d{4}$/;
+    if (!dateRegex.test(date)) {
+      throw new ValidationError('Metrics date must be in DD-MM-YYYY format (e.g., "15-01-2024").');
+    }
+  }
+
+  /**
+   * Validate time frame
+   */
+  private validateTimeFrame(timeFrame: OhlcvTimeFrame): void {
+    if (!TokensResource.VALID_TIME_FRAMES.includes(timeFrame)) {
+      throw new ValidationError(
+        `Invalid time frame "${timeFrame}". Valid time frames: ${TokensResource.VALID_TIME_FRAMES.join(', ')}`
+      );
+    }
   }
 }

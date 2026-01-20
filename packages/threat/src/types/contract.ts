@@ -172,3 +172,78 @@ export interface TaxOptions {
   /** Abort signal */
   signal?: AbortSignal;
 }
+
+/**
+ * Code analysis finding
+ */
+export interface CodeAnalysisFinding {
+  /** Finding ID/type */
+  id: string;
+  /** Finding title */
+  title: string;
+  /** Finding description */
+  description: string;
+  /** Severity level */
+  severity: 'info' | 'low' | 'medium' | 'high' | 'critical';
+  /** Confidence level */
+  confidence?: 'low' | 'medium' | 'high';
+  /** Affected code locations */
+  locations?: Array<{
+    file?: string;
+    line?: number;
+    column?: number;
+    snippet?: string;
+  }>;
+  /** Recommendation to fix */
+  recommendation?: string;
+}
+
+/**
+ * Static code analysis response
+ */
+export interface CodeAnalysisResponse {
+  /** Contract address */
+  contractAddress: string;
+  /** Chain */
+  chain: string;
+  /** Whether source code is verified */
+  isVerified: boolean;
+  /** Contract name */
+  contractName?: string;
+  /** Compiler version */
+  compilerVersion?: string;
+  /** Overall security score (0-100) */
+  securityScore?: number;
+  /** Analysis findings */
+  findings: CodeAnalysisFinding[];
+  /** Summary counts by severity */
+  summary?: {
+    critical: number;
+    high: number;
+    medium: number;
+    low: number;
+    info: number;
+  };
+  /** Analysis timestamp */
+  analyzedAt?: string;
+  /** Whether result is from cache */
+  fromCache?: boolean;
+}
+
+/**
+ * Options for code analysis requests
+ */
+export interface CodeAnalysisOptions {
+  /**
+   * Target blockchain (EVM chains only)
+   *
+   * Required parameter.
+   */
+  chain: Chain;
+  /** Force refresh cache */
+  refreshCache?: boolean;
+  /** Request timeout in milliseconds */
+  timeout?: number;
+  /** Abort signal */
+  signal?: AbortSignal;
+}

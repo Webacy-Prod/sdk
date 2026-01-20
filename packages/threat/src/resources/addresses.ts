@@ -1,4 +1,4 @@
-import { HttpResponse, BaseResource } from '@webacy-xyz/sdk-core';
+import { HttpResponse, BaseResource, ValidationError, Chain } from '@webacy-xyz/sdk-core';
 import {
   AddressRiskResponse,
   SanctionedResponse,
@@ -6,6 +6,8 @@ import {
   AddressAnalysisOptions,
   SanctionsOptions,
   PoisoningOptions,
+  QuickProfileResponse,
+  QuickProfileOptions,
 } from '../types';
 
 /**
@@ -194,5 +196,102 @@ export class AddressesResource extends BaseResource {
     );
 
     return response.data;
+  }
+
+  /**
+   * Supported chains for quick profile
+   */
+  private static readonly SUPPORTED_QUICK_PROFILE_CHAINS: Chain[] = [
+    Chain.ETH,
+    Chain.BASE,
+    Chain.BSC,
+    Chain.POL,
+    Chain.OPT,
+    Chain.ARB,
+    Chain.SOL,
+  ];
+
+  /**
+   * Get a quick risk profile for an address
+   *
+   * Returns a lightweight risk assessment including:
+   * - Risk score and level
+   * - Risk tags
+   * - Token approvals (optional)
+   * - Account age and activity summary
+   *
+   * @param address - Address to analyze
+   * @param options - Request options
+   * @returns Quick profile result
+   *
+   * @example
+   * ```typescript
+   * // Basic quick profile
+   * const profile = await client.addresses.getQuickProfile('0x...', {
+   *   chain: Chain.ETH,
+   * });
+   * console.log(`Risk score: ${profile.riskScore}`);
+   *
+   * // With token approvals
+   * const profile = await client.addresses.getQuickProfile('0x...', {
+   *   chain: Chain.ETH,
+   *   withApprovals: true,
+   * });
+   * for (const approval of profile.approvals ?? []) {
+   *   console.log(`${approval.symbol} approved to ${approval.spenderName}`);
+   * }
+   *
+   * // Hide trust flags
+   * const profile = await client.addresses.getQuickProfile('0x...', {
+   *   chain: Chain.ETH,
+   *   hideTrustFlags: true,
+   * });
+   * ```
+   */
+  async getQuickProfile(
+    address: string,
+    options: QuickProfileOptions = {}
+  ): Promise<QuickProfileResponse> {
+    const chain = this.resolveQuickProfileChain(options);
+    this.validateAddress(address, chain);
+
+    const queryParams = new URLSearchParams();
+    queryParams.append('chain', chain);
+
+    if (options.withApprovals !== undefined) {
+      queryParams.append('withApprovals', String(options.withApprovals));
+    }
+
+    if (options.hideTrustFlags !== undefined) {
+      queryParams.append('hide_trust_flags', String(options.hideTrustFlags));
+    }
+
+    const response: HttpResponse<QuickProfileResponse> = await this.httpClient.get(
+      `/quick-profile/${encodeURIComponent(address)}?${queryParams.toString()}`,
+      {
+        timeout: options.timeout,
+        signal: options.signal,
+      }
+    );
+
+    return response.data;
+  }
+
+  /**
+   * Resolve the chain for quick profile requests
+   */
+  private resolveQuickProfileChain(options?: { chain?: Chain }): Chain {
+    const chain = options?.chain ?? this.defaultChain;
+    if (!chain) {
+      throw new ValidationError(
+        'Chain is required. Either specify chain in options or set defaultChain in client configuration.'
+      );
+    }
+    if (!AddressesResource.SUPPORTED_QUICK_PROFILE_CHAINS.includes(chain)) {
+      throw new ValidationError(
+        `Chain "${chain}" is not supported for quick profile. Supported chains: ${AddressesResource.SUPPORTED_QUICK_PROFILE_CHAINS.join(', ')}`
+      );
+    }
+    return chain;
   }
 }

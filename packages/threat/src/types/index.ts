@@ -15,6 +15,10 @@ export type {
   AddressAnalysisOptions,
   SanctionsOptions,
   PoisoningOptions,
+  QuickProfileChain,
+  QuickProfileApproval,
+  QuickProfileResponse,
+  QuickProfileOptions,
 } from './address';
 
 // Contract types
@@ -29,6 +33,9 @@ export type {
   ContractAnalysisOptions,
   SourceCodeOptions,
   TaxOptions,
+  CodeAnalysisFinding,
+  CodeAnalysisResponse,
+  CodeAnalysisOptions,
 } from './contract';
 
 // URL types
@@ -72,4 +79,30 @@ export type {
   UsagePlan,
   UsagePlansResponse,
   UsageOptions,
+  MaxRpsOptions,
 } from './usage';
+
+// Transaction types
+export type {
+  TransactionChain,
+  TransactionRiskResponse,
+  TxRiskDetails,
+  TrustFlag,
+  TransactionOptions,
+} from './transaction';
+
+// Scan types
+export type {
+  ScanChainId,
+  ScanTransactionRequest,
+  EIP712TypeDefinition,
+  EIP712Domain,
+  ScanEIP712TypedData,
+  ScanEip712Request,
+  ScanRiskLevel,
+  ScanWarning,
+  AssetChange,
+  ScanResponse,
+  ScanEip712Response,
+  ScanOptions,
+} from './scan';
