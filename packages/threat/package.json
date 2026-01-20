@@ -1,6 +1,6 @@
 {
   "name": "@webacy-xyz/sdk-threat",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Webacy SDK for threat and risk analysis - address risk, sanctions, contracts, URL safety",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
