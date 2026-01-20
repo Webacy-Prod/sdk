@@ -95,12 +95,12 @@ export type {
   EIP712TypeDefinition,
   EIP712Domain,
   ScanEIP712TypedData,
-  ScanEip712Request,
+  ScanEIP712Request,
   ScanRiskLevel,
   ScanWarning,
   AssetChange,
   ScanResponse,
-  ScanEip712Response,
+  ScanEIP712Response,
   ScanOptions,
 } from './types';
 

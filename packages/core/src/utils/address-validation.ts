@@ -32,19 +32,31 @@ export function isValidSolanaAddress(address: string): boolean {
  * - Bech32 SegWit (bc1q..., 42-62 chars)
  * - Bech32m Taproot (bc1p..., 62 chars)
  *
- * Bech32/Bech32m addresses must be lowercase (per BIP-173/BIP-350).
+ * Per BIP-173/BIP-350, Bech32/Bech32m addresses must be either all-lowercase
+ * or all-uppercase. Mixed case is invalid.
  */
 export function isValidBitcoinAddress(address: string): boolean {
   // P2PKH (starts with 1) or P2SH (starts with 3) - base58check encoded
   if (/^[13][a-km-zA-HJ-NP-Z1-9]{25,34}$/.test(address)) {
     return true;
   }
+
+  // Bech32/Bech32m: check for mixed case (invalid per BIP-173/BIP-350)
+  const hasLower = /[a-z]/.test(address);
+  const hasUpper = /[A-Z]/.test(address);
+  if (hasLower && hasUpper) {
+    return false;
+  }
+
+  // Normalize to lowercase for pattern matching
+  const lowerAddress = address.toLowerCase();
+
   // Bech32 SegWit (bc1q) - witness version 0
-  if (/^bc1q[a-z0-9]{38,58}$/.test(address)) {
+  if (/^bc1q[a-z0-9]{38,58}$/.test(lowerAddress)) {
     return true;
   }
   // Bech32m Taproot (bc1p) - witness version 1
-  if (/^bc1p[a-z0-9]{58}$/.test(address)) {
+  if (/^bc1p[a-z0-9]{58}$/.test(lowerAddress)) {
     return true;
   }
   return false;

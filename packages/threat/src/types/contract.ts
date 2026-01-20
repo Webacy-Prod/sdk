@@ -292,9 +292,9 @@ export interface CodeAnalysisOptions {
   /**
    * Target blockchain (EVM chains only)
    *
-   * Required parameter.
+   * Optional if `defaultChain` was set in the client configuration.
    */
-  chain: Chain;
+  chain?: Chain;
   /** Force refresh cache */
   refreshCache?: boolean;
   /** Request timeout in milliseconds */

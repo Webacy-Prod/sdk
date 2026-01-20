@@ -236,7 +236,7 @@ export class ContractsResource extends BaseResource {
    * to identify security vulnerabilities and code quality issues.
    *
    * @param address - Contract address
-   * @param options - Analysis options (chain is required)
+   * @param options - Analysis options (chain is optional if defaultChain is set)
    * @returns Code analysis result
    *
    * @example
@@ -266,9 +266,9 @@ export class ContractsResource extends BaseResource {
    */
   async getCodeAnalysis(
     address: string,
-    options: CodeAnalysisOptions
+    options: CodeAnalysisOptions = {}
   ): Promise<CodeAnalysisResponse> {
-    const { chain } = options;
+    const chain = this.resolveChain(options);
     this.validateAddress(address, chain);
 
     const queryParams = new URLSearchParams();

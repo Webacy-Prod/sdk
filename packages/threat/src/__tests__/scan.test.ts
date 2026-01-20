@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ScanResource } from '../resources/scan';
 import { ValidationError, HttpClient } from '@webacy-xyz/sdk-core';
-import type { ScanTransactionRequest, ScanEip712Request } from '../types';
+import type { ScanTransactionRequest, ScanEIP712Request } from '../types';
 
 // Mock HttpClient
 const createMockHttpClient = () => ({
@@ -128,7 +128,7 @@ describe('ScanResource', () => {
   });
 
   describe('scanEip712', () => {
-    const validRequest: ScanEip712Request = {
+    const validRequest: ScanEIP712Request = {
       msg: {
         from: '0xSigner',
         data: {
@@ -148,7 +148,7 @@ describe('ScanResource', () => {
     });
 
     it('should throw ValidationError for missing msg data', async () => {
-      await expect(scan.scanEip712('0xSigner', {} as ScanEip712Request)).rejects.toThrow(
+      await expect(scan.scanEip712('0xSigner', {} as ScanEIP712Request)).rejects.toThrow(
         ValidationError
       );
     });

@@ -1,9 +1,9 @@
 import { BaseResource, HttpResponse, ValidationError, Chain } from '@webacy-xyz/sdk-core';
 import {
   ScanTransactionRequest,
-  ScanEip712Request,
+  ScanEIP712Request,
   ScanResponse,
-  ScanEip712Response,
+  ScanEIP712Response,
   ScanOptions,
 } from '../types/scan';
 import { VALID_SCAN_CHAIN_IDS } from '../constants';
@@ -169,9 +169,9 @@ export class ScanResource extends BaseResource {
    */
   async scanEip712(
     fromAddress: string,
-    request: ScanEip712Request,
+    request: ScanEIP712Request,
     options: ScanOptions = {}
-  ): Promise<ScanEip712Response> {
+  ): Promise<ScanEIP712Response> {
     this.validateSignerAddress(fromAddress);
     this.validateEip712Request(request);
 
@@ -183,7 +183,7 @@ export class ScanResource extends BaseResource {
     const queryString = queryParams.toString();
     const path = `/scan/${encodeURIComponent(fromAddress)}/eip712${queryString ? `?${queryString}` : ''}`;
 
-    const response: HttpResponse<ScanEip712Response> = await this.httpClient.post(path, request, {
+    const response: HttpResponse<ScanEIP712Response> = await this.httpClient.post(path, request, {
       timeout: options.timeout,
       signal: options.signal,
     });
@@ -229,7 +229,7 @@ export class ScanResource extends BaseResource {
   /**
    * Validate EIP-712 scan request
    */
-  private validateEip712Request(request: ScanEip712Request): void {
+  private validateEip712Request(request: ScanEIP712Request): void {
     if (!request) {
       throw new ValidationError('Request body is required.');
     }

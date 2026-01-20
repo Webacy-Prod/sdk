@@ -64,7 +64,7 @@ export interface ScanEIP712TypedData {
 /**
  * Request body for scanning an EIP-712 message
  */
-export interface ScanEip712Request {
+export interface ScanEIP712Request {
   /** Message data */
   msg: {
     /** From address (signer) */
@@ -160,7 +160,7 @@ export interface ScanResponse {
 /**
  * EIP-712 scan response
  */
-export interface ScanEip712Response {
+export interface ScanEIP712Response {
   /** Overall risk level */
   riskLevel: ScanRiskLevel;
   /** Risk score (0-100) */
