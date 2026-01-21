@@ -9,18 +9,57 @@ export function isValidEvmAddress(address: string): boolean {
 
 /**
  * Validate a Solana address format (base58)
+ *
+ * Solana public keys are 32 bytes, which when base58-encoded are 32-44 characters
+ * depending on the key value. The base58 character set excludes 0, O, I, l to
+ * avoid visual ambiguity.
+ *
+ * Examples:
+ * - System Program: 11111111111111111111111111111111 (32 chars)
+ * - Token addresses: EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v (44 chars)
  */
 export function isValidSolanaAddress(address: string): boolean {
-  // Base58 character set (no 0, O, I, l)
+  // Base58 character set (no 0, O, I, l), 32-44 characters
   return /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(address);
 }
 
 /**
  * Validate a Bitcoin address format
+ *
+ * Supports:
+ * - P2PKH (starts with 1, 25-34 chars)
+ * - P2SH (starts with 3, 25-34 chars)
+ * - Bech32 SegWit (bc1q..., 42-62 chars)
+ * - Bech32m Taproot (bc1p..., 62 chars)
+ *
+ * Per BIP-173/BIP-350, Bech32/Bech32m addresses must be either all-lowercase
+ * or all-uppercase. Mixed case is invalid.
  */
 export function isValidBitcoinAddress(address: string): boolean {
-  // P2PKH (starts with 1), P2SH (starts with 3), Bech32 (starts with bc1)
-  return /^[13][a-km-zA-HJ-NP-Z1-9]{25,34}$/.test(address) || /^bc1[a-z0-9]{39,59}$/.test(address);
+  // P2PKH (starts with 1) or P2SH (starts with 3) - base58check encoded
+  if (/^[13][a-km-zA-HJ-NP-Z1-9]{25,34}$/.test(address)) {
+    return true;
+  }
+
+  // Bech32/Bech32m: check for mixed case (invalid per BIP-173/BIP-350)
+  const hasLower = /[a-z]/.test(address);
+  const hasUpper = /[A-Z]/.test(address);
+  if (hasLower && hasUpper) {
+    return false;
+  }
+
+  // Normalize to lowercase for pattern matching
+  const lowerAddress = address.toLowerCase();
+
+  // Bech32 SegWit (bc1q) - witness version 0
+  if (/^bc1q[a-z0-9]{38,58}$/.test(lowerAddress)) {
+    return true;
+  }
+  // Bech32m Taproot (bc1p) - witness version 1
+  if (/^bc1p[a-z0-9]{58}$/.test(lowerAddress)) {
+    return true;
+  }
+  return false;
 }
 
 /**
@@ -49,15 +88,19 @@ export function isValidSuiAddress(address: string): boolean {
  * Validate a Stellar address format
  *
  * Supports both:
- * - Standard account ID (G...)
- * - Asset identifier (CODE:ISSUER)
+ * - Standard account ID (G... - base32 encoded, 56 chars)
+ * - Asset identifier (CODE:ISSUER where CODE is 1-12 alphanumeric chars)
+ *
+ * Asset codes are case-sensitive and may include both upper and lowercase
+ * alphanumeric characters (per SEP-0001).
  */
 export function isValidStellarAddress(address: string): boolean {
-  // Standard Stellar account ID
+  // Standard Stellar account ID (starts with G, base32 encoded)
   if (/^G[A-Z2-7]{55}$/.test(address)) {
     return true;
   }
   // Asset identifier (CODE:ISSUER)
+  // Asset codes are 1-12 alphanumeric characters (case-sensitive per SEP-0001)
   if (/^[A-Za-z0-9]{1,12}:G[A-Z2-7]{55}$/.test(address)) {
     return true;
   }
@@ -98,7 +141,10 @@ export function isValidAddress(address: string, chain: Chain): boolean {
 }
 
 /**
- * Normalize an EVM address to checksum format
+ * Normalize an EVM address to lowercase
+ *
+ * Note: This function lowercases the address for consistent comparison.
+ * It does NOT compute the EIP-55 checksum format.
  */
 export function normalizeEvmAddress(address: string): string {
   if (!isValidEvmAddress(address)) {

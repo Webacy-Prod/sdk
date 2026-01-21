@@ -179,6 +179,13 @@ export class HttpClient {
       'auth',
       'credentials',
       'bearer',
+      'privatekey',
+      'private_key',
+      'sk',
+      'priv',
+      'mnemonic',
+      'seed',
+      'passphrase',
     ];
 
     for (const [key, value] of Object.entries(body)) {

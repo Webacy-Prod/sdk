@@ -1,4 +1,4 @@
-import { HttpClient, HttpResponse } from '@webacy-xyz/sdk-core';
+import { BaseResource, HttpResponse, Chain } from '@webacy-xyz/sdk-core';
 import {
   LedgerFamily,
   LedgerScanRequest,
@@ -13,6 +13,9 @@ import {
  * Provides security analysis for transactions before signing on
  * hardware wallets (Ledger devices).
  *
+ * Note: This resource uses numeric chain IDs in the request body
+ * rather than the Chain enum, as required by the underlying API.
+ *
  * @example
  * ```typescript
  * // Scan a transaction before signing
@@ -26,8 +29,11 @@ import {
  * }
  * ```
  */
-export class LedgerResource {
-  constructor(private readonly httpClient: HttpClient) {}
+export class LedgerResource extends BaseResource {
+  // Note: Ledger uses numeric chain IDs in request body, defaultChain is accepted for consistency
+  constructor(httpClient: import('@webacy-xyz/sdk-core').HttpClient, _defaultChain?: Chain) {
+    super(httpClient, _defaultChain);
+  }
 
   /**
    * Scan a transaction before signing

@@ -24,4 +24,12 @@ export type {
   TrendingPoolsResponse,
   TokenPoolsOptions,
   TrendingOptions,
+  TokenEconomicsChain,
+  TokenEconomicsMetrics,
+  TokenEconomicsResponse,
+  TokenEconomicsOptions,
+  OhlcvTimeFrame,
+  OhlcvDataPoint,
+  PoolOhlcvResponse,
+  PoolOhlcvOptions,
 } from './tokens';

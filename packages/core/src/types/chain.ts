@@ -45,6 +45,10 @@ export enum ChainCompatibility {
 
 /**
  * Get the compatibility group for a chain
+ *
+ * Uses exhaustive switch to ensure all chain values are handled.
+ * TypeScript will error at compile time if a new Chain value is added
+ * but not handled here.
  */
 export function getChainCompatibility(chain: Chain): ChainCompatibility {
   switch (chain) {
@@ -68,6 +72,11 @@ export function getChainCompatibility(chain: Chain): ChainCompatibility {
       return ChainCompatibility.SUI;
     case Chain.STELLAR:
       return ChainCompatibility.STELLAR;
+    default: {
+      // Exhaustive check - TypeScript will error if a Chain value is not handled
+      const _exhaustiveCheck: never = chain;
+      throw new Error(`Unhandled chain: ${String(_exhaustiveCheck)}`);
+    }
   }
 }
 
@@ -80,6 +89,10 @@ export function isEvmChain(chain: Chain): boolean {
 
 /**
  * Chain ID mapping for EVM chains
+ *
+ * Only EVM-compatible chains have numeric chain IDs (EIP-155).
+ * Non-EVM chains (SOL, TON, BTC, SEI, SUI, STELLAR) use different
+ * identification schemes and are intentionally omitted.
  */
 export const CHAIN_IDS: Partial<Record<Chain, number>> = {
   [Chain.ETH]: 1,

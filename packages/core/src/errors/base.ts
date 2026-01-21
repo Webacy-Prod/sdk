@@ -68,9 +68,11 @@ export class WebacyError extends Error {
 
   /**
    * Convert to JSON for logging
+   *
+   * Includes the error cause chain for debugging nested errors.
    */
   toJSON(): Record<string, unknown> {
-    return {
+    const json: Record<string, unknown> = {
       name: this.name,
       message: this.message,
       code: this.code,
@@ -78,6 +80,17 @@ export class WebacyError extends Error {
       requestId: this.requestId,
       endpoint: this.endpoint,
     };
+
+    // Include cause chain for debugging
+    if (this.cause) {
+      json.cause = {
+        name: this.cause.name,
+        message: this.cause.message,
+        stack: this.cause.stack,
+      };
+    }
+
+    return json;
   }
 
   /**

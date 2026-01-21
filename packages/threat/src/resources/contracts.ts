@@ -8,6 +8,8 @@ import {
   ContractAnalysisOptions,
   SourceCodeOptions,
   TaxOptions,
+  CodeAnalysisResponse,
+  CodeAnalysisOptions,
 } from '../types';
 
 /**
@@ -221,6 +223,66 @@ export class ContractsResource extends BaseResource {
       {
         timeout: options?.timeout,
         signal: options?.signal,
+      }
+    );
+
+    return response.data;
+  }
+
+  /**
+   * Get static code analysis for a contract
+   *
+   * Performs static analysis on verified contract source code
+   * to identify security vulnerabilities and code quality issues.
+   *
+   * @param address - Contract address
+   * @param options - Analysis options (chain is optional if defaultChain is set)
+   * @returns Code analysis result
+   *
+   * @example
+   * ```typescript
+   * const analysis = await client.contracts.getCodeAnalysis('0x...', {
+   *   chain: Chain.ETH,
+   * });
+   *
+   * console.log(`Security score: ${analysis.securityScore}`);
+   * console.log(`Findings: ${analysis.findings.length}`);
+   *
+   * // Check for critical/high severity issues
+   * const critical = analysis.findings.filter(f =>
+   *   f.severity === 'critical' || f.severity === 'high'
+   * );
+   * for (const finding of critical) {
+   *   console.warn(`${finding.severity}: ${finding.title}`);
+   *   console.warn(`  ${finding.description}`);
+   * }
+   *
+   * // Force refresh cache
+   * const fresh = await client.contracts.getCodeAnalysis('0x...', {
+   *   chain: Chain.ETH,
+   *   refreshCache: true,
+   * });
+   * ```
+   */
+  async getCodeAnalysis(
+    address: string,
+    options: CodeAnalysisOptions = {}
+  ): Promise<CodeAnalysisResponse> {
+    const chain = this.resolveChain(options);
+    this.validateAddress(address, chain);
+
+    const queryParams = new URLSearchParams();
+    queryParams.append('chain', chain);
+
+    if (options.refreshCache !== undefined) {
+      queryParams.append('refreshCache', String(options.refreshCache));
+    }
+
+    const response: HttpResponse<CodeAnalysisResponse> = await this.httpClient.get(
+      `/contracts/${encodeURIComponent(address)}/code-analysis?${queryParams.toString()}`,
+      {
+        timeout: options.timeout,
+        signal: options.signal,
       }
     );
 

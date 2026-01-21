@@ -132,8 +132,24 @@ export interface AddressDetails {
   buy_sell_taxes?: TaxInfo;
   /** Tokens launched by developer in 24h */
   dev_launched_tokens_in_24_hours?: number | null;
-  /** Source code analysis */
-  source_code_analysis?: unknown;
+  /** Source code analysis - structure varies by contract type */
+  source_code_analysis?: {
+    /** Whether source code is verified */
+    is_verified?: boolean;
+    /** Compiler version */
+    compiler_version?: string;
+    /** Contract name */
+    contract_name?: string;
+    /** Security score */
+    security_score?: number;
+    /** Vulnerabilities found */
+    vulnerabilities?: Array<{
+      id: string;
+      severity: 'low' | 'medium' | 'high' | 'critical';
+      title: string;
+      description: string;
+    }>;
+  } | null;
   /** Token security features */
   token_security?: {
     is_mintable: boolean;
@@ -281,6 +297,97 @@ export interface PoisoningOptions {
    * Optional if `defaultChain` was set in the client configuration.
    */
   chain?: Chain;
+  /** Request timeout in milliseconds */
+  timeout?: number;
+  /** Abort signal */
+  signal?: AbortSignal;
+}
+
+/**
+ * Supported chains for quick profile
+ */
+export type QuickProfileChain =
+  | typeof Chain.ETH
+  | typeof Chain.BASE
+  | typeof Chain.BSC
+  | typeof Chain.POL
+  | typeof Chain.OPT
+  | typeof Chain.ARB
+  | typeof Chain.SOL;
+
+/**
+ * Token approval in quick profile
+ */
+export interface QuickProfileApproval {
+  /** Token address */
+  tokenAddress: string;
+  /** Token symbol */
+  symbol?: string;
+  /** Token name */
+  name?: string;
+  /** Spender address */
+  spender: string;
+  /** Spender name/label */
+  spenderName?: string;
+  /** Approved amount */
+  allowance: string;
+  /** Is unlimited approval */
+  isUnlimited?: boolean;
+  /** USD value at risk */
+  usdValueAtRisk?: string;
+}
+
+/**
+ * Quick profile response
+ */
+export interface QuickProfileResponse {
+  /** Wallet address */
+  address: string;
+  /** Chain */
+  chain: string;
+  /** Overall risk score (0-100) */
+  riskScore?: number;
+  /** Risk level */
+  riskLevel?: 'low' | 'medium' | 'high' | 'critical';
+  /** Risk tags */
+  tags?: RiskTag[];
+  /** Trust flags (hidden if hide_trust_flags is true) */
+  trustFlags?: Array<{
+    type: string;
+    description?: string;
+    value?: unknown;
+  }>;
+  /** Token approvals (if withApprovals is true) */
+  approvals?: QuickProfileApproval[];
+  /** Total USD value at risk from approvals */
+  totalApprovalRiskUsd?: string;
+  /** Account age */
+  accountAge?: {
+    firstTxTimestamp?: string;
+    ageInDays?: number;
+  };
+  /** Activity summary */
+  activitySummary?: {
+    totalTransactions?: number;
+    lastActivityTimestamp?: string;
+    uniqueContractsInteracted?: number;
+  };
+}
+
+/**
+ * Options for quick profile requests
+ */
+export interface QuickProfileOptions {
+  /**
+   * Target blockchain
+   *
+   * Supported: eth, base, bsc, pol, opt, arb, sol
+   */
+  chain?: QuickProfileChain;
+  /** Include token approvals in response */
+  withApprovals?: boolean;
+  /** Hide trust flags from response */
+  hideTrustFlags?: boolean;
   /** Request timeout in milliseconds */
   timeout?: number;
   /** Abort signal */

@@ -1,10 +1,4 @@
-import {
-  BaseClient,
-  WebacyClientConfig,
-  RequestInterceptor,
-  ResponseInterceptor,
-  ErrorInterceptor,
-} from '@webacy-xyz/sdk-core';
+import { BaseClient, WebacyClientConfig } from '@webacy-xyz/sdk-core';
 import { AddressesResource } from './resources/addresses';
 import { ContractsResource } from './resources/contracts';
 import { UrlResource } from './resources/url';
@@ -12,6 +6,8 @@ import { WalletsResource } from './resources/wallets';
 import { LedgerResource } from './resources/ledger';
 import { AccountTraceResource } from './resources/account-trace';
 import { UsageResource } from './resources/usage';
+import { TransactionsResource } from './resources/transactions';
+import { ScanResource } from './resources/scan';
 
 /**
  * Webacy Threat SDK Client
@@ -90,6 +86,20 @@ export class ThreatClient extends BaseClient {
   public readonly usage: UsageResource;
 
   /**
+   * Transactions resource
+   *
+   * Transaction risk analysis for blockchain transactions.
+   */
+  public readonly transactions: TransactionsResource;
+
+  /**
+   * Scan resource
+   *
+   * Pre-signing security analysis for transactions and EIP-712 messages.
+   */
+  public readonly scan: ScanResource;
+
+  /**
    * Create a new ThreatClient instance
    *
    * @param config - Client configuration
@@ -124,55 +134,15 @@ export class ThreatClient extends BaseClient {
     // Initialize resources with the HTTP client and default chain
     this.addresses = new AddressesResource(this.httpClient, this.defaultChain);
     this.contracts = new ContractsResource(this.httpClient, this.defaultChain);
-    this.url = new UrlResource(this.httpClient);
+    this.url = new UrlResource(this.httpClient, this.defaultChain);
     this.wallets = new WalletsResource(this.httpClient, this.defaultChain);
-    this.ledger = new LedgerResource(this.httpClient);
+    this.ledger = new LedgerResource(this.httpClient, this.defaultChain);
     this.accountTrace = new AccountTraceResource(this.httpClient, this.defaultChain);
-    this.usage = new UsageResource(this.httpClient);
+    this.usage = new UsageResource(this.httpClient, this.defaultChain);
+    this.transactions = new TransactionsResource(this.httpClient, this.defaultChain);
+    this.scan = new ScanResource(this.httpClient, this.defaultChain);
   }
 
-  /**
-   * Add a request interceptor
-   *
-   * @example
-   * ```typescript
-   * client.addRequestInterceptor((url, config) => {
-   *   console.log(`Making request to ${url}`);
-   *   return config;
-   * });
-   * ```
-   */
-  override addRequestInterceptor(interceptor: RequestInterceptor): void {
-    super.addRequestInterceptor(interceptor);
-  }
-
-  /**
-   * Add a response interceptor
-   *
-   * @example
-   * ```typescript
-   * client.addResponseInterceptor((response) => {
-   *   console.log(`Received ${response.status} response`);
-   *   return response;
-   * });
-   * ```
-   */
-  override addResponseInterceptor(interceptor: ResponseInterceptor): void {
-    super.addResponseInterceptor(interceptor);
-  }
-
-  /**
-   * Add an error interceptor
-   *
-   * @example
-   * ```typescript
-   * client.addErrorInterceptor((error) => {
-   *   console.error(`Request failed: ${error.message}`);
-   *   return error;
-   * });
-   * ```
-   */
-  override addErrorInterceptor(interceptor: ErrorInterceptor): void {
-    super.addErrorInterceptor(interceptor);
-  }
+  // Interceptor methods (addRequestInterceptor, addResponseInterceptor, addErrorInterceptor)
+  // are inherited from BaseClient and don't need to be overridden.
 }
