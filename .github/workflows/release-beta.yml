@@ -32,44 +32,53 @@ jobs:
           cache: 'pnpm'
           registry-url: 'https://registry.npmjs.org'
 
-      - name: Get version
+      - name: Get base version and compute beta version
         id: version
-        run: echo "version=$(node -p "require('./packages/sdk/package.json').version")" >> $GITHUB_OUTPUT
-
-      - name: Check if all packages already published
-        id: check
         run: |
-          VERSION="${{ steps.version.outputs.version }}"
-          PACKAGES=("@webacy-xyz/sdk-core" "@webacy-xyz/sdk-threat" "@webacy-xyz/sdk-trading" "@webacy-xyz/sdk")
-          ALL_PUBLISHED=true
+          BASE_VERSION=$(node -p "require('./packages/sdk/package.json').version")
+          echo "base_version=${BASE_VERSION}" >> $GITHUB_OUTPUT
 
-          for pkg in "${PACKAGES[@]}"; do
-            if npm view "${pkg}@${VERSION}" version 2>/dev/null; then
-              echo "✓ ${pkg}@${VERSION} already published"
-            else
-              echo "✗ ${pkg}@${VERSION} not published"
-              ALL_PUBLISHED=false
-            fi
+          # Find next available beta number
+          BETA_NUM=0
+          while npm view "@webacy-xyz/sdk@${BASE_VERSION}-beta.${BETA_NUM}" version 2>/dev/null; do
+            BETA_NUM=$((BETA_NUM + 1))
           done
 
-          if [ "$ALL_PUBLISHED" = true ]; then
-            echo "All packages at version ${VERSION} already published, skipping..."
-            echo "skip=true" >> $GITHUB_OUTPUT
-          else
-            echo "Publishing version ${VERSION} with beta tag"
-            echo "skip=false" >> $GITHUB_OUTPUT
-          fi
+          BETA_VERSION="${BASE_VERSION}-beta.${BETA_NUM}"
+          echo "beta_version=${BETA_VERSION}" >> $GITHUB_OUTPUT
+          echo "Publishing beta version: ${BETA_VERSION}"
 
       - name: Install dependencies
-        if: steps.check.outputs.skip == 'false'
         run: pnpm install --frozen-lockfile
 
       - name: Build
-        if: steps.check.outputs.skip == 'false'
         run: pnpm build
 
+      - name: Update package versions for beta
+        run: |
+          BETA_VERSION="${{ steps.version.outputs.beta_version }}"
+          # Update all package.json files to beta version
+          for pkg in packages/core packages/threat packages/trading packages/sdk; do
+            node -e "
+              const fs = require('fs');
+              const pkg = JSON.parse(fs.readFileSync('${pkg}/package.json'));
+              pkg.version = '${BETA_VERSION}';
+              // Update internal dependencies
+              for (const dep of ['@webacy-xyz/sdk-core', '@webacy-xyz/sdk-threat', '@webacy-xyz/sdk-trading']) {
+                if (pkg.dependencies?.[dep]) pkg.dependencies[dep] = '${BETA_VERSION}';
+                if (pkg.peerDependencies?.[dep]) pkg.peerDependencies[dep] = '${BETA_VERSION}';
+              }
+              fs.writeFileSync('${pkg}/package.json', JSON.stringify(pkg, null, 2) + '\n');
+            "
+          done
+          echo "Updated all packages to ${BETA_VERSION}"
+
       - name: Publish all packages (beta)
-        if: steps.check.outputs.skip == 'false'
         run: pnpm publish -r --access public --no-git-checks --tag beta
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Output beta version
+        run: |
+          echo "::notice::Published beta version ${{ steps.version.outputs.beta_version }}"
+          echo "Install with: npm install @webacy-xyz/sdk@${{ steps.version.outputs.beta_version }}"
