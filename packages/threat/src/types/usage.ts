@@ -75,3 +75,19 @@ export interface UsageOptions {
   /** Abort signal */
   signal?: AbortSignal;
 }
+
+/**
+ * Options for max RPS requests
+ */
+export interface MaxRpsOptions {
+  /** Organization name */
+  organization: string;
+  /** Start timestamp in milliseconds */
+  from: number;
+  /** End timestamp in milliseconds */
+  to: number;
+  /** Request timeout in milliseconds */
+  timeout?: number;
+  /** Abort signal */
+  signal?: AbortSignal;
+}

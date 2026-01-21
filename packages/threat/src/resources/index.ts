@@ -5,3 +5,5 @@ export { WalletsResource } from './wallets';
 export { LedgerResource } from './ledger';
 export { AccountTraceResource } from './account-trace';
 export { UsageResource } from './usage';
+export { TransactionsResource } from './transactions';
+export { ScanResource } from './scan';

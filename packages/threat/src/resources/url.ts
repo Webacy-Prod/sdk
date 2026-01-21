@@ -1,4 +1,10 @@
-import { HttpClient, HttpResponse, ValidationError, isValidUrl } from '@webacy-xyz/sdk-core';
+import {
+  BaseResource,
+  HttpResponse,
+  ValidationError,
+  isValidUrl,
+  Chain,
+} from '@webacy-xyz/sdk-core';
 import { UrlRiskResponse, UrlAddResponse, UrlCheckOptions } from '../types';
 
 /**
@@ -6,6 +12,8 @@ import { UrlRiskResponse, UrlAddResponse, UrlCheckOptions } from '../types';
  *
  * Provides URL risk assessment to identify phishing sites,
  * malicious domains, and other web-based threats.
+ *
+ * Note: URL analysis is chain-agnostic, so the chain parameter is not used.
  *
  * @example
  * ```typescript
@@ -15,8 +23,11 @@ import { UrlRiskResponse, UrlAddResponse, UrlCheckOptions } from '../types';
  * }
  * ```
  */
-export class UrlResource {
-  constructor(private readonly httpClient: HttpClient) {}
+export class UrlResource extends BaseResource {
+  // Note: URL analysis is chain-agnostic, defaultChain is accepted for interface consistency
+  constructor(httpClient: import('@webacy-xyz/sdk-core').HttpClient, _defaultChain?: Chain) {
+    super(httpClient, _defaultChain);
+  }
 
   /**
    * Check if a URL is safe

@@ -2,6 +2,61 @@ import { Chain, RiskTag, RiskCategory, TokenMetadata } from '@webacy-xyz/sdk-cor
 import { AddressRiskResponse } from './address';
 
 /**
+ * Similar contract information
+ */
+export interface SimilarContract {
+  /** Contract address */
+  address: string;
+  /** Chain */
+  chain?: string;
+  /** Similarity score */
+  similarity?: number;
+  /** Contract name */
+  name?: string;
+  /** Whether it's verified */
+  is_verified?: boolean;
+}
+
+/**
+ * Deployed contract summary
+ */
+export interface DeployedContractSummary {
+  /** Contract address */
+  address: string;
+  /** Chain */
+  chain?: string;
+  /** Contract name */
+  name?: string;
+  /** Deployment timestamp */
+  deployed_at?: string;
+  /** Token symbol if applicable */
+  symbol?: string;
+}
+
+/**
+ * Contract analysis data
+ */
+export interface ContractAnalysisData {
+  /** Security features detected */
+  security_features?: {
+    is_proxy?: boolean;
+    is_upgradeable?: boolean;
+    has_selfdestruct?: boolean;
+    has_delegatecall?: boolean;
+  };
+  /** Token properties if applicable */
+  token_properties?: {
+    is_mintable?: boolean;
+    is_burnable?: boolean;
+    is_pausable?: boolean;
+    has_blacklist?: boolean;
+    has_whitelist?: boolean;
+  };
+  /** Additional analysis results */
+  [key: string]: unknown;
+}
+
+/**
  * Contract analysis response
  */
 export interface ContractRiskResponse {
@@ -12,13 +67,13 @@ export interface ContractRiskResponse {
   /** Categorized risk information */
   categories: Record<string, RiskCategory>;
   /** Analysis data */
-  analysis?: unknown;
+  analysis?: ContractAnalysisData;
   /** Token metadata */
   metadata?: TokenMetadata;
   /** Source code analysis result */
   source_code_analysis?: SourceCodeAnalysis | { error: string } | { message: string };
   /** Similar contracts found */
-  similar_contracts?: unknown[];
+  similar_contracts?: SimilarContract[];
   /** Analysis job status */
   analysis_status?: string;
   /** Analysis type */
@@ -27,7 +82,7 @@ export interface ContractRiskResponse {
   deployer?: {
     address?: string;
     risk?: AddressRiskResponse;
-    deployed_contracts?: unknown[];
+    deployed_contracts?: DeployedContractSummary[];
   };
 }
 
@@ -167,6 +222,81 @@ export interface TaxOptions {
    * Optional if `defaultChain` was set in the client configuration.
    */
   chain?: Chain;
+  /** Request timeout in milliseconds */
+  timeout?: number;
+  /** Abort signal */
+  signal?: AbortSignal;
+}
+
+/**
+ * Code analysis finding
+ */
+export interface CodeAnalysisFinding {
+  /** Finding ID/type */
+  id: string;
+  /** Finding title */
+  title: string;
+  /** Finding description */
+  description: string;
+  /** Severity level */
+  severity: 'info' | 'low' | 'medium' | 'high' | 'critical';
+  /** Confidence level */
+  confidence?: 'low' | 'medium' | 'high';
+  /** Affected code locations */
+  locations?: Array<{
+    file?: string;
+    line?: number;
+    column?: number;
+    snippet?: string;
+  }>;
+  /** Recommendation to fix */
+  recommendation?: string;
+}
+
+/**
+ * Static code analysis response
+ */
+export interface CodeAnalysisResponse {
+  /** Contract address */
+  contractAddress: string;
+  /** Chain */
+  chain: string;
+  /** Whether source code is verified */
+  isVerified: boolean;
+  /** Contract name */
+  contractName?: string;
+  /** Compiler version */
+  compilerVersion?: string;
+  /** Overall security score (0-100) */
+  securityScore?: number;
+  /** Analysis findings */
+  findings: CodeAnalysisFinding[];
+  /** Summary counts by severity */
+  summary?: {
+    critical: number;
+    high: number;
+    medium: number;
+    low: number;
+    info: number;
+  };
+  /** Analysis timestamp */
+  analyzedAt?: string;
+  /** Whether result is from cache */
+  fromCache?: boolean;
+}
+
+/**
+ * Options for code analysis requests
+ */
+export interface CodeAnalysisOptions {
+  /**
+   * Target blockchain (EVM chains only)
+   *
+   * Optional if `defaultChain` was set in the client configuration.
+   */
+  chain?: Chain;
+  /** Force refresh cache */
+  refreshCache?: boolean;
   /** Request timeout in milliseconds */
   timeout?: number;
   /** Abort signal */

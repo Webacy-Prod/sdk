@@ -10,6 +10,8 @@ export {
   LedgerResource,
   AccountTraceResource,
   UsageResource,
+  TransactionsResource,
+  ScanResource,
 } from './resources';
 
 // Types
@@ -30,6 +32,10 @@ export type {
   AddressAnalysisOptions,
   SanctionsOptions,
   PoisoningOptions,
+  QuickProfileChain,
+  QuickProfileApproval,
+  QuickProfileResponse,
+  QuickProfileOptions,
   // Contract types
   ContractRiskResponse,
   SourceCodeAnalysis,
@@ -41,6 +47,9 @@ export type {
   ContractAnalysisOptions,
   SourceCodeOptions,
   TaxOptions,
+  CodeAnalysisFinding,
+  CodeAnalysisResponse,
+  CodeAnalysisOptions,
   // URL types
   UrlRiskResponse,
   UrlAddResponse,
@@ -73,6 +82,26 @@ export type {
   UsagePlan,
   UsagePlansResponse,
   UsageOptions,
+  MaxRpsOptions,
+  // Transaction types
+  TransactionChain,
+  TransactionRiskResponse,
+  TxRiskDetails,
+  TrustFlag,
+  TransactionOptions,
+  // Scan types
+  ScanChainId,
+  ScanTransactionRequest,
+  EIP712TypeDefinition,
+  EIP712Domain,
+  ScanEIP712TypedData,
+  ScanEIP712Request,
+  ScanRiskLevel,
+  ScanWarning,
+  AssetChange,
+  ScanResponse,
+  ScanEIP712Response,
+  ScanOptions,
 } from './types';
 
 // Re-export commonly used types from core

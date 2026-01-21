@@ -2,7 +2,7 @@
  * Validate that a string is a valid URL
  *
  * @param url - String to validate
- * @returns True if the string is a valid URL
+ * @returns True if the string is a valid URL with a hostname
  *
  * @example
  * ```typescript
@@ -10,6 +10,7 @@
  * isValidUrl('http://example.com/path?query=1'); // true
  * isValidUrl('not-a-url'); // false
  * isValidUrl(''); // false
+ * isValidUrl('http://'); // false (no hostname)
  * ```
  */
 export function isValidUrl(url: string): boolean {
@@ -20,7 +21,14 @@ export function isValidUrl(url: string): boolean {
   try {
     const parsed = new URL(url);
     // Only allow http and https protocols
-    return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+      return false;
+    }
+    // Require a valid hostname (not empty)
+    if (!parsed.hostname || parsed.hostname.length === 0) {
+      return false;
+    }
+    return true;
   } catch {
     return false;
   }
