@@ -23,6 +23,7 @@ describe('Chain enum', () => {
     expect(Chain.BTC).toBe('btc');
     expect(Chain.SEI).toBe('sei');
     expect(Chain.SEP).toBe('sep');
+    expect(Chain.HEDERA).toBe('hedera');
   });
 });
 
@@ -58,6 +59,7 @@ describe('getChainCompatibility', () => {
     expect(getChainCompatibility(Chain.SUI)).toBe(ChainCompatibility.SUI);
     expect(getChainCompatibility(Chain.STELLAR)).toBe(ChainCompatibility.STELLAR);
     expect(getChainCompatibility(Chain.SEI)).toBe(ChainCompatibility.SEI);
+    expect(getChainCompatibility(Chain.HEDERA)).toBe(ChainCompatibility.HEDERA);
   });
 });
 
@@ -79,6 +81,7 @@ describe('isEvmChain', () => {
     expect(isEvmChain(Chain.TON)).toBe(false);
     expect(isEvmChain(Chain.SUI)).toBe(false);
     expect(isEvmChain(Chain.SEI)).toBe(false);
+    expect(isEvmChain(Chain.HEDERA)).toBe(false);
   });
 
   it('should handle string chain values', () => {
@@ -102,6 +105,7 @@ describe('CHAIN_NAMES', () => {
     expect(CHAIN_NAMES[Chain.STELLAR]).toBe('Stellar');
     expect(CHAIN_NAMES[Chain.BTC]).toBe('Bitcoin');
     expect(CHAIN_NAMES[Chain.SEI]).toBe('Sei');
+    expect(CHAIN_NAMES[Chain.HEDERA]).toBe('Hedera');
   });
 });
 
