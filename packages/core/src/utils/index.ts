@@ -6,6 +6,7 @@ export {
   isValidTonAddress,
   isValidSuiAddress,
   isValidStellarAddress,
+  isValidHederaAddress,
   normalizeAddress,
   normalizeEvmAddress,
 } from './address-validation';

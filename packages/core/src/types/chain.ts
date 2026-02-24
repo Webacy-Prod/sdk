@@ -28,6 +28,8 @@ export enum Chain {
   SUI = 'sui',
   /** Stellar */
   STELLAR = 'stellar',
+  /** Hedera */
+  HEDERA = 'hedera',
 }
 
 /**
@@ -41,6 +43,7 @@ export enum ChainCompatibility {
   SEI = 'SEI',
   SUI = 'SUI',
   STELLAR = 'STELLAR',
+  HEDERA = 'HEDERA',
 }
 
 /**
@@ -72,6 +75,8 @@ export function getChainCompatibility(chain: Chain): ChainCompatibility {
       return ChainCompatibility.SUI;
     case Chain.STELLAR:
       return ChainCompatibility.STELLAR;
+    case Chain.HEDERA:
+      return ChainCompatibility.HEDERA;
     default: {
       // Exhaustive check - TypeScript will error if a Chain value is not handled
       const _exhaustiveCheck: never = chain;
@@ -121,4 +126,5 @@ export const CHAIN_NAMES: Record<Chain, string> = {
   [Chain.BTC]: 'Bitcoin',
   [Chain.SUI]: 'Sui',
   [Chain.STELLAR]: 'Stellar',
+  [Chain.HEDERA]: 'Hedera',
 };

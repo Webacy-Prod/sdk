@@ -108,6 +108,29 @@ export function isValidStellarAddress(address: string): boolean {
 }
 
 /**
+ * Validate a Hedera address format
+ *
+ * Supports:
+ * - Native account ID (shard.realm.num, e.g., 0.0.12345)
+ * - HIP-583 EVM-compatible address (0x + 24 leading zeros + account bytes)
+ */
+export function isValidHederaAddress(address: string): boolean {
+  // Native account ID format: shard.realm.num (e.g., 0.0.12345)
+  if (/^\d+\.\d+\.\d+$/.test(address)) {
+    return true;
+  }
+  // HIP-583 EVM-compatible address (24+ leading zeros after 0x)
+  if (/^0x0{24}[0-9a-fA-F]{16}$/.test(address)) {
+    return true;
+  }
+  // Standard EVM address format (for Hedera EVM addresses without leading zeros)
+  if (/^0x[a-fA-F0-9]{40}$/.test(address)) {
+    return true;
+  }
+  return false;
+}
+
+/**
  * Validate an address for a specific chain
  *
  * @param address - The address to validate
@@ -134,6 +157,8 @@ export function isValidAddress(address: string, chain: Chain): boolean {
       return isValidSuiAddress(address);
     case Chain.STELLAR:
       return isValidStellarAddress(address);
+    case Chain.HEDERA:
+      return isValidHederaAddress(address);
     default:
       // Unknown chain, allow any non-empty string
       return address.length > 0;
