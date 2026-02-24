@@ -190,6 +190,12 @@ export interface ContractAnalysisOptions {
   chain?: Chain;
   /** Include deployer risk */
   deployerRisk?: boolean;
+  /** Trigger bytecode/dynamic analysis instead of static-only */
+  fromBytecode?: boolean;
+  /** Force refresh cached results */
+  refreshCache?: boolean;
+  /** Disable address checksum validation */
+  disableChecksum?: boolean;
   /** Request timeout in milliseconds */
   timeout?: number;
   /** Abort signal */
@@ -301,4 +307,46 @@ export interface CodeAnalysisOptions {
   timeout?: number;
   /** Abort signal */
   signal?: AbortSignal;
+}
+
+/**
+ * Options for audit requests
+ */
+export interface AuditOptions {
+  /**
+   * Target blockchain
+   *
+   * Optional if `defaultChain` was set in the client configuration.
+   */
+  chain?: Chain;
+  /** Request timeout in milliseconds */
+  timeout?: number;
+  /** Abort signal */
+  signal?: AbortSignal;
+}
+
+/**
+ * Audit response
+ */
+export interface AuditResponse {
+  /** Audit data — structure varies by API version */
+  [key: string]: unknown;
+}
+
+/**
+ * Options for symbol lookup requests
+ */
+export interface SymbolLookupOptions {
+  /** Request timeout in milliseconds */
+  timeout?: number;
+  /** Abort signal */
+  signal?: AbortSignal;
+}
+
+/**
+ * Symbol lookup response
+ */
+export interface SymbolLookupResponse {
+  /** Lookup results — structure varies by API version */
+  [key: string]: unknown;
 }

@@ -8,6 +8,8 @@ import {
   PoisoningOptions,
   QuickProfileResponse,
   QuickProfileOptions,
+  AddressSummaryOptions,
+  AddressSummaryResponse,
 } from '../types';
 import { SUPPORTED_QUICK_PROFILE_CHAINS } from '../constants';
 
@@ -250,12 +252,55 @@ export class AddressesResource extends BaseResource {
       queryParams.append('withApprovals', String(options.withApprovals));
     }
 
+    if (options.withNewApprovals !== undefined) {
+      queryParams.append('withNewApprovals', String(options.withNewApprovals));
+    }
+
+    if (options.refreshCache !== undefined) {
+      queryParams.append('refreshCache', String(options.refreshCache));
+    }
+
     if (options.hideTrustFlags !== undefined) {
       queryParams.append('hide_trust_flags', String(options.hideTrustFlags));
     }
 
     const response: HttpResponse<QuickProfileResponse> = await this.httpClient.get(
       `/quick-profile/${encodeURIComponent(address)}?${queryParams.toString()}`,
+      {
+        timeout: options.timeout,
+        signal: options.signal,
+      }
+    );
+
+    return response.data;
+  }
+
+  /**
+   * Get transaction risk summary for an address
+   *
+   * Returns a summary of transaction risk data for the given address.
+   *
+   * @param address - Address to get summary for
+   * @param options - Request options (chain is optional if defaultChain is set)
+   * @returns Transaction risk summary
+   *
+   * @example
+   * ```typescript
+   * const summary = await client.addresses.getSummary('0x...', { chain: Chain.ETH });
+   * ```
+   */
+  async getSummary(
+    address: string,
+    options: AddressSummaryOptions = {}
+  ): Promise<AddressSummaryResponse> {
+    const chain = this.resolveChain(options);
+    this.validateAddress(address, chain);
+
+    const queryParams = new URLSearchParams();
+    queryParams.append('chain', chain);
+
+    const response: HttpResponse<AddressSummaryResponse> = await this.httpClient.get(
+      `/summary/${encodeURIComponent(address)}?${queryParams.toString()}`,
       {
         timeout: options.timeout,
         signal: options.signal,

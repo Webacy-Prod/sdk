@@ -294,6 +294,38 @@ describe('AddressesResource', () => {
       );
     });
 
+    it('should include withNewApprovals when provided', async () => {
+      const validAddress = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e';
+      mockHttpClient.get.mockResolvedValueOnce({
+        data: { address: validAddress, approvals: [] },
+        status: 200,
+        headers: new Headers(),
+      });
+
+      await addresses.getQuickProfile(validAddress, { chain: 'eth', withNewApprovals: true });
+
+      expect(mockHttpClient.get).toHaveBeenCalledWith(
+        expect.stringContaining('withNewApprovals=true'),
+        expect.any(Object)
+      );
+    });
+
+    it('should include refreshCache when provided', async () => {
+      const validAddress = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e';
+      mockHttpClient.get.mockResolvedValueOnce({
+        data: { address: validAddress },
+        status: 200,
+        headers: new Headers(),
+      });
+
+      await addresses.getQuickProfile(validAddress, { chain: 'eth', refreshCache: true });
+
+      expect(mockHttpClient.get).toHaveBeenCalledWith(
+        expect.stringContaining('refreshCache=true'),
+        expect.any(Object)
+      );
+    });
+
     it('should support all valid chains for quick profile', async () => {
       const validEvmAddress = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e';
       const validSolAddress = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v';
@@ -322,6 +354,36 @@ describe('AddressesResource', () => {
           expect.any(Object)
         );
       }
+    });
+  });
+
+  describe('getSummary', () => {
+    it('should throw ValidationError for invalid address', async () => {
+      await expect(addresses.getSummary('invalid', { chain: Chain.ETH })).rejects.toThrow(
+        ValidationError
+      );
+    });
+
+    it('should throw ValidationError when chain is not provided and no default is set', async () => {
+      const validAddress = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e';
+      await expect(addresses.getSummary(validAddress)).rejects.toThrow(ValidationError);
+    });
+
+    it('should make GET to /summary/{address} with chain param', async () => {
+      const validAddress = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e';
+      mockHttpClient.get.mockResolvedValueOnce({
+        data: { summary: 'data' },
+        status: 200,
+        headers: new Headers(),
+      });
+
+      const result = await addresses.getSummary(validAddress, { chain: Chain.ETH });
+
+      expect(mockHttpClient.get).toHaveBeenCalledWith(
+        `/summary/${encodeURIComponent(validAddress)}?chain=eth`,
+        expect.any(Object)
+      );
+      expect(result).toEqual({ summary: 'data' });
     });
   });
 });
