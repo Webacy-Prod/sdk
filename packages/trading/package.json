@@ -1,6 +1,6 @@
 {
   "name": "@webacy-xyz/sdk-trading",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "Webacy SDK for token trading analysis - holder analysis, sniper detection, bundler detection",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",

@@ -408,6 +408,8 @@ export interface AddressSummaryOptions {
    * Optional if `defaultChain` was set in the client configuration.
    */
   chain?: Chain;
+  /** Page number for paginated results */
+  page?: number;
   /** Request timeout in milliseconds */
   timeout?: number;
   /** Abort signal */
