@@ -18,6 +18,8 @@ import {
   LedgerResource,
   AccountTraceResource,
   UsageResource,
+  ScanResource,
+  BatchResource,
 } from '@webacy-xyz/sdk-threat';
 
 /**
@@ -50,6 +52,10 @@ export interface ThreatNamespace {
   accountTrace: AccountTraceResource;
   /** Usage resource */
   usage: UsageResource;
+  /** Scan resource */
+  scan: ScanResource;
+  /** Batch resource */
+  batch: BatchResource;
 }
 
 /**
@@ -164,6 +170,8 @@ export class WebacyClient extends BaseClient {
       ledger: new LedgerResource(this.httpClient), // Chain-agnostic
       accountTrace: new AccountTraceResource(this.httpClient, this.defaultChain),
       usage: new UsageResource(this.httpClient), // Chain-agnostic
+      scan: new ScanResource(this.httpClient, this.defaultChain),
+      batch: new BatchResource(this.httpClient, this.defaultChain),
     };
   }
 

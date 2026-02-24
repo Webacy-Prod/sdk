@@ -12,6 +12,7 @@ export {
   UsageResource,
   TransactionsResource,
   ScanResource,
+  BatchResource,
 } from './resources';
 
 // Types
@@ -36,6 +37,8 @@ export type {
   QuickProfileApproval,
   QuickProfileResponse,
   QuickProfileOptions,
+  AddressSummaryOptions,
+  AddressSummaryResponse,
   // Contract types
   ContractRiskResponse,
   SourceCodeAnalysis,
@@ -50,6 +53,10 @@ export type {
   CodeAnalysisFinding,
   CodeAnalysisResponse,
   CodeAnalysisOptions,
+  AuditOptions,
+  AuditResponse,
+  SymbolLookupOptions,
+  SymbolLookupResponse,
   // URL types
   UrlRiskResponse,
   UrlAddResponse,
@@ -102,6 +109,17 @@ export type {
   ScanResponse,
   ScanEIP712Response,
   ScanOptions,
+  RiskScanOptions,
+  RiskScanResponse,
+  RiskScanStatusResponse,
+  // Batch types
+  BatchContractsRequest,
+  BatchContractsResponse,
+  BatchAddressesRequest,
+  BatchAddressesResponse,
+  BatchTransactionsRequest,
+  BatchTransactionsResponse,
+  BatchOptions,
 } from './types';
 
 // Re-export commonly used types from core

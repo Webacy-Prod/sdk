@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ScanResource } from '../resources/scan';
-import { ValidationError, HttpClient } from '@webacy-xyz/sdk-core';
+import { Chain, ValidationError, HttpClient } from '@webacy-xyz/sdk-core';
 import type { ScanTransactionRequest, ScanEIP712Request } from '../types';
 
 // Mock HttpClient
@@ -309,6 +309,120 @@ describe('ScanResource', () => {
         '/scan/0xSigner/eip712?refreshCache=true',
         validRequest,
         expect.any(Object)
+      );
+    });
+  });
+
+  describe('startRiskScan', () => {
+    it('should throw ValidationError for invalid address', async () => {
+      await expect(scan.startRiskScan('invalid', { chain: Chain.ETH })).rejects.toThrow(
+        ValidationError
+      );
+    });
+
+    it('should throw ValidationError when chain is not provided and no default is set', async () => {
+      const validAddress = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e';
+      await expect(scan.startRiskScan(validAddress)).rejects.toThrow(ValidationError);
+      await expect(scan.startRiskScan(validAddress)).rejects.toThrow('Chain is required');
+    });
+
+    it('should make POST to /scan/{address} with chain param', async () => {
+      const validAddress = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e';
+      mockHttpClient.post.mockResolvedValueOnce({
+        data: { success: true, status: 'queued' },
+        status: 200,
+        headers: new Headers(),
+      });
+
+      const result = await scan.startRiskScan(validAddress, { chain: Chain.ETH });
+
+      expect(mockHttpClient.post).toHaveBeenCalledWith(
+        `/scan/${encodeURIComponent(validAddress)}?chain=eth`,
+        undefined,
+        expect.any(Object)
+      );
+      expect(result.success).toBe(true);
+    });
+
+    it('should use default chain when provided', async () => {
+      const scanWithDefault = new ScanResource(mockHttpClient as unknown as HttpClient, Chain.ETH);
+      const validAddress = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e';
+      mockHttpClient.post.mockResolvedValueOnce({
+        data: { success: true },
+        status: 200,
+        headers: new Headers(),
+      });
+
+      await scanWithDefault.startRiskScan(validAddress);
+
+      expect(mockHttpClient.post).toHaveBeenCalledWith(
+        expect.stringContaining('chain=eth'),
+        undefined,
+        expect.any(Object)
+      );
+    });
+
+    it('should pass timeout to httpClient', async () => {
+      const validAddress = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e';
+      mockHttpClient.post.mockResolvedValueOnce({
+        data: { success: true },
+        status: 200,
+        headers: new Headers(),
+      });
+
+      await scan.startRiskScan(validAddress, { chain: Chain.ETH, timeout: 30000 });
+
+      expect(mockHttpClient.post).toHaveBeenCalledWith(
+        expect.any(String),
+        undefined,
+        expect.objectContaining({ timeout: 30000 })
+      );
+    });
+  });
+
+  describe('getRiskScanStatus', () => {
+    it('should throw ValidationError for invalid address', async () => {
+      await expect(scan.getRiskScanStatus('invalid', { chain: Chain.ETH })).rejects.toThrow(
+        ValidationError
+      );
+    });
+
+    it('should throw ValidationError when chain is not provided and no default is set', async () => {
+      const validAddress = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e';
+      await expect(scan.getRiskScanStatus(validAddress)).rejects.toThrow(ValidationError);
+    });
+
+    it('should make GET to /status/{address} with chain param', async () => {
+      const validAddress = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e';
+      mockHttpClient.get.mockResolvedValueOnce({
+        data: { status: 'complete', score: 42 },
+        status: 200,
+        headers: new Headers(),
+      });
+
+      const result = await scan.getRiskScanStatus(validAddress, { chain: Chain.ETH });
+
+      expect(mockHttpClient.get).toHaveBeenCalledWith(
+        `/status/${encodeURIComponent(validAddress)}?chain=eth`,
+        expect.any(Object)
+      );
+      expect(result.status).toBe('complete');
+      expect(result.score).toBe(42);
+    });
+
+    it('should pass timeout to httpClient', async () => {
+      const validAddress = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e';
+      mockHttpClient.get.mockResolvedValueOnce({
+        data: { status: 'pending' },
+        status: 200,
+        headers: new Headers(),
+      });
+
+      await scan.getRiskScanStatus(validAddress, { chain: Chain.ETH, timeout: 15000 });
+
+      expect(mockHttpClient.get).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({ timeout: 15000 })
       );
     });
   });

@@ -211,3 +211,47 @@ export interface ScanOptions {
   /** Abort signal */
   signal?: AbortSignal;
 }
+
+/**
+ * Options for wallet risk scan requests
+ */
+export interface RiskScanOptions {
+  /**
+   * Target blockchain
+   *
+   * Optional if `defaultChain` was set in the client configuration.
+   */
+  chain?: import('@webacy-xyz/sdk-core').Chain;
+  /** Request timeout in milliseconds */
+  timeout?: number;
+  /** Abort signal */
+  signal?: AbortSignal;
+}
+
+/**
+ * Response from initiating a wallet risk scan
+ */
+export interface RiskScanResponse {
+  /** Whether the scan was successfully initiated */
+  success?: boolean;
+  /** Scan status */
+  status?: string;
+  /** Message from the API */
+  message?: string;
+  /** Additional data */
+  [key: string]: unknown;
+}
+
+/**
+ * Response from polling wallet risk scan status
+ */
+export interface RiskScanStatusResponse {
+  /** Current scan status */
+  status: string;
+  /** Risk score result (available when complete) */
+  score?: number;
+  /** Risk data (available when complete) */
+  data?: Record<string, unknown>;
+  /** Additional fields */
+  [key: string]: unknown;
+}
