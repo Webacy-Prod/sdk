@@ -386,10 +386,38 @@ export interface QuickProfileOptions {
   chain?: QuickProfileChain;
   /** Include token approvals in response */
   withApprovals?: boolean;
+  /** Include new/recent token approvals in response */
+  withNewApprovals?: boolean;
+  /** Force refresh cached results */
+  refreshCache?: boolean;
   /** Hide trust flags from response */
   hideTrustFlags?: boolean;
   /** Request timeout in milliseconds */
   timeout?: number;
   /** Abort signal */
   signal?: AbortSignal;
+}
+
+/**
+ * Options for address transaction risk summary
+ */
+export interface AddressSummaryOptions {
+  /**
+   * Target blockchain
+   *
+   * Optional if `defaultChain` was set in the client configuration.
+   */
+  chain?: Chain;
+  /** Request timeout in milliseconds */
+  timeout?: number;
+  /** Abort signal */
+  signal?: AbortSignal;
+}
+
+/**
+ * Address transaction risk summary response
+ */
+export interface AddressSummaryResponse {
+  /** Summary data — structure varies by API version */
+  [key: string]: unknown;
 }

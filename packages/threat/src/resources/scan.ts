@@ -6,6 +6,9 @@ import {
   ScanEIP712Response,
   ScanOptions,
   ScanChainId,
+  RiskScanOptions,
+  RiskScanResponse,
+  RiskScanStatusResponse,
 } from '../types/scan';
 import { VALID_SCAN_CHAIN_IDS } from '../constants';
 
@@ -190,6 +193,83 @@ export class ScanResource extends BaseResource {
       timeout: options.timeout,
       signal: options.signal,
     });
+
+    return response.data;
+  }
+
+  /**
+   * Initiate a wallet risk score scan
+   *
+   * Starts an asynchronous risk analysis for the given address.
+   * Use `getRiskScanStatus()` to poll for completion.
+   *
+   * @param address - Wallet address to scan
+   * @param options - Request options (chain is optional if defaultChain is set)
+   * @returns Scan initiation response
+   *
+   * @example
+   * ```typescript
+   * // Start a risk scan
+   * const result = await client.scan.startRiskScan('0x...', { chain: Chain.ETH });
+   *
+   * // Poll for completion
+   * const status = await client.scan.getRiskScanStatus('0x...', { chain: Chain.ETH });
+   * ```
+   */
+  async startRiskScan(address: string, options: RiskScanOptions = {}): Promise<RiskScanResponse> {
+    const chain = this.resolveChain(options);
+    this.validateAddress(address, chain);
+
+    const queryParams = new URLSearchParams();
+    queryParams.append('chain', chain);
+
+    const response: HttpResponse<RiskScanResponse> = await this.httpClient.post(
+      `/scan/${encodeURIComponent(address)}?${queryParams.toString()}`,
+      undefined,
+      {
+        timeout: options.timeout,
+        signal: options.signal,
+      }
+    );
+
+    return response.data;
+  }
+
+  /**
+   * Get the status of a wallet risk score scan
+   *
+   * Polls the status of a previously initiated risk scan.
+   * Returns scan progress and results when complete.
+   *
+   * @param address - Wallet address that was scanned
+   * @param options - Request options (chain is optional if defaultChain is set)
+   * @returns Scan status response
+   *
+   * @example
+   * ```typescript
+   * const status = await client.scan.getRiskScanStatus('0x...', { chain: Chain.ETH });
+   * if (status.status === 'complete') {
+   *   console.log(`Risk score: ${status.score}`);
+   * }
+   * ```
+   */
+  async getRiskScanStatus(
+    address: string,
+    options: RiskScanOptions = {}
+  ): Promise<RiskScanStatusResponse> {
+    const chain = this.resolveChain(options);
+    this.validateAddress(address, chain);
+
+    const queryParams = new URLSearchParams();
+    queryParams.append('chain', chain);
+
+    const response: HttpResponse<RiskScanStatusResponse> = await this.httpClient.get(
+      `/status/${encodeURIComponent(address)}?${queryParams.toString()}`,
+      {
+        timeout: options.timeout,
+        signal: options.signal,
+      }
+    );
 
     return response.data;
   }

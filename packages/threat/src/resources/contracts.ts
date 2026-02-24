@@ -1,4 +1,4 @@
-import { HttpResponse, BaseResource } from '@webacy-xyz/sdk-core';
+import { HttpResponse, BaseResource, ValidationError } from '@webacy-xyz/sdk-core';
 import {
   ContractRiskResponse,
   ContractSourceCodeResponse,
@@ -10,6 +10,10 @@ import {
   TaxOptions,
   CodeAnalysisResponse,
   CodeAnalysisOptions,
+  AuditOptions,
+  AuditResponse,
+  SymbolLookupOptions,
+  SymbolLookupResponse,
 } from '../types';
 
 /**
@@ -82,6 +86,18 @@ export class ContractsResource extends BaseResource {
 
     if (options.deployerRisk !== undefined) {
       queryParams.append('deployer_risk', String(options.deployerRisk));
+    }
+
+    if (options.fromBytecode !== undefined) {
+      queryParams.append('fromBytecode', String(options.fromBytecode));
+    }
+
+    if (options.refreshCache !== undefined) {
+      queryParams.append('refreshCache', String(options.refreshCache));
+    }
+
+    if (options.disableChecksum !== undefined) {
+      queryParams.append('disableChecksum', String(options.disableChecksum));
     }
 
     const response: HttpResponse<ContractRiskResponse> = await this.httpClient.get(
@@ -280,6 +296,71 @@ export class ContractsResource extends BaseResource {
 
     const response: HttpResponse<CodeAnalysisResponse> = await this.httpClient.get(
       `/contracts/${encodeURIComponent(address)}/code-analysis?${queryParams.toString()}`,
+      {
+        timeout: options.timeout,
+        signal: options.signal,
+      }
+    );
+
+    return response.data;
+  }
+
+  /**
+   * Get audit data for a contract
+   *
+   * Returns audit information for the given contract address.
+   *
+   * @param address - Contract address
+   * @param options - Request options (chain is optional if defaultChain is set)
+   * @returns Audit data
+   *
+   * @example
+   * ```typescript
+   * const audits = await client.contracts.getAudits('0x...', { chain: Chain.ETH });
+   * ```
+   */
+  async getAudits(address: string, options: AuditOptions = {}): Promise<AuditResponse> {
+    const chain = this.resolveChain(options);
+    this.validateAddress(address, chain);
+
+    const queryParams = new URLSearchParams();
+    queryParams.append('chain', chain);
+
+    const response: HttpResponse<AuditResponse> = await this.httpClient.get(
+      `/audits/${encodeURIComponent(address)}?${queryParams.toString()}`,
+      {
+        timeout: options.timeout,
+        signal: options.signal,
+      }
+    );
+
+    return response.data;
+  }
+
+  /**
+   * Look up contracts by token symbol
+   *
+   * Returns contract data matching the given symbol.
+   *
+   * @param symbol - Token symbol to search for
+   * @param options - Request options
+   * @returns Symbol lookup results
+   *
+   * @example
+   * ```typescript
+   * const results = await client.contracts.getBySymbol('USDC');
+   * ```
+   */
+  async getBySymbol(
+    symbol: string,
+    options: SymbolLookupOptions = {}
+  ): Promise<SymbolLookupResponse> {
+    if (!symbol || typeof symbol !== 'string' || symbol.trim() === '') {
+      throw new ValidationError('Symbol is required and must be a non-empty string.');
+    }
+
+    const response: HttpResponse<SymbolLookupResponse> = await this.httpClient.get(
+      `/contracts/symbol/${encodeURIComponent(symbol)}`,
       {
         timeout: options.timeout,
         signal: options.signal,

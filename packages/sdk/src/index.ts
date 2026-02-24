@@ -49,6 +49,8 @@ export type {
   AddressAnalysisOptions,
   SanctionsOptions,
   PoisoningOptions,
+  AddressSummaryOptions,
+  AddressSummaryResponse,
   // Contract types
   ContractRiskResponse,
   SourceCodeAnalysis,
@@ -60,6 +62,10 @@ export type {
   ContractAnalysisOptions,
   SourceCodeOptions,
   TaxOptions,
+  AuditOptions,
+  AuditResponse,
+  SymbolLookupOptions,
+  SymbolLookupResponse,
   // URL types
   UrlRiskResponse,
   UrlAddResponse,
@@ -92,6 +98,18 @@ export type {
   UsagePlan,
   UsagePlansResponse,
   UsageOptions,
+  // Scan types
+  RiskScanOptions,
+  RiskScanResponse,
+  RiskScanStatusResponse,
+  // Batch types
+  BatchContractsRequest,
+  BatchContractsResponse,
+  BatchAddressesRequest,
+  BatchAddressesResponse,
+  BatchTransactionsRequest,
+  BatchTransactionsResponse,
+  BatchOptions,
 } from '@webacy-xyz/sdk-threat';
 
 // Re-export core types and utilities

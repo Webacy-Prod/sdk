@@ -8,6 +8,7 @@ import { AccountTraceResource } from './resources/account-trace';
 import { UsageResource } from './resources/usage';
 import { TransactionsResource } from './resources/transactions';
 import { ScanResource } from './resources/scan';
+import { BatchResource } from './resources/batch';
 
 /**
  * Webacy Threat SDK Client
@@ -96,8 +97,16 @@ export class ThreatClient extends BaseClient {
    * Scan resource
    *
    * Pre-signing security analysis for transactions and EIP-712 messages.
+   * Also provides wallet risk scanning methods.
    */
   public readonly scan: ScanResource;
+
+  /**
+   * Batch resource
+   *
+   * Batch risk analysis for multiple addresses, contracts, or transactions.
+   */
+  public readonly batch: BatchResource;
 
   /**
    * Create a new ThreatClient instance
@@ -141,6 +150,7 @@ export class ThreatClient extends BaseClient {
     this.usage = new UsageResource(this.httpClient, this.defaultChain);
     this.transactions = new TransactionsResource(this.httpClient, this.defaultChain);
     this.scan = new ScanResource(this.httpClient, this.defaultChain);
+    this.batch = new BatchResource(this.httpClient, this.defaultChain);
   }
 
   // Interceptor methods (addRequestInterceptor, addResponseInterceptor, addErrorInterceptor)

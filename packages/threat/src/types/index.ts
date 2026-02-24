@@ -19,6 +19,8 @@ export type {
   QuickProfileApproval,
   QuickProfileResponse,
   QuickProfileOptions,
+  AddressSummaryOptions,
+  AddressSummaryResponse,
 } from './address';
 
 // Contract types
@@ -39,6 +41,10 @@ export type {
   CodeAnalysisFinding,
   CodeAnalysisResponse,
   CodeAnalysisOptions,
+  AuditOptions,
+  AuditResponse,
+  SymbolLookupOptions,
+  SymbolLookupResponse,
 } from './contract';
 
 // URL types
@@ -108,4 +114,18 @@ export type {
   ScanResponse,
   ScanEIP712Response,
   ScanOptions,
+  RiskScanOptions,
+  RiskScanResponse,
+  RiskScanStatusResponse,
 } from './scan';
+
+// Batch types
+export type {
+  BatchContractsRequest,
+  BatchContractsResponse,
+  BatchAddressesRequest,
+  BatchAddressesResponse,
+  BatchTransactionsRequest,
+  BatchTransactionsResponse,
+  BatchOptions,
+} from './batch';
