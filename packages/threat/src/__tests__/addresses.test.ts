@@ -385,5 +385,37 @@ describe('AddressesResource', () => {
       );
       expect(result).toEqual({ summary: 'data' });
     });
+
+    it('should include page param when provided', async () => {
+      const validAddress = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e';
+      mockHttpClient.get.mockResolvedValueOnce({
+        data: { summary: 'page2' },
+        status: 200,
+        headers: new Headers(),
+      });
+
+      await addresses.getSummary(validAddress, { chain: Chain.ETH, page: 2 });
+
+      expect(mockHttpClient.get).toHaveBeenCalledWith(
+        `/summary/${encodeURIComponent(validAddress)}?chain=eth&page=2`,
+        expect.any(Object)
+      );
+    });
+
+    it('should include page=0 when explicitly provided', async () => {
+      const validAddress = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e';
+      mockHttpClient.get.mockResolvedValueOnce({
+        data: { summary: 'page0' },
+        status: 200,
+        headers: new Headers(),
+      });
+
+      await addresses.getSummary(validAddress, { chain: Chain.ETH, page: 0 });
+
+      expect(mockHttpClient.get).toHaveBeenCalledWith(
+        `/summary/${encodeURIComponent(validAddress)}?chain=eth&page=0`,
+        expect.any(Object)
+      );
+    });
   });
 });
