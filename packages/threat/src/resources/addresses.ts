@@ -299,6 +299,10 @@ export class AddressesResource extends BaseResource {
     const queryParams = new URLSearchParams();
     queryParams.append('chain', chain);
 
+    if (options.page !== undefined) {
+      queryParams.append('page', String(options.page));
+    }
+
     const response: HttpResponse<AddressSummaryResponse> = await this.httpClient.get(
       `/summary/${encodeURIComponent(address)}?${queryParams.toString()}`,
       {
