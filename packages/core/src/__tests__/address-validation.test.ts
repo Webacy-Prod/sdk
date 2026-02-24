@@ -6,6 +6,7 @@ import {
   isValidBitcoinAddress,
   isValidTonAddress,
   isValidSuiAddress,
+  isValidHederaAddress,
   isValidAddress,
   normalizeEvmAddress,
   normalizeAddress,
@@ -126,6 +127,33 @@ describe('isValidSuiAddress', () => {
   });
 });
 
+describe('isValidHederaAddress', () => {
+  it('should accept valid native account IDs', () => {
+    expect(isValidHederaAddress('0.0.12345')).toBe(true);
+    expect(isValidHederaAddress('0.0.1')).toBe(true);
+    expect(isValidHederaAddress('0.0.98')).toBe(true);
+    expect(isValidHederaAddress('0.0.730631')).toBe(true);
+  });
+
+  it('should accept valid HIP-583 EVM-compatible addresses', () => {
+    // 24 leading zeros + 16 hex chars for account bytes
+    expect(isValidHederaAddress('0x00000000000000000000000000000000000b2ad5')).toBe(true);
+    expect(isValidHederaAddress('0x0000000000000000000000000000000000000001')).toBe(true);
+  });
+
+  it('should accept standard EVM addresses on Hedera', () => {
+    expect(isValidHederaAddress('0x742d35Cc6634C0532925a3b844Bc454e4438f44e')).toBe(true);
+  });
+
+  it('should reject invalid Hedera addresses', () => {
+    expect(isValidHederaAddress('')).toBe(false);
+    expect(isValidHederaAddress('0.0')).toBe(false);
+    expect(isValidHederaAddress('0.0.')).toBe(false);
+    expect(isValidHederaAddress('abc')).toBe(false);
+    expect(isValidHederaAddress('0x123')).toBe(false);
+  });
+});
+
 describe('isValidAddress', () => {
   it('should validate EVM chain addresses', () => {
     const evmAddress = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e';
@@ -153,6 +181,13 @@ describe('isValidAddress', () => {
   it('should validate Bitcoin addresses', () => {
     expect(isValidAddress('1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2', Chain.BTC)).toBe(true);
     expect(isValidAddress('0x742d35Cc6634C0532925a3b844Bc454e4438f44e', Chain.BTC)).toBe(false);
+  });
+
+  it('should validate Hedera addresses', () => {
+    expect(isValidAddress('0.0.12345', Chain.HEDERA)).toBe(true);
+    expect(isValidAddress('0x00000000000000000000000000000000000b2ad5', Chain.HEDERA)).toBe(true);
+    expect(isValidAddress('0x742d35Cc6634C0532925a3b844Bc454e4438f44e', Chain.HEDERA)).toBe(true);
+    expect(isValidAddress('invalid', Chain.HEDERA)).toBe(false);
   });
 
   it('should return false for empty addresses', () => {
