@@ -114,6 +114,44 @@ describe('HolderAnalysisResource', () => {
       );
     });
 
+    it('should include useCache when provided', async () => {
+      const validAddress = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v';
+      mockHttpClient.get.mockResolvedValueOnce({
+        data: { token_address: validAddress },
+        status: 200,
+        headers: new Headers(),
+      });
+
+      await holderAnalysis.get(validAddress, {
+        chain: Chain.SOL,
+        useCache: true,
+      });
+
+      expect(mockHttpClient.get).toHaveBeenCalledWith(
+        expect.stringContaining('useCache=true'),
+        expect.any(Object)
+      );
+    });
+
+    it('should include maxHolders when provided', async () => {
+      const validAddress = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v';
+      mockHttpClient.get.mockResolvedValueOnce({
+        data: { token_address: validAddress },
+        status: 200,
+        headers: new Headers(),
+      });
+
+      await holderAnalysis.get(validAddress, {
+        chain: Chain.SOL,
+        maxHolders: 10000,
+      });
+
+      expect(mockHttpClient.get).toHaveBeenCalledWith(
+        expect.stringContaining('maxHolders=10000'),
+        expect.any(Object)
+      );
+    });
+
     it('should pass timeout to httpClient', async () => {
       const validAddress = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v';
       mockHttpClient.get.mockResolvedValueOnce({

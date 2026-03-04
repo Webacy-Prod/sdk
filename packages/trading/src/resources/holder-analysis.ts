@@ -71,6 +71,12 @@ export class HolderAnalysisResource extends BaseResource {
     if (options.disableRefetch !== undefined) {
       queryParams.append('disableRefetch', String(options.disableRefetch));
     }
+    if (options.useCache !== undefined) {
+      queryParams.append('useCache', String(options.useCache));
+    }
+    if (options.maxHolders !== undefined) {
+      queryParams.append('maxHolders', String(options.maxHolders));
+    }
 
     const response: HttpResponse<HolderAnalysisResult> = await this.httpClient.get(
       `/holder-analysis/${encodeURIComponent(address)}?${queryParams.toString()}`,
