@@ -218,6 +218,10 @@ export interface HolderAnalysisOptions {
   chain?: Chain;
   /** Skip cache and force fresh fetch */
   disableRefetch?: boolean;
+  /** Use cached results when available */
+  useCache?: boolean;
+  /** Maximum number of holders to analyze */
+  maxHolders?: number;
   /** Request timeout in milliseconds */
   timeout?: number;
   /** Abort signal */
