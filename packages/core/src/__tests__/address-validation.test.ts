@@ -121,9 +121,27 @@ describe('isValidSuiAddress', () => {
     ).toBe(true);
   });
 
+  it('should accept Move type identifiers (token addresses)', () => {
+    expect(
+      isValidSuiAddress(
+        '0xab4665e028e79673ee530b9745ec3e795397b15a25215569854c57102f456fb0::kyln::KYLN'
+      )
+    ).toBe(true);
+    expect(
+      isValidSuiAddress(
+        '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef::module_name::TokenType'
+      )
+    ).toBe(true);
+  });
+
   it('should reject invalid Sui addresses', () => {
     expect(isValidSuiAddress('0x742d35Cc6634C0532925a3b844Bc454e4438f44e')).toBe(false); // wrong length
     expect(isValidSuiAddress('')).toBe(false);
+    // Invalid Move type identifiers
+    expect(isValidSuiAddress('0x1234::mod::Type')).toBe(false); // hex too short
+    expect(
+      isValidSuiAddress('0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef::mod')
+    ).toBe(false); // missing TYPE segment
   });
 });
 
