@@ -72,6 +72,20 @@ describe('normalizeUrl', () => {
     expect(normalizeUrl('example.com/path?query=1')).toBe('https://example.com/path?query=1');
   });
 
+  it('should handle case-insensitive protocol matching', () => {
+    expect(normalizeUrl('HTTP://example.com')).toBe('HTTP://example.com');
+    expect(normalizeUrl('HTTPS://example.com')).toBe('HTTPS://example.com');
+    expect(normalizeUrl('Http://example.com')).toBe('Http://example.com');
+  });
+
+  it('should double-prefix protocol-relative URLs', () => {
+    // normalizeUrl doesn't recognize "//example.com" as having a protocol,
+    // so it prepends https://, producing a double-slashed URL.
+    // Note: new URL() considers this valid (path becomes "//example.com"),
+    // but isValidUrl("//example.com") itself returns false (no protocol).
+    expect(normalizeUrl('//example.com')).toBe('https:////example.com');
+  });
+
   it('should return input unchanged for empty/null/undefined', () => {
     expect(normalizeUrl('')).toBe('');
     // @ts-expect-error testing invalid input

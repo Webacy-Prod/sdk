@@ -55,8 +55,28 @@ describe('UrlResource', () => {
       );
     });
 
+    it('should preserve http:// URLs without upgrading to https://', async () => {
+      mockHttpClient.post.mockResolvedValueOnce({
+        data: { prediction: 'benign', blacklist: 'false', whitelist: 'false' },
+        status: 200,
+        headers: new Headers(),
+      });
+
+      await url.check('http://example.com');
+
+      expect(mockHttpClient.post).toHaveBeenCalledWith(
+        '/url',
+        { url: 'http://example.com' },
+        expect.any(Object)
+      );
+    });
+
     it('should throw ValidationError for empty string', async () => {
       await expect(url.check('')).rejects.toThrow(ValidationError);
+    });
+
+    it('should throw ValidationError for invalid strings', async () => {
+      await expect(url.check('not a valid url')).rejects.toThrow(ValidationError);
     });
   });
 
@@ -93,8 +113,28 @@ describe('UrlResource', () => {
       );
     });
 
+    it('should preserve http:// URLs without upgrading to https://', async () => {
+      mockHttpClient.post.mockResolvedValueOnce({
+        data: { success: true },
+        status: 200,
+        headers: new Headers(),
+      });
+
+      await url.add('http://example.com');
+
+      expect(mockHttpClient.post).toHaveBeenCalledWith(
+        '/url/add',
+        { url: 'http://example.com' },
+        expect.any(Object)
+      );
+    });
+
     it('should throw ValidationError for empty string', async () => {
       await expect(url.add('')).rejects.toThrow(ValidationError);
+    });
+
+    it('should throw ValidationError for invalid strings', async () => {
+      await expect(url.add('not a valid url')).rejects.toThrow(ValidationError);
     });
   });
 });
