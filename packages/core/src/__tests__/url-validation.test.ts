@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { isValidUrl } from '../utils';
+import { isValidUrl, normalizeUrl } from '../utils';
 
 describe('isValidUrl', () => {
   describe('valid URLs', () => {
@@ -47,5 +47,36 @@ describe('isValidUrl', () => {
       // @ts-expect-error testing invalid input
       expect(isValidUrl(undefined)).toBe(false);
     });
+  });
+});
+
+describe('normalizeUrl', () => {
+  it('should return URL unchanged if it already has https://', () => {
+    expect(normalizeUrl('https://example.com')).toBe('https://example.com');
+    expect(normalizeUrl('https://example.com/path?q=1')).toBe('https://example.com/path?q=1');
+  });
+
+  it('should return URL unchanged if it already has http://', () => {
+    expect(normalizeUrl('http://example.com')).toBe('http://example.com');
+    expect(normalizeUrl('http://example.com/path')).toBe('http://example.com/path');
+  });
+
+  it('should prepend https:// for bare domains', () => {
+    expect(normalizeUrl('example.com')).toBe('https://example.com');
+    expect(normalizeUrl('aid.gaib.ai')).toBe('https://aid.gaib.ai');
+    expect(normalizeUrl('sub.domain.example.com')).toBe('https://sub.domain.example.com');
+  });
+
+  it('should prepend https:// for domains with paths', () => {
+    expect(normalizeUrl('example.com/path')).toBe('https://example.com/path');
+    expect(normalizeUrl('example.com/path?query=1')).toBe('https://example.com/path?query=1');
+  });
+
+  it('should return input unchanged for empty/null/undefined', () => {
+    expect(normalizeUrl('')).toBe('');
+    // @ts-expect-error testing invalid input
+    expect(normalizeUrl(null)).toBe(null);
+    // @ts-expect-error testing invalid input
+    expect(normalizeUrl(undefined)).toBe(undefined);
   });
 });

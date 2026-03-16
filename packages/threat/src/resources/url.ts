@@ -3,6 +3,7 @@ import {
   HttpResponse,
   ValidationError,
   isValidUrl,
+  normalizeUrl,
   Chain,
 } from '@webacy-xyz/sdk-core';
 import { UrlRiskResponse, UrlAddResponse, UrlCheckOptions } from '../types';
@@ -59,6 +60,7 @@ export class UrlResource extends BaseResource {
    * ```
    */
   async check(url: string, options?: UrlCheckOptions): Promise<UrlRiskResponse> {
+    url = normalizeUrl(url);
     if (!isValidUrl(url)) {
       throw new ValidationError(`Invalid URL: "${url}". Please provide a valid HTTP or HTTPS URL.`);
     }
@@ -93,6 +95,7 @@ export class UrlResource extends BaseResource {
    * ```
    */
   async add(url: string, options?: UrlCheckOptions): Promise<UrlAddResponse> {
+    url = normalizeUrl(url);
     if (!isValidUrl(url)) {
       throw new ValidationError(`Invalid URL: "${url}". Please provide a valid HTTP or HTTPS URL.`);
     }

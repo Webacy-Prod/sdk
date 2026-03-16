@@ -11,4 +11,4 @@ export {
   normalizeEvmAddress,
 } from './address-validation';
 
-export { isValidUrl } from './url-validation';
+export { isValidUrl, normalizeUrl } from './url-validation';
