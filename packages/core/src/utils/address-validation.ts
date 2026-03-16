@@ -79,9 +79,21 @@ export function isValidTonAddress(address: string): boolean {
 
 /**
  * Validate a Sui address format
+ *
+ * Supports:
+ * - Standard address (0x + 64 hex chars, e.g., 0xabc...def)
+ * - Move type identifier for tokens (0x<64hex>::module::TYPE, e.g., 0xabc...def::kyln::KYLN)
  */
 export function isValidSuiAddress(address: string): boolean {
-  return /^0x[a-fA-F0-9]{64}$/.test(address);
+  // Standard Sui address: 0x + 64 hex characters
+  if (/^0x[a-fA-F0-9]{64}$/.test(address)) {
+    return true;
+  }
+  // Move type identifier: 0x<64hex>::<module>::<TYPE>
+  if (/^0x[a-fA-F0-9]{64}::[a-zA-Z_][a-zA-Z0-9_]*::[a-zA-Z_][a-zA-Z0-9_]*$/.test(address)) {
+    return true;
+  }
+  return false;
 }
 
 /**
