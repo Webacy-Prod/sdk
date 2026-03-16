@@ -1,4 +1,30 @@
 /**
+ * Normalize a URL by prepending `https://` if no protocol is present.
+ *
+ * Bare domains like `aid.gaib.ai` are valid inputs from users but fail
+ * `new URL()` parsing without a protocol. This mirrors the backend behavior
+ * of auto-prepending `https://`.
+ *
+ * @param url - URL or bare domain to normalize
+ * @returns URL with protocol prefix
+ *
+ * @example
+ * ```typescript
+ * normalizeUrl('example.com');           // 'https://example.com'
+ * normalizeUrl('example.com/path');      // 'https://example.com/path'
+ * normalizeUrl('https://example.com');   // 'https://example.com' (unchanged)
+ * normalizeUrl('http://example.com');    // 'http://example.com' (unchanged)
+ * ```
+ */
+export function normalizeUrl(url: string): string {
+  if (!url || typeof url !== 'string') return url;
+  if (!/^https?:\/\//i.test(url)) {
+    return `https://${url}`;
+  }
+  return url;
+}
+
+/**
  * Validate that a string is a valid URL
  *
  * @param url - String to validate

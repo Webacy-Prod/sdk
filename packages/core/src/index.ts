@@ -79,4 +79,5 @@ export {
   normalizeAddress,
   normalizeEvmAddress,
   isValidUrl,
+  normalizeUrl,
 } from './utils';

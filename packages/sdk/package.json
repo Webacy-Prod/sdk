@@ -1,6 +1,6 @@
 {
   "name": "@webacy-xyz/sdk",
-  "version": "1.2.5",
+  "version": "1.2.6",
   "description": "Webacy SDK - Complete blockchain security and trading analysis toolkit",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
