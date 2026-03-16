@@ -140,9 +140,7 @@ describe('isValidSuiAddress', () => {
     // Invalid Move type identifiers
     expect(isValidSuiAddress('0x1234::mod::Type')).toBe(false); // hex too short
     expect(
-      isValidSuiAddress(
-        '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef::mod'
-      )
+      isValidSuiAddress('0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef::mod')
     ).toBe(false); // missing TYPE segment
   });
 });
