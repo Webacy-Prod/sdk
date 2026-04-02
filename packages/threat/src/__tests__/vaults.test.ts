@@ -1,0 +1,243 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { VaultsResource } from '../resources/vaults';
+import { Chain, ValidationError, HttpClient } from '@webacy-xyz/sdk-core';
+
+const createMockHttpClient = () => ({
+  get: vi.fn(),
+  post: vi.fn(),
+  put: vi.fn(),
+  patch: vi.fn(),
+  delete: vi.fn(),
+  addRequestInterceptor: vi.fn(),
+  addResponseInterceptor: vi.fn(),
+  addErrorInterceptor: vi.fn(),
+});
+
+describe('VaultsResource', () => {
+  let mockHttpClient: ReturnType<typeof createMockHttpClient>;
+  let vaults: VaultsResource;
+
+  beforeEach(() => {
+    mockHttpClient = createMockHttpClient();
+    vaults = new VaultsResource(mockHttpClient as unknown as HttpClient);
+  });
+
+  describe('list', () => {
+    it('should call /vaults with no params when none provided', async () => {
+      mockHttpClient.get.mockResolvedValueOnce({
+        data: { items: [], pagination: {}, aggregates: {}, filtered_tier_counts: {}, stale: false },
+        status: 200,
+        headers: new Headers(),
+      });
+
+      await vaults.list();
+
+      expect(mockHttpClient.get).toHaveBeenCalledWith('/vaults', expect.any(Object));
+    });
+
+    it('should pass all filter params correctly', async () => {
+      mockHttpClient.get.mockResolvedValueOnce({
+        data: { items: [], pagination: {}, aggregates: {}, filtered_tier_counts: {}, stale: false },
+        status: 200,
+        headers: new Headers(),
+      });
+
+      await vaults.list({
+        page: 2,
+        pageSize: 100,
+        chain: Chain.ETH,
+        tier: 'high',
+        underlying: 'USDC',
+        protocol: 'morpho',
+        minTvl: 1000000,
+        underlyingRisk: 'battle_tested',
+        minScore: 20,
+        maxScore: 80,
+        contractType: 'erc4626_vault',
+        attentionNeeded: true,
+        riskFlags: 'vault-high-looping,vault-upgradeable',
+        riskFlagsMode: 'any',
+        q: 'morpho',
+        sort: 'score_desc',
+      });
+
+      const calledUrl = mockHttpClient.get.mock.calls[0][0] as string;
+      expect(calledUrl).toContain('/vaults?');
+      expect(calledUrl).toContain('chain=eth');
+      expect(calledUrl).toContain('tier=high');
+      expect(calledUrl).toContain('underlying=USDC');
+      expect(calledUrl).toContain('protocol=morpho');
+      expect(calledUrl).toContain('minTvl=1000000');
+      expect(calledUrl).toContain('underlyingRisk=battle_tested');
+      expect(calledUrl).toContain('minScore=20');
+      expect(calledUrl).toContain('maxScore=80');
+      expect(calledUrl).toContain('contractType=erc4626_vault');
+      expect(calledUrl).toContain('attentionNeeded=true');
+      expect(calledUrl).toContain('riskFlags=vault-high-looping%2Cvault-upgradeable');
+      expect(calledUrl).toContain('riskFlagsMode=any');
+      expect(calledUrl).toContain('q=morpho');
+      expect(calledUrl).toContain('sort=score_desc');
+      expect(calledUrl).toContain('page=2');
+      expect(calledUrl).toContain('pageSize=100');
+    });
+
+    it('should pass timeout and signal to httpClient', async () => {
+      mockHttpClient.get.mockResolvedValueOnce({
+        data: { items: [], pagination: {}, aggregates: {}, filtered_tier_counts: {}, stale: false },
+        status: 200,
+        headers: new Headers(),
+      });
+
+      const controller = new AbortController();
+      await vaults.list({ timeout: 30000, signal: controller.signal });
+
+      expect(mockHttpClient.get).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({ timeout: 30000, signal: controller.signal })
+      );
+    });
+  });
+
+  describe('listCursor', () => {
+    it('should include cursor param and return cursor response', async () => {
+      const mockData = {
+        request_id: 'req-123',
+        schema_version: '1.0',
+        items: [],
+        next_cursor: 'next-abc',
+        count: 0,
+        aggregates: {},
+        filtered_tier_counts: {},
+        stale: false,
+      };
+      mockHttpClient.get.mockResolvedValueOnce({
+        data: mockData,
+        status: 200,
+        headers: new Headers(),
+      });
+
+      const result = await vaults.listCursor({ cursor: 'cursor-abc', limit: 50 });
+
+      const calledUrl = mockHttpClient.get.mock.calls[0][0] as string;
+      expect(calledUrl).toContain('cursor=cursor-abc');
+      expect(calledUrl).toContain('limit=50');
+      expect(result.request_id).toBe('req-123');
+      expect(result.next_cursor).toBe('next-abc');
+    });
+
+    it('should include shared filter params alongside cursor', async () => {
+      mockHttpClient.get.mockResolvedValueOnce({
+        data: {
+          request_id: '',
+          schema_version: '',
+          items: [],
+          next_cursor: null,
+          count: 0,
+          aggregates: {},
+          filtered_tier_counts: {},
+          stale: false,
+        },
+        status: 200,
+        headers: new Headers(),
+      });
+
+      await vaults.listCursor({
+        cursor: 'cursor-abc',
+        chain: Chain.ETH,
+        protocol: 'morpho',
+        tier: 'high',
+      });
+
+      const calledUrl = mockHttpClient.get.mock.calls[0][0] as string;
+      expect(calledUrl).toContain('cursor=cursor-abc');
+      expect(calledUrl).toContain('chain=eth');
+      expect(calledUrl).toContain('protocol=morpho');
+      expect(calledUrl).toContain('tier=high');
+    });
+  });
+
+  describe('get', () => {
+    it('should call /vaults/:address with required chain param', async () => {
+      const address = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e';
+      mockHttpClient.get.mockResolvedValueOnce({
+        data: {
+          metadata: {},
+          risk: {},
+          tokens: [],
+          looping_markets: [],
+          vault_composition: [],
+          lst_collateral_markets: null,
+          morpho: null,
+          webacy: {},
+          stale: false,
+        },
+        status: 200,
+        headers: new Headers(),
+      });
+
+      await vaults.get(address, { chain: Chain.ETH });
+
+      expect(mockHttpClient.get).toHaveBeenCalledWith(
+        `/vaults/${encodeURIComponent(address)}?chain=eth`,
+        expect.any(Object)
+      );
+    });
+
+    it('should throw ValidationError for invalid address', async () => {
+      await expect(vaults.get('invalid', { chain: Chain.ETH })).rejects.toThrow(ValidationError);
+    });
+
+    it('should return response data', async () => {
+      const address = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e';
+      const mockData = {
+        metadata: { address, chain: 'eth', name: 'Test Vault', protocol: 'morpho' },
+        risk: { score: 45, count: 3, medium: 2, high: 1, overallRisk: 45, issues: [] },
+        tokens: [],
+        looping_markets: [],
+        vault_composition: [],
+        lst_collateral_markets: null,
+        morpho: { liquidity_usd: 5000000 },
+        webacy: { findings: [] },
+        stale: false,
+      };
+      mockHttpClient.get.mockResolvedValueOnce({
+        data: mockData,
+        status: 200,
+        headers: new Headers(),
+      });
+
+      const result = await vaults.get(address, { chain: Chain.ETH });
+
+      expect(result.metadata.protocol).toBe('morpho');
+      expect(result.risk.score).toBe(45);
+      expect(result.morpho?.liquidity_usd).toBe(5000000);
+      expect(result.stale).toBe(false);
+    });
+
+    it('should pass timeout to httpClient', async () => {
+      const address = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e';
+      mockHttpClient.get.mockResolvedValueOnce({
+        data: {
+          metadata: {},
+          risk: {},
+          tokens: [],
+          looping_markets: [],
+          vault_composition: [],
+          lst_collateral_markets: null,
+          morpho: null,
+          webacy: {},
+          stale: false,
+        },
+        status: 200,
+        headers: new Headers(),
+      });
+
+      await vaults.get(address, { chain: Chain.ETH, timeout: 60000 });
+
+      expect(mockHttpClient.get).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({ timeout: 60000 })
+      );
+    });
+  });
+});
