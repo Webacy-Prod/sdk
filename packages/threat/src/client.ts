@@ -9,6 +9,8 @@ import { UsageResource } from './resources/usage';
 import { TransactionsResource } from './resources/transactions';
 import { ScanResource } from './resources/scan';
 import { BatchResource } from './resources/batch';
+import { RwaResource } from './resources/rwa';
+import { VaultsResource } from './resources/vaults';
 
 /**
  * Webacy Threat SDK Client
@@ -109,6 +111,22 @@ export class ThreatClient extends BaseClient {
   public readonly batch: BatchResource;
 
   /**
+   * RWA resource
+   *
+   * Depeg risk monitoring for pegged tokens including stablecoins,
+   * tokenized gold, yield-bearing tokens, and bridged assets.
+   */
+  public readonly rwa: RwaResource;
+
+  /**
+   * Vaults resource
+   *
+   * DeFi vault risk analysis for ERC-4626 vaults including risk scoring,
+   * looping detection, TVL analysis, and underlying asset risk.
+   */
+  public readonly vaults: VaultsResource;
+
+  /**
    * Create a new ThreatClient instance
    *
    * @param config - Client configuration
@@ -151,6 +169,8 @@ export class ThreatClient extends BaseClient {
     this.transactions = new TransactionsResource(this.httpClient, this.defaultChain);
     this.scan = new ScanResource(this.httpClient, this.defaultChain);
     this.batch = new BatchResource(this.httpClient, this.defaultChain);
+    this.rwa = new RwaResource(this.httpClient, this.defaultChain);
+    this.vaults = new VaultsResource(this.httpClient, this.defaultChain);
   }
 
   // Interceptor methods (addRequestInterceptor, addResponseInterceptor, addErrorInterceptor)
