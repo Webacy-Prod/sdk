@@ -8,3 +8,5 @@ export { UsageResource } from './usage';
 export { TransactionsResource } from './transactions';
 export { ScanResource } from './scan';
 export { BatchResource } from './batch';
+export { RwaResource } from './rwa';
+export { VaultsResource } from './vaults';
