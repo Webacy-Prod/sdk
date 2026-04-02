@@ -20,6 +20,8 @@ import {
   UsageResource,
   ScanResource,
   BatchResource,
+  RwaResource,
+  VaultsResource,
 } from '@webacy-xyz/sdk-threat';
 
 /**
@@ -56,6 +58,10 @@ export interface ThreatNamespace {
   scan: ScanResource;
   /** Batch resource */
   batch: BatchResource;
+  /** RWA (Real World Assets) resource - depeg risk monitoring for pegged tokens */
+  rwa: RwaResource;
+  /** Vaults resource - DeFi vault risk analysis for ERC-4626 vaults */
+  vaults: VaultsResource;
 }
 
 /**
@@ -172,6 +178,8 @@ export class WebacyClient extends BaseClient {
       usage: new UsageResource(this.httpClient), // Chain-agnostic
       scan: new ScanResource(this.httpClient, this.defaultChain),
       batch: new BatchResource(this.httpClient, this.defaultChain),
+      rwa: new RwaResource(this.httpClient, this.defaultChain),
+      vaults: new VaultsResource(this.httpClient, this.defaultChain),
     };
   }
 
