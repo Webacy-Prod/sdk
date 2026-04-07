@@ -7,6 +7,7 @@
 
 import { TradingClient } from '@webacy-xyz/sdk-trading';
 
+/** Runs holder analysis examples. */
 async function main() {
   const client = new TradingClient({
     apiKey: process.env.WEBACY_API_KEY!,

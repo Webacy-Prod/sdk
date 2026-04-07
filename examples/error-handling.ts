@@ -16,11 +16,12 @@ import {
   NetworkError,
 } from '@webacy-xyz/sdk';
 
-// Helper function
+/** Delays execution for the given number of milliseconds. */
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+/** Runs all error-handling examples. */
 async function main() {
   const apiKey = process.env.WEBACY_API_KEY;
   if (!apiKey) {
@@ -78,6 +79,7 @@ async function main() {
 
   // Example 3: Rate limit handling with automatic retry
   console.log('\n=== Example 3: Rate Limit Handling ===');
+  /** Analyzes an address with automatic retry on rate-limit errors. */
   async function analyzeWithRetry(address: string, maxAttempts = 3): Promise<void> {
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
@@ -127,6 +129,7 @@ async function main() {
 
   // Example 5: Graceful degradation
   console.log('\n=== Example 5: Graceful Degradation ===');
+  /** Analyzes an address with graceful degradation on failure. */
   async function analyzeWithFallback(address: string): Promise<{ risk: number | null; cached: boolean }> {
     try {
       const result = await client.addresses.analyze(address, { chain: Chain.ETH });

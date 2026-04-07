@@ -7,6 +7,7 @@
 
 import { ThreatClient } from '@webacy-xyz/sdk-threat';
 
+/** Runs sanctions screening examples. */
 async function main() {
   const client = new ThreatClient({
     apiKey: process.env.WEBACY_API_KEY!,

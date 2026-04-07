@@ -7,6 +7,7 @@
 
 import { ThreatClient, RiskModule } from '@webacy-xyz/sdk-threat';
 
+/** Runs address risk analysis examples. */
 async function main() {
   const client = new ThreatClient({
     apiKey: process.env.WEBACY_API_KEY!,

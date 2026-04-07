@@ -7,6 +7,7 @@
 
 import { ThreatClient, Chain, Logger } from '@webacy-xyz/sdk';
 
+/** Runs all debugging examples. */
 async function main() {
   // Example 1: Enable all debug logging
   console.log('\n=== Example 1: Full Debug Logging ===');
