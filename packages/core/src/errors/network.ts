@@ -23,12 +23,13 @@ import { WebacyError } from './base';
 export class NetworkError extends WebacyError {
   constructor(
     message = 'Network request failed',
-    options: { cause?: Error; endpoint?: string } = {}
+    options: { cause?: Error; endpoint?: string; requestId?: string } = {}
   ) {
     super(message, {
       code: 'NETWORK_ERROR',
       cause: options.cause,
       endpoint: options.endpoint,
+      requestId: options.requestId,
     });
     this.name = 'NetworkError';
   }

@@ -276,23 +276,23 @@ Building packages...
 Publishing to npm with --tag beta...
 
 Published (as beta):
-- @webacy/sdk@1.0.0-beta.0
+- @webacy-xyz/sdk@1.0.0-beta.0
 
-To install: npm install @webacy/sdk@beta
-Stable version unchanged: npm install @webacy/sdk
+To install: npm install @webacy-xyz/sdk@beta
+Stable version unchanged: npm install @webacy-xyz/sdk
 ```
 
 **Installing Beta Versions:**
 
 ```bash
 # Install latest beta
-npm install @webacy/sdk@beta
+npm install @webacy-xyz/sdk@beta
 
 # Install specific beta
-npm install @webacy/sdk@1.0.0-beta.3
+npm install @webacy-xyz/sdk@1.0.0-beta.3
 
 # Install stable (default, unaffected)
-npm install @webacy/sdk
+npm install @webacy-xyz/sdk
 ```
 
 ---
@@ -333,10 +333,10 @@ Building packages...
 Publishing to npm...
 
 Published packages:
-- @webacy/sdk@1.1.0
-- @webacy/sdk-core@1.1.0
-- @webacy/sdk-threat@1.1.0
-- @webacy/sdk-trading@1.1.0
+- @webacy-xyz/sdk@1.1.0
+- @webacy-xyz/sdk-core@1.1.0
+- @webacy-xyz/sdk-threat@1.1.0
+- @webacy-xyz/sdk-trading@1.1.0
 
 Tag v1.1.0 created and pushed
 ```

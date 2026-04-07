@@ -27,7 +27,7 @@ WEBACY_API_KEY=your_api_key_here
 Then use it in your code:
 
 ```typescript
-import { WebacyClient } from '@webacy/sdk';
+import { WebacyClient } from '@webacy-xyz/sdk';
 
 const client = new WebacyClient({
   apiKey: process.env.WEBACY_API_KEY!,
@@ -51,7 +51,7 @@ Never commit API keys to version control. Use environment variables or secret ma
 ## Configuration Options
 
 ```typescript
-import { WebacyClient } from '@webacy/sdk';
+import { WebacyClient } from '@webacy-xyz/sdk';
 
 const client = new WebacyClient({
   // Required
@@ -89,7 +89,7 @@ API keys have rate limits based on your plan:
 When you hit a rate limit, the SDK throws a `RateLimitError`:
 
 ```typescript
-import { RateLimitError } from '@webacy/sdk';
+import { RateLimitError } from '@webacy-xyz/sdk';
 
 try {
   const risk = await client.threat.addresses.analyze('0x...', { chain: 'eth' });

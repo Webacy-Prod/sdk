@@ -102,19 +102,19 @@ Use the following template:
 ## Installation
 
 ```bash
-npm install @webacy/sdk@{VERSION}
+npm install @webacy-xyz/sdk@{VERSION}
 # or
-pnpm add @webacy/sdk@{VERSION}
+pnpm add @webacy-xyz/sdk@{VERSION}
 ```
 
 ## Packages
 
 | Package | Version |
 |---------|---------|
-| @webacy/sdk | {VERSION} |
-| @webacy/sdk-core | {VERSION} |
-| @webacy/sdk-threat | {VERSION} |
-| @webacy/sdk-trading | {VERSION} |
+| @webacy-xyz/sdk | {VERSION} |
+| @webacy-xyz/sdk-core | {VERSION} |
+| @webacy-xyz/sdk-threat | {VERSION} |
+| @webacy-xyz/sdk-trading | {VERSION} |
 
 **Full Changelog**: https://github.com/Webacy-Prod/sdk/compare/{PREV_TAG}...v{VERSION}
 ~~~
@@ -139,10 +139,10 @@ GitHub release v{VERSION} created!
 Release URL: https://github.com/Webacy-Prod/sdk/releases/tag/v{VERSION}
 
 npm packages published:
-- https://www.npmjs.com/package/@webacy/sdk
-- https://www.npmjs.com/package/@webacy/sdk-core
-- https://www.npmjs.com/package/@webacy/sdk-threat
-- https://www.npmjs.com/package/@webacy/sdk-trading
+- https://www.npmjs.com/package/@webacy-xyz/sdk
+- https://www.npmjs.com/package/@webacy-xyz/sdk-core
+- https://www.npmjs.com/package/@webacy-xyz/sdk-threat
+- https://www.npmjs.com/package/@webacy-xyz/sdk-trading
 
 Release complete!
 ```
@@ -186,17 +186,17 @@ This release adds debug logging support and improves error handling.
 ## Installation
 
 ```bash
-npm install @webacy/sdk@1.1.0
+npm install @webacy-xyz/sdk@1.1.0
 ```
 
 ## Packages
 
 | Package | Version |
 |---------|---------|
-| @webacy/sdk | 1.1.0 |
-| @webacy/sdk-core | 1.1.0 |
-| @webacy/sdk-threat | 1.1.0 |
-| @webacy/sdk-trading | 1.1.0 |
+| @webacy-xyz/sdk | 1.1.0 |
+| @webacy-xyz/sdk-core | 1.1.0 |
+| @webacy-xyz/sdk-threat | 1.1.0 |
+| @webacy-xyz/sdk-trading | 1.1.0 |
 
 **Full Changelog**: https://github.com/Webacy-Prod/sdk/compare/v1.0.0...v1.1.0
 ~~~

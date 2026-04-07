@@ -14,7 +14,7 @@ import {
   ValidationError,
   NotFoundError,
   NetworkError,
-} from '@webacy/sdk';
+} from '@webacy-xyz/sdk';
 
 // Helper function
 function sleep(ms: number): Promise<void> {

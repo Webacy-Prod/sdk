@@ -5,7 +5,7 @@
  * and detect address poisoning attacks.
  */
 
-import { ThreatClient } from '@webacy/sdk-threat';
+import { ThreatClient } from '@webacy-xyz/sdk-threat';
 
 async function main() {
   const client = new ThreatClient({

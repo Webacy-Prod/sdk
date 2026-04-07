@@ -5,7 +5,7 @@
  * and interceptors for troubleshooting.
  */
 
-import { ThreatClient, Chain, Logger } from '@webacy/sdk';
+import { ThreatClient, Chain, Logger } from '@webacy-xyz/sdk';
 
 async function main() {
   // Example 1: Enable all debug logging

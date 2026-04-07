@@ -4,7 +4,7 @@
  * Demonstrates how to fetch trending tokens and liquidity pools.
  */
 
-import { TradingClient } from '@webacy/sdk-trading';
+import { TradingClient } from '@webacy-xyz/sdk-trading';
 
 async function main() {
   const client = new TradingClient({

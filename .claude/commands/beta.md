@@ -104,26 +104,26 @@ cd packages/sdk && npm version ${BETA_VERSION} --no-git-tag-version && cd ../..
 
 Also update inter-package dependencies to the beta version in these files:
 
-**packages/threat/package.json** - update `@webacy/sdk-core` dependency:
+**packages/threat/package.json** - update `@webacy-xyz/sdk-core` dependency:
 ```json
 "dependencies": {
-  "@webacy/sdk-core": "^{BETA_VERSION}"
+  "@webacy-xyz/sdk-core": "^{BETA_VERSION}"
 }
 ```
 
-**packages/trading/package.json** - update `@webacy/sdk-core` dependency:
+**packages/trading/package.json** - update `@webacy-xyz/sdk-core` dependency:
 ```json
 "dependencies": {
-  "@webacy/sdk-core": "^{BETA_VERSION}"
+  "@webacy-xyz/sdk-core": "^{BETA_VERSION}"
 }
 ```
 
 **packages/sdk/package.json** - update all internal dependencies:
 ```json
 "dependencies": {
-  "@webacy/sdk-core": "^{BETA_VERSION}",
-  "@webacy/sdk-threat": "^{BETA_VERSION}",
-  "@webacy/sdk-trading": "^{BETA_VERSION}"
+  "@webacy-xyz/sdk-core": "^{BETA_VERSION}",
+  "@webacy-xyz/sdk-threat": "^{BETA_VERSION}",
+  "@webacy-xyz/sdk-trading": "^{BETA_VERSION}"
 }
 ```
 
@@ -144,8 +144,8 @@ cd packages/sdk && pnpm publish --access public --tag beta && cd ../..
 ```
 
 **IMPORTANT**: The `--tag beta` flag ensures:
-- Users running `npm install @webacy/sdk` get the stable version
-- Users must explicitly install `npm install @webacy/sdk@beta` to get this version
+- Users running `npm install @webacy-xyz/sdk` get the stable version
+- Users must explicitly install `npm install @webacy-xyz/sdk@beta` to get this version
 
 ## Step 8: Create Git Tag (Optional)
 
@@ -172,18 +172,18 @@ Output a confirmation message:
 Beta v{BETA_VERSION} published!
 
 Published packages (tagged as 'beta'):
-- @webacy/sdk@{BETA_VERSION}
-- @webacy/sdk-core@{BETA_VERSION}
-- @webacy/sdk-threat@{BETA_VERSION}
-- @webacy/sdk-trading@{BETA_VERSION}
+- @webacy-xyz/sdk@{BETA_VERSION}
+- @webacy-xyz/sdk-core@{BETA_VERSION}
+- @webacy-xyz/sdk-threat@{BETA_VERSION}
+- @webacy-xyz/sdk-trading@{BETA_VERSION}
 
 To install the beta version:
-  npm install @webacy/sdk@beta
+  npm install @webacy-xyz/sdk@beta
   # or
-  npm install @webacy/sdk@{BETA_VERSION}
+  npm install @webacy-xyz/sdk@{BETA_VERSION}
 
 To install the stable version (unchanged):
-  npm install @webacy/sdk
+  npm install @webacy-xyz/sdk
 
 Note: Package.json files have been reverted to stable version.
 ```
@@ -191,7 +191,7 @@ Note: Package.json files have been reverted to stable version.
 ## Important Notes
 
 - Beta versions use npm's `--tag beta` to avoid affecting `latest`
-- Users must explicitly opt-in to beta: `npm install @webacy/sdk@beta`
+- Users must explicitly opt-in to beta: `npm install @webacy-xyz/sdk@beta`
 - Package.json is reverted after publish to keep repo on stable version
 - Beta can be published from any branch (feature branches, main, etc.)
 - Multiple betas can be published: beta.0, beta.1, beta.2, etc.
@@ -200,10 +200,10 @@ Note: Package.json files have been reverted to stable version.
 
 | Tag | Purpose | Install Command |
 |-----|---------|-----------------|
-| `latest` | Stable releases | `npm install @webacy/sdk` |
-| `beta` | Beta testing | `npm install @webacy/sdk@beta` |
-| `alpha` | Early testing | `npm install @webacy/sdk@alpha` |
-| `rc` | Release candidates | `npm install @webacy/sdk@rc` |
+| `latest` | Stable releases | `npm install @webacy-xyz/sdk` |
+| `beta` | Beta testing | `npm install @webacy-xyz/sdk@beta` |
+| `alpha` | Early testing | `npm install @webacy-xyz/sdk@alpha` |
+| `rc` | Release candidates | `npm install @webacy-xyz/sdk@rc` |
 
 ## Error Handling
 
@@ -219,15 +219,15 @@ Note: Package.json files have been reverted to stable version.
 /beta
 # Select: beta
 # Tests pass, build succeeds
-# Publishes: @webacy/sdk@1.0.0-beta.0
+# Publishes: @webacy-xyz/sdk@1.0.0-beta.0
 
 # After more changes
 /beta
-# Publishes: @webacy/sdk@1.0.0-beta.1
+# Publishes: @webacy-xyz/sdk@1.0.0-beta.1
 
 # Ready for stable release
 /release
-# Publishes: @webacy/sdk@1.1.0 (as latest)
+# Publishes: @webacy-xyz/sdk@1.1.0 (as latest)
 ```
 
 ## Promoting Beta to Stable
@@ -239,5 +239,5 @@ If a beta is ready to become the stable release:
 # This creates a proper stable release with changelog
 
 # Option 2: Manually promote the tag (advanced)
-npm dist-tag add @webacy/sdk@1.0.0-beta.5 latest
+npm dist-tag add @webacy-xyz/sdk@1.0.0-beta.5 latest
 ```

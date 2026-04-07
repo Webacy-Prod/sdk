@@ -5,7 +5,7 @@
  * and token approvals for security risks.
  */
 
-import { ThreatClient } from '@webacy/sdk-threat';
+import { ThreatClient } from '@webacy-xyz/sdk-threat';
 
 async function main() {
   const client = new ThreatClient({

@@ -15,7 +15,7 @@ const config: Config = {
   baseUrl: '/',
 
   organizationName: 'Webacy-Prod',
-  projectName: 'webacy-sdk',
+  projectName: 'sdk',
 
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
@@ -25,26 +25,13 @@ const config: Config = {
     locales: ['en'],
   },
 
-  // TypeDoc plugin disabled due to version compatibility issues
-  // TODO: Re-enable when typedoc-plugin-markdown 4.x is compatible
-  // plugins: [
-  //   [
-  //     'docusaurus-plugin-typedoc',
-  //     {
-  //       entryPoints: ['../packages/sdk/src/index.ts'],
-  //       tsconfig: '../tsconfig.base.json',
-  //       out: 'api',
-  //     },
-  //   ],
-  // ],
-
   presets: [
     [
       'classic',
       {
         docs: {
           sidebarPath: './sidebars.ts',
-          editUrl: 'https://github.com/Webacy-Prod/webacy-sdk/tree/main/docs-site/',
+          editUrl: 'https://github.com/Webacy-Prod/sdk/tree/main/docs-site/',
           routeBasePath: '/',
         },
         blog: false,
@@ -75,12 +62,12 @@ const config: Config = {
           label: 'Documentation',
         },
         {
-          href: 'https://www.npmjs.com/package/@webacy/sdk',
+          href: 'https://www.npmjs.com/package/@webacy-xyz/sdk',
           label: 'npm',
           position: 'right',
         },
         {
-          href: 'https://github.com/Webacy-Prod/webacy-sdk',
+          href: 'https://github.com/Webacy-Prod/sdk',
           label: 'GitHub',
           position: 'right',
         },
@@ -110,16 +97,16 @@ const config: Config = {
           title: 'Packages',
           items: [
             {
-              label: '@webacy/sdk',
-              href: 'https://www.npmjs.com/package/@webacy/sdk',
+              label: '@webacy-xyz/sdk',
+              href: 'https://www.npmjs.com/package/@webacy-xyz/sdk',
             },
             {
-              label: '@webacy/sdk-trading',
-              href: 'https://www.npmjs.com/package/@webacy/sdk-trading',
+              label: '@webacy-xyz/sdk-trading',
+              href: 'https://www.npmjs.com/package/@webacy-xyz/sdk-trading',
             },
             {
-              label: '@webacy/sdk-threat',
-              href: 'https://www.npmjs.com/package/@webacy/sdk-threat',
+              label: '@webacy-xyz/sdk-threat',
+              href: 'https://www.npmjs.com/package/@webacy-xyz/sdk-threat',
             },
           ],
         },
@@ -132,7 +119,7 @@ const config: Config = {
             },
             {
               label: 'GitHub',
-              href: 'https://github.com/Webacy-Prod/webacy-sdk',
+              href: 'https://github.com/Webacy-Prod/sdk',
             },
           ],
         },

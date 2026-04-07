@@ -5,7 +5,7 @@
  * configuration to reduce boilerplate.
  */
 
-import { ThreatClient, TradingClient, Chain } from '@webacy/sdk';
+import { ThreatClient, TradingClient, Chain } from '@webacy-xyz/sdk';
 
 async function main() {
   // Example 1: Basic default chain usage

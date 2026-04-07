@@ -30,7 +30,7 @@
     "clean": "rm -rf dist",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src --ext .ts",
-    "test": "echo \"No tests yet\""
+    "test": "echo \"Tests covered by sub-packages\""
   },
   "dependencies": {
     "@webacy-xyz/sdk-core": "workspace:*",

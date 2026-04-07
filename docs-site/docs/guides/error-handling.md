@@ -14,7 +14,7 @@ import {
   ValidationError,
   NotFoundError,
   NetworkError,
-} from '@webacy/sdk';
+} from '@webacy-xyz/sdk';
 ```
 
 ### AuthenticationError
@@ -199,7 +199,7 @@ import {
   RateLimitError,
   ValidationError,
   NetworkError,
-} from '@webacy/sdk';
+} from '@webacy-xyz/sdk';
 
 const MAX_RATE_LIMIT_RETRIES = 3;
 

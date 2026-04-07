@@ -113,7 +113,7 @@ export abstract class BaseClient {
   /**
    * Make a GET request
    */
-  protected get<T>(path: string, options?: RequestOptions): Promise<HttpResponse<T>> {
+  protected get<T>(path: string, options?: BaseRequestOptions): Promise<HttpResponse<T>> {
     return this.httpClient.get<T>(path, {
       timeout: options?.timeout,
       signal: options?.signal,
@@ -126,7 +126,7 @@ export abstract class BaseClient {
   protected post<T>(
     path: string,
     body?: unknown,
-    options?: RequestOptions
+    options?: BaseRequestOptions
   ): Promise<HttpResponse<T>> {
     return this.httpClient.post<T>(path, body, {
       timeout: options?.timeout,
@@ -140,7 +140,7 @@ export abstract class BaseClient {
   protected put<T>(
     path: string,
     body?: unknown,
-    options?: RequestOptions
+    options?: BaseRequestOptions
   ): Promise<HttpResponse<T>> {
     return this.httpClient.put<T>(path, body, {
       timeout: options?.timeout,
@@ -151,7 +151,7 @@ export abstract class BaseClient {
   /**
    * Make a DELETE request
    */
-  protected delete<T>(path: string, options?: RequestOptions): Promise<HttpResponse<T>> {
+  protected delete<T>(path: string, options?: BaseRequestOptions): Promise<HttpResponse<T>> {
     return this.httpClient.delete<T>(path, {
       timeout: options?.timeout,
       signal: options?.signal,
@@ -162,7 +162,7 @@ export abstract class BaseClient {
 /**
  * Options for protected request methods
  */
-interface RequestOptions {
+interface BaseRequestOptions {
   timeout?: number;
   signal?: AbortSignal;
 }

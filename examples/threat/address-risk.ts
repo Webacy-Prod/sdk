@@ -5,7 +5,7 @@
  * including fund flow analysis and risk categorization.
  */
 
-import { ThreatClient, RiskModule } from '@webacy/sdk-threat';
+import { ThreatClient, RiskModule } from '@webacy-xyz/sdk-threat';
 
 async function main() {
   const client = new ThreatClient({

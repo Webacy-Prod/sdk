@@ -5,7 +5,7 @@
  * detect snipers, and identify bundled transactions.
  */
 
-import { TradingClient } from '@webacy/sdk-trading';
+import { TradingClient } from '@webacy-xyz/sdk-trading';
 
 async function main() {
   const client = new TradingClient({

@@ -5,7 +5,7 @@
  * including vulnerability detection and tax analysis.
  */
 
-import { ThreatClient } from '@webacy/sdk-threat';
+import { ThreatClient } from '@webacy-xyz/sdk-threat';
 
 async function main() {
   const client = new ThreatClient({
