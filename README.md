@@ -7,7 +7,7 @@
 
 Official TypeScript/JavaScript SDK for the Webacy Risk Score API. Analyze blockchain addresses, tokens, and transactions for security risks.
 
-**[Documentation](https://sdk.webacy.com)** | **[API Reference](https://docs.webacy.com)** | **[Get an API Key](https://webacy.com)**
+**[Documentation](https://docs.webacy.com/sdk/introduction)** | **[API Reference](https://docs.webacy.com)** | **[Get an API Key](https://webacy.com)**
 
 ## Installation
 

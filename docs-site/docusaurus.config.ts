@@ -11,7 +11,7 @@ const config: Config = {
     v4: true,
   },
 
-  url: 'https://sdk.webacy.com',
+  url: 'https://docs.webacy.com',
   baseUrl: '/',
 
   organizationName: 'Webacy-Prod',
