@@ -8,7 +8,7 @@ By participating in this project, you agree to abide by its terms.
 
 If you experience or witness unacceptable behavior, please report it by emailing **conduct@webacy.com**.
 
-All reports will be reviewed and investigated promptly and fairly. The project team is committed to maintaining confidentiality with regard to the reporter of an incident.
+All reports will be reviewed and investigated promptly and fairly. The project team is committed to maintaining confidentiality regarding the reporter of an incident.
 
 ## Attribution
 
