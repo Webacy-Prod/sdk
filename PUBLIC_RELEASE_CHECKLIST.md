@@ -60,7 +60,7 @@ Every doc, example, and guide references `@webacy/sdk` but npm has `@webacy-xyz/
 
 ### 1.3 Verification
 
-- [x] No stale `@webacy/` (without `-xyz`) references remain
+- [x] No stale `@webacy/` references: `grep -r "@webacy/" --include="*.{ts,md,json}" . | grep -v "@webacy-xyz/" | grep -v node_modules | grep -v CHANGELOG`
 - [x] `pnpm build && pnpm test` passes (232 tests, all green)
 
 ---
@@ -118,7 +118,7 @@ Every doc, example, and guide references `@webacy/sdk` but npm has `@webacy-xyz/
 - [x] `pnpm format:check` — all files formatted correctly
 - [x] `pnpm build` — all 4 packages build successfully
 - [x] `pnpm test` — 232 tests pass (86 core + 26 trading + 120 threat)
-- [x] Final grep: no stale `@webacy/` or `Webacy-Prod/webacy-sdk` references
+- [x] No stale refs: `grep -r "@webacy/" --include="*.{ts,md,json}" . | grep -v "@webacy-xyz/" | grep -v node_modules` and `grep -r "Webacy-Prod/webacy-sdk" . | grep -v node_modules`
 - [x] `.gitignore` covers: `.env*`, `test-real-api.js`, `.claude/settings.local.json`
 - [ ] Flip repo to public on GitHub (manual step)
 - [ ] Verify CI workflows trigger correctly (after making public)

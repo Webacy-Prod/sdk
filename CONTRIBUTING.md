@@ -14,7 +14,7 @@ Thank you for your interest in contributing to the Webacy SDK! This document pro
 ```bash
 # Clone the repository
 git clone https://github.com/Webacy-Prod/sdk.git
-cd webacy-sdk
+cd sdk
 
 # Install dependencies
 pnpm install
