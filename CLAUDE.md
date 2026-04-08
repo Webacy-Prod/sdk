@@ -16,10 +16,10 @@ Keep commit messages and PR descriptions clean and professional without any AI-g
 
 Webacy SDK is a TypeScript SDK for the Webacy API, providing blockchain security and risk analysis capabilities. The SDK is organized as a monorepo with 4 packages:
 
-- **@webacy/sdk** - Unified SDK that re-exports all packages
-- **@webacy/sdk-core** - Core utilities: HTTP client, errors, Chain enum, retry logic
-- **@webacy/sdk-threat** - Threat analysis: addresses, contracts, sanctions, URL safety
-- **@webacy/sdk-trading** - Trading analysis: holder analysis, sniper detection, trading-lite
+- **@webacy-xyz/sdk** - Unified SDK that re-exports all packages
+- **@webacy-xyz/sdk-core** - Core utilities: HTTP client, errors, Chain enum, retry logic
+- **@webacy-xyz/sdk-threat** - Threat analysis: addresses, contracts, sanctions, URL safety
+- **@webacy-xyz/sdk-trading** - Trading analysis: holder analysis, sniper detection, trading-lite
 
 ### Key Features
 
@@ -58,10 +58,10 @@ pnpm clean
 
 ```bash
 # Build specific package
-pnpm --filter @webacy/sdk-core build
+pnpm --filter @webacy-xyz/sdk-core build
 
 # Test specific package
-pnpm --filter @webacy/sdk-core test
+pnpm --filter @webacy-xyz/sdk-core test
 
 # Run single test file
 cd packages/core && npx vitest run src/__tests__/errors.test.ts
@@ -71,7 +71,7 @@ cd packages/core && npx vitest run src/__tests__/errors.test.ts
 
 ```text
 packages/
-├── core/           # @webacy/sdk-core
+├── core/           # @webacy-xyz/sdk-core
 │   ├── src/
 │   │   ├── http/           # HTTP client with retry logic
 │   │   ├── errors/         # Error classes (WebacyError, ValidationError, etc.)
@@ -79,21 +79,21 @@ packages/
 │   │   └── utils/          # Address validation utilities
 │   └── __tests__/          # 65 tests
 │
-├── threat/         # @webacy/sdk-threat
+├── threat/         # @webacy-xyz/sdk-threat
 │   ├── src/
 │   │   ├── resources/      # AddressesResource, ContractsResource, etc.
 │   │   ├── types/          # Response types for threat endpoints
 │   │   └── client.ts       # ThreatClient
 │   └── __tests__/          # 10 tests
 │
-├── trading/        # @webacy/sdk-trading
+├── trading/        # @webacy-xyz/sdk-trading
 │   ├── src/
 │   │   ├── resources/      # HolderAnalysisResource, TradingLiteResource
 │   │   ├── types/          # Response types for trading endpoints
 │   │   └── client.ts       # TradingClient
 │   └── __tests__/          # 12 tests
 │
-├── sdk/            # @webacy/sdk (unified)
+├── sdk/            # @webacy-xyz/sdk (unified)
 │   └── src/
 │       └── index.ts        # Re-exports from all packages
 │
@@ -105,11 +105,11 @@ packages/
 ### Package Dependency Graph
 
 ```text
-@webacy/sdk (unified entry point)
-├── @webacy/sdk-trading (token analysis)
-│   └── @webacy/sdk-core
-└── @webacy/sdk-threat (risk analysis)
-    └── @webacy/sdk-core
+@webacy-xyz/sdk (unified entry point)
+├── @webacy-xyz/sdk-trading (token analysis)
+│   └── @webacy-xyz/sdk-core
+└── @webacy-xyz/sdk-threat (risk analysis)
+    └── @webacy-xyz/sdk-core
 ```
 
 ### Client Hierarchy
@@ -133,7 +133,7 @@ WebacyClientBase (core)
 
 1. **Chain Enum**: Type-safe chain identifiers
    ```typescript
-   import { Chain } from '@webacy/sdk';
+   import { Chain } from '@webacy-xyz/sdk';
    client.addresses.analyze('0x...', { chain: Chain.ETH });
    ```
 
@@ -221,12 +221,12 @@ See `.claude/PR_WORKFLOW.md` for detailed documentation.
 
 ```bash
 /beta
-# Publishes @webacy/sdk@1.0.0-beta.0 with --tag beta
+# Publishes @webacy-xyz/sdk@1.0.0-beta.0 with --tag beta
 # Doesn't affect 'latest' tag
 # Can run from any branch
 ```
 
-Install beta: `npm install @webacy/sdk@beta`
+Install beta: `npm install @webacy-xyz/sdk@beta`
 
 ### Stable Releases
 
@@ -249,10 +249,10 @@ Install beta: `npm install @webacy/sdk@beta`
 
 ```bash
 # Publish in dependency order
-pnpm --filter @webacy/sdk-core publish --access public
-pnpm --filter @webacy/sdk-threat publish --access public
-pnpm --filter @webacy/sdk-trading publish --access public
-pnpm --filter @webacy/sdk publish --access public
+pnpm --filter @webacy-xyz/sdk-core publish --access public
+pnpm --filter @webacy-xyz/sdk-threat publish --access public
+pnpm --filter @webacy-xyz/sdk-trading publish --access public
+pnpm --filter @webacy-xyz/sdk publish --access public
 ```
 
 ## Supported Chains

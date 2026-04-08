@@ -7,7 +7,7 @@ Configure a default blockchain to reduce boilerplate when working primarily with
 Set `defaultChain` when creating your client:
 
 ```typescript
-import { ThreatClient, Chain } from '@webacy/sdk';
+import { ThreatClient, Chain } from '@webacy-xyz/sdk';
 
 const client = new ThreatClient({
   apiKey: process.env.WEBACY_API_KEY!,
@@ -49,7 +49,7 @@ const bscRisk = await client.addresses.analyze('0x742d35Cc...', {
 All chains in the `Chain` enum can be used as defaults:
 
 ```typescript
-import { Chain } from '@webacy/sdk';
+import { Chain } from '@webacy-xyz/sdk';
 
 // EVM Chains
 Chain.ETH    // Ethereum
@@ -94,7 +94,7 @@ try {
 Works the same way with `TradingClient`:
 
 ```typescript
-import { TradingClient, Chain } from '@webacy/sdk';
+import { TradingClient, Chain } from '@webacy-xyz/sdk';
 
 const client = new TradingClient({
   apiKey: process.env.WEBACY_API_KEY!,
@@ -112,7 +112,7 @@ const trending = await client.tokens.getTrending();
 The unified `WebacyClient` also supports default chain:
 
 ```typescript
-import { WebacyClient, Chain } from '@webacy/sdk';
+import { WebacyClient, Chain } from '@webacy-xyz/sdk';
 
 const client = new WebacyClient({
   apiKey: process.env.WEBACY_API_KEY!,
@@ -166,7 +166,7 @@ async function analyzeAddress(address: string, chain?: Chain) {
 Set default chain from environment:
 
 ```typescript
-import { ThreatClient, Chain } from '@webacy/sdk';
+import { ThreatClient, Chain } from '@webacy-xyz/sdk';
 
 const chainMap: Record<string, Chain> = {
   'ethereum': Chain.ETH,

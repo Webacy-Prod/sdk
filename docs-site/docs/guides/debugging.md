@@ -7,7 +7,7 @@ The Webacy SDK includes built-in debug logging to help troubleshoot API interact
 Enable debug logging when creating your client:
 
 ```typescript
-import { ThreatClient } from '@webacy/sdk';
+import { ThreatClient } from '@webacy-xyz/sdk';
 
 const client = new ThreatClient({
   apiKey: process.env.WEBACY_API_KEY!,
@@ -61,7 +61,7 @@ Error logs include additional context:
 Integrate with your logging system (winston, pino, etc.):
 
 ```typescript
-import { ThreatClient, Logger } from '@webacy/sdk';
+import { ThreatClient, Logger } from '@webacy-xyz/sdk';
 import pino from 'pino';
 
 // Create a pino logger
@@ -85,7 +85,7 @@ const client = new ThreatClient({
 ### Winston Example
 
 ```typescript
-import { ThreatClient, Logger } from '@webacy/sdk';
+import { ThreatClient, Logger } from '@webacy-xyz/sdk';
 import winston from 'winston';
 
 const winstonLogger = winston.createLogger({

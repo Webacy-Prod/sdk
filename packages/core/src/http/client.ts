@@ -373,7 +373,8 @@ export class HttpClient {
       if (contentType?.includes('application/json')) {
         data = (await response.json()) as T;
       } else {
-        data = (await response.text()) as unknown as T;
+        // Non-JSON response — cast text to generic return type
+        data = (await response.text()) as T & string;
       }
 
       return {
@@ -463,6 +464,7 @@ export class HttpClient {
           return new NetworkError(message, {
             cause: new Error(`HTTP ${response.status}`),
             endpoint,
+            requestId,
           });
         }
         return new WebacyError(message, {

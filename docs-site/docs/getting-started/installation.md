@@ -11,13 +11,13 @@ Choose the package that fits your needs.
 Install the complete SDK with both trading and threat analysis:
 
 ```bash
-npm install @webacy/sdk
+npm install @webacy-xyz/sdk
 ```
 
 This includes:
-- `@webacy/sdk-trading` - Token trading analysis
-- `@webacy/sdk-threat` - Threat and risk analysis
-- `@webacy/sdk-core` - Shared utilities (auto-installed)
+- `@webacy-xyz/sdk-trading` - Token trading analysis
+- `@webacy-xyz/sdk-threat` - Threat and risk analysis
+- `@webacy-xyz/sdk-core` - Shared utilities (auto-installed)
 
 ## Individual Packages
 
@@ -26,7 +26,7 @@ If you only need specific functionality:
 ### Trading Analysis Only
 
 ```bash
-npm install @webacy/sdk-trading
+npm install @webacy-xyz/sdk-trading
 ```
 
 Best for:
@@ -37,7 +37,7 @@ Best for:
 ### Threat Analysis Only
 
 ```bash
-npm install @webacy/sdk-threat
+npm install @webacy-xyz/sdk-threat
 ```
 
 Best for:
@@ -48,7 +48,7 @@ Best for:
 
 ## Package Comparison
 
-| Feature | `@webacy/sdk` | `@webacy/sdk-trading` | `@webacy/sdk-threat` |
+| Feature | `@webacy-xyz/sdk` | `@webacy-xyz/sdk-trading` | `@webacy-xyz/sdk-threat` |
 |---------|---------------|----------------------|---------------------|
 | Holder Analysis | ✅ | ✅ | ❌ |
 | Sniper Detection | ✅ | ✅ | ❌ |
@@ -70,8 +70,8 @@ Best for:
 
 ```bash
 # Yarn
-yarn add @webacy/sdk
+yarn add @webacy-xyz/sdk
 
 # pnpm
-pnpm add @webacy/sdk
+pnpm add @webacy-xyz/sdk
 ```

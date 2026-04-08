@@ -5,8 +5,9 @@
  * detect snipers, and identify bundled transactions.
  */
 
-import { TradingClient } from '@webacy/sdk-trading';
+import { TradingClient } from '@webacy-xyz/sdk-trading';
 
+/** Runs holder analysis examples. */
 async function main() {
   const client = new TradingClient({
     apiKey: process.env.WEBACY_API_KEY!,

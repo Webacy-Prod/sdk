@@ -5,8 +5,9 @@
  * and token approvals for security risks.
  */
 
-import { ThreatClient } from '@webacy/sdk-threat';
+import { ThreatClient } from '@webacy-xyz/sdk-threat';
 
+/** Runs wallet analysis examples. */
 async function main() {
   const client = new ThreatClient({
     apiKey: process.env.WEBACY_API_KEY!,

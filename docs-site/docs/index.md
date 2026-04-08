@@ -31,17 +31,17 @@ Official TypeScript/JavaScript SDK for the Webacy Risk Score API. Analyze blockc
 
 ```bash
 # Full SDK (recommended)
-npm install @webacy/sdk
+npm install @webacy-xyz/sdk
 
 # Or install only what you need
-npm install @webacy/sdk-trading   # Trading features only
-npm install @webacy/sdk-threat    # Threat features only
+npm install @webacy-xyz/sdk-trading   # Trading features only
+npm install @webacy-xyz/sdk-threat    # Threat features only
 ```
 
 ## Quick Example
 
 ```typescript
-import { WebacyClient } from '@webacy/sdk';
+import { WebacyClient } from '@webacy-xyz/sdk';
 
 const client = new WebacyClient({
   apiKey: process.env.WEBACY_API_KEY!,

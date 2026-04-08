@@ -40,7 +40,7 @@ Ask the user which version bump to perform (use AskUserQuestion tool):
 Fetch the current published version from npm (this is the source of truth):
 
 ```bash
-CURRENT_VERSION=$(npm view @webacy/sdk version 2>/dev/null || echo "0.0.0")
+CURRENT_VERSION=$(npm view @webacy-xyz/sdk version 2>/dev/null || echo "0.0.0")
 ```
 
 Calculate the new version based on the bump type and show the user:
