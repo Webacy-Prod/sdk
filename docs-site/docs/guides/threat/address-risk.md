@@ -19,7 +19,7 @@ The Address Risk endpoint analyzes any blockchain address for:
 ## Basic Usage
 
 ```typescript
-import { ThreatClient } from '@webacy/sdk-threat';
+import { ThreatClient } from '@webacy-xyz/sdk-threat';
 
 const client = new ThreatClient({
   apiKey: process.env.WEBACY_API_KEY!,
@@ -108,7 +108,7 @@ if (risk.details?.fund_flows?.risk) {
 Request specific analysis modules:
 
 ```typescript
-import { RiskModule } from '@webacy/sdk';
+import { RiskModule } from '@webacy-xyz/sdk';
 
 const risk = await client.addresses.analyze('0x...', {
   chain: 'eth',

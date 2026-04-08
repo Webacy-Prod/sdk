@@ -31,12 +31,14 @@ pnpm-debug.log*
 
 # Test files with potential secrets
 test-real-api.js
+test-sdk.cjs
 
 # Turbo
 .turbo/
 
 # Claude Code
 .claude/.pr-context.json
+.claude/settings.local.json
 
 # Lock files (using pnpm)
 package-lock.json

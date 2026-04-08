@@ -10,10 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Initial release of Webacy SDK
-- **@webacy/sdk** - Unified SDK combining all packages
-- **@webacy/sdk-core** - Core utilities, HTTP client, error handling, Chain enum
-- **@webacy/sdk-threat** - Threat analysis (addresses, contracts, sanctions, URL safety)
-- **@webacy/sdk-trading** - Trading analysis (holder analysis, sniper/bundler detection)
+- **@webacy-xyz/sdk** - Unified SDK combining all packages
+- **@webacy-xyz/sdk-core** - Core utilities, HTTP client, error handling, Chain enum
+- **@webacy-xyz/sdk-threat** - Threat analysis (addresses, contracts, sanctions, URL safety)
+- **@webacy-xyz/sdk-trading** - Trading analysis (holder analysis, sniper/bundler detection)
 
 ### Features
 

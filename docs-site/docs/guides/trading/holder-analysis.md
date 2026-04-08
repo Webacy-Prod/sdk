@@ -19,7 +19,7 @@ The Holder Analysis endpoint provides deep insights into:
 ## Basic Usage
 
 ```typescript
-import { TradingClient } from '@webacy/sdk-trading';
+import { TradingClient } from '@webacy-xyz/sdk-trading';
 
 const client = new TradingClient({
   apiKey: process.env.WEBACY_API_KEY!,

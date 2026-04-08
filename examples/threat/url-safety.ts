@@ -5,8 +5,9 @@
  * malware, and other security risks.
  */
 
-import { ThreatClient } from '@webacy/sdk-threat';
+import { ThreatClient } from '@webacy-xyz/sdk-threat';
 
+/** Runs URL safety check examples. */
 async function main() {
   const client = new ThreatClient({
     apiKey: process.env.WEBACY_API_KEY!,

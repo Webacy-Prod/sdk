@@ -9,7 +9,7 @@ Get up and running with the Webacy SDK in 5 minutes.
 ## 1. Install the SDK
 
 ```bash
-npm install @webacy/sdk
+npm install @webacy-xyz/sdk
 ```
 
 ## 2. Get Your API Key
@@ -19,7 +19,7 @@ Sign up at [webacy.com](https://webacy.com) to get your API key.
 ## 3. Initialize the Client
 
 ```typescript
-import { WebacyClient } from '@webacy/sdk';
+import { WebacyClient } from '@webacy-xyz/sdk';
 
 const client = new WebacyClient({
   apiKey: process.env.WEBACY_API_KEY!,
@@ -74,7 +74,7 @@ If you only need trading or threat analysis:
 ### Trading Only
 
 ```typescript
-import { TradingClient } from '@webacy/sdk-trading';
+import { TradingClient } from '@webacy-xyz/sdk-trading';
 
 const client = new TradingClient({
   apiKey: process.env.WEBACY_API_KEY!,
@@ -86,7 +86,7 @@ const holders = await client.holderAnalysis.get('token', { chain: 'sol' });
 ### Threat Only
 
 ```typescript
-import { ThreatClient } from '@webacy/sdk-threat';
+import { ThreatClient } from '@webacy-xyz/sdk-threat';
 
 const client = new ThreatClient({
   apiKey: process.env.WEBACY_API_KEY!,

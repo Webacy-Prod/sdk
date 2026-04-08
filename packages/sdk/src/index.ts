@@ -198,8 +198,11 @@ export {
   isValidTonAddress,
   isValidSuiAddress,
   isValidStellarAddress,
+  isValidHederaAddress,
   normalizeAddress,
   normalizeEvmAddress,
+  isValidUrl,
+  normalizeUrl,
 } from '@webacy-xyz/sdk-core';
 
 // Re-export core types

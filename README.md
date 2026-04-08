@@ -1,6 +1,13 @@
 # Webacy SDK
 
+[![npm version](https://img.shields.io/npm/v/@webacy-xyz/sdk)](https://www.npmjs.com/package/@webacy-xyz/sdk)
+[![CI](https://github.com/Webacy-Prod/sdk/actions/workflows/ci.yml/badge.svg)](https://github.com/Webacy-Prod/sdk/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue.svg)](https://www.typescriptlang.org/)
+
 Official TypeScript/JavaScript SDK for the Webacy Risk Score API. Analyze blockchain addresses, tokens, and transactions for security risks.
+
+**[Documentation](https://docs.webacy.com/sdk/introduction)** | **[API Reference](https://docs.webacy.com)** | **[Get an API Key](https://webacy.com)**
 
 ## Installation
 
@@ -8,13 +15,13 @@ Choose the package that fits your needs:
 
 ```bash
 # Full SDK (recommended) - includes both trading and threat analysis
-npm install @webacy/sdk
+npm install @webacy-xyz/sdk
 
 # Trading analysis only - holder analysis, sniper/bundler detection
-npm install @webacy/sdk-trading
+npm install @webacy-xyz/sdk-trading
 
 # Threat analysis only - address risk, sanctions, contracts, URL safety
-npm install @webacy/sdk-threat
+npm install @webacy-xyz/sdk-threat
 ```
 
 ## Quick Start
@@ -22,7 +29,7 @@ npm install @webacy/sdk-threat
 ### Full SDK
 
 ```typescript
-import { WebacyClient, Chain, RiskModule } from '@webacy/sdk';
+import { WebacyClient, Chain, RiskModule } from '@webacy-xyz/sdk';
 
 const client = new WebacyClient({
   apiKey: process.env.WEBACY_API_KEY!,
@@ -45,7 +52,7 @@ console.log(`Overall risk: ${risk.overallRisk}`);
 ### Trading SDK Only
 
 ```typescript
-import { TradingClient } from '@webacy/sdk-trading';
+import { TradingClient } from '@webacy-xyz/sdk-trading';
 
 const client = new TradingClient({
   apiKey: process.env.WEBACY_API_KEY!,
@@ -68,7 +75,7 @@ const trending = await client.tokens.getTrending({ chain: 'sol' });
 ### Threat SDK Only
 
 ```typescript
-import { ThreatClient, RiskModule } from '@webacy/sdk-threat';
+import { ThreatClient, RiskModule } from '@webacy-xyz/sdk-threat';
 
 const client = new ThreatClient({
   apiKey: process.env.WEBACY_API_KEY!,
@@ -98,14 +105,14 @@ const contract = await client.contracts.analyze('0xContract...', {
 
 | Package | Description |
 |---------|-------------|
-| `@webacy/sdk` | Full SDK with trading and threat analysis |
-| `@webacy/sdk-trading` | Token trading analysis (holder analysis, snipers, bundlers) |
-| `@webacy/sdk-threat` | Threat/risk analysis (addresses, contracts, URL safety) |
-| `@webacy/sdk-core` | Shared internals (auto-installed as dependency) |
+| `@webacy-xyz/sdk` | Full SDK with trading and threat analysis |
+| `@webacy-xyz/sdk-trading` | Token trading analysis (holder analysis, snipers, bundlers) |
+| `@webacy-xyz/sdk-threat` | Threat/risk analysis (addresses, contracts, URL safety) |
+| `@webacy-xyz/sdk-core` | Shared internals (auto-installed as dependency) |
 
 ## Features
 
-### Trading Analysis (`@webacy/sdk-trading`)
+### Trading Analysis (`@webacy-xyz/sdk-trading`)
 
 - **Holder Analysis** - Token holder distribution, top holders concentration
 - **Sniper Detection** - Early buyer analysis with confidence scoring
@@ -114,7 +121,7 @@ const contract = await client.contracts.analyze('0xContract...', {
 - **Token Pools** - Liquidity pool data
 - **Trending Tokens** - Trending tokens with risk data
 
-### Threat Analysis (`@webacy/sdk-threat`)
+### Threat Analysis (`@webacy-xyz/sdk-threat`)
 
 - **Address Risk** - Comprehensive address risk scoring
 - **Sanctions Screening** - OFAC/sanctions compliance
@@ -154,7 +161,7 @@ import {
   ValidationError,
   NotFoundError,
   NetworkError,
-} from '@webacy/sdk';
+} from '@webacy-xyz/sdk';
 
 try {
   const risk = await client.threat.addresses.analyze('0x...', { chain: 'eth' });
@@ -237,7 +244,7 @@ import type {
   TradingLiteAnalysis,
   Chain,
   RiskModule,
-} from '@webacy/sdk';
+} from '@webacy-xyz/sdk';
 ```
 
 ## Requirements
@@ -275,10 +282,10 @@ pnpm test:integration:api
 ```text
 webacy-sdk/
 ├── packages/
-│   ├── sdk/        # @webacy/sdk - unified entry point
-│   ├── core/       # @webacy/sdk-core - shared utilities
-│   ├── trading/    # @webacy/sdk-trading - trading analysis
-│   └── threat/     # @webacy/sdk-threat - threat analysis
+│   ├── sdk/        # @webacy-xyz/sdk - unified entry point
+│   ├── core/       # @webacy-xyz/sdk-core - shared utilities
+│   ├── trading/    # @webacy-xyz/sdk-trading - trading analysis
+│   └── threat/     # @webacy-xyz/sdk-threat - threat analysis
 ├── examples/       # Usage examples
 └── docs/           # Documentation
 ```

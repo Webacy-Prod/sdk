@@ -16,7 +16,7 @@ The Sanctions endpoint provides real-time screening against:
 ## Basic Usage
 
 ```typescript
-import { ThreatClient } from '@webacy/sdk-threat';
+import { ThreatClient } from '@webacy-xyz/sdk-threat';
 
 const client = new ThreatClient({
   apiKey: process.env.WEBACY_API_KEY!,

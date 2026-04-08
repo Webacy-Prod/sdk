@@ -5,8 +5,9 @@
  * useful for quick sniper/bundler detection on pump.fun and similar tokens.
  */
 
-import { TradingClient } from '@webacy/sdk-trading';
+import { TradingClient } from '@webacy-xyz/sdk-trading';
 
+/** Runs trading-lite analysis examples. */
 async function main() {
   const client = new TradingClient({
     apiKey: process.env.WEBACY_API_KEY!,

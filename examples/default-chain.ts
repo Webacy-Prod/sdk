@@ -5,8 +5,9 @@
  * configuration to reduce boilerplate.
  */
 
-import { ThreatClient, TradingClient, Chain } from '@webacy/sdk';
+import { ThreatClient, TradingClient, Chain } from '@webacy-xyz/sdk';
 
+/** Runs all default-chain examples. */
 async function main() {
   // Example 1: Basic default chain usage
   console.log('\n=== Example 1: Basic Default Chain ===');
@@ -48,6 +49,7 @@ async function main() {
 
   // Example 4: Multi-chain helper function
   console.log('\n=== Example 4: Multi-Chain Helper ===');
+  /** Analyzes an address on a specific chain using a dedicated client. */
   async function analyzeMultiChain(address: string, chain: Chain) {
     const client = new ThreatClient({
       apiKey: process.env.WEBACY_API_KEY!,

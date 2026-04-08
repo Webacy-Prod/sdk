@@ -13,8 +13,8 @@ Thank you for your interest in contributing to the Webacy SDK! This document pro
 
 ```bash
 # Clone the repository
-git clone https://github.com/Webacy-Prod/webacy-sdk.git
-cd webacy-sdk
+git clone https://github.com/Webacy-Prod/sdk.git
+cd sdk
 
 # Install dependencies
 pnpm install
@@ -129,10 +129,10 @@ Examples:
 
 ## Package Dependencies
 
-- `@webacy/sdk-core` - No dependencies on other SDK packages
-- `@webacy/sdk-threat` - Depends on `@webacy/sdk-core`
-- `@webacy/sdk-trading` - Depends on `@webacy/sdk-core`
-- `@webacy/sdk` - Depends on all other packages
+- `@webacy-xyz/sdk-core` - No dependencies on other SDK packages
+- `@webacy-xyz/sdk-threat` - Depends on `@webacy-xyz/sdk-core`
+- `@webacy-xyz/sdk-trading` - Depends on `@webacy-xyz/sdk-core`
+- `@webacy-xyz/sdk` - Depends on all other packages
 
 When making changes, ensure you don't introduce circular dependencies.
 
@@ -153,7 +153,7 @@ pnpm version:major
 
 ## Getting Help
 
-- Open an [issue](https://github.com/Webacy-Prod/webacy-sdk/issues) for bugs or feature requests
+- Open an [issue](https://github.com/Webacy-Prod/sdk/issues) for bugs or feature requests
 - Join discussions in existing issues before starting work
 
 ## License

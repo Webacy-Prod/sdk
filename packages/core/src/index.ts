@@ -76,6 +76,7 @@ export {
   isValidTonAddress,
   isValidSuiAddress,
   isValidStellarAddress,
+  isValidHederaAddress,
   normalizeAddress,
   normalizeEvmAddress,
   isValidUrl,

@@ -5,8 +5,9 @@
  * including vulnerability detection and tax analysis.
  */
 
-import { ThreatClient } from '@webacy/sdk-threat';
+import { ThreatClient } from '@webacy-xyz/sdk-threat';
 
+/** Runs contract analysis examples. */
 async function main() {
   const client = new ThreatClient({
     apiKey: process.env.WEBACY_API_KEY!,
