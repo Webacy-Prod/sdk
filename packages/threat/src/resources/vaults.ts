@@ -6,6 +6,8 @@ import {
   VaultListOptions,
   VaultCursorListOptions,
   VaultDetailOptions,
+  VaultEventsResponse,
+  VaultEventsOptions,
 } from '../types';
 
 /**
@@ -160,6 +162,51 @@ export class VaultsResource extends BaseResource {
    * }
    * ```
    */
+  /**
+   * List curated historical vault incidents and attacks
+   *
+   * Returns the catalog of curated vault incidents (exploits, rugs, depegs,
+   * oracle attacks). The endpoint degrades gracefully: when the upstream
+   * curated source is unreachable the response is `{ stale: true, events: [] }`
+   * rather than an error.
+   *
+   * @param options - Optional filters (vault, category, mechanism)
+   * @returns Curated vault events with generated-at metadata
+   *
+   * @example
+   * ```typescript
+   * // All curated events
+   * const all = await client.vaults.listEvents();
+   *
+   * // Events for a specific vault
+   * const forVault = await client.vaults.listEvents({
+   *   vault: 'eth:0xabc...',
+   * });
+   *
+   * // Filter by category and mechanism
+   * const oracleAttacks = await client.vaults.listEvents({
+   *   category: 'vault_contract',
+   *   mechanism: 'oracle_manipulation',
+   * });
+   * ```
+   */
+  async listEvents(options: VaultEventsOptions = {}): Promise<VaultEventsResponse> {
+    const queryParams = new URLSearchParams();
+    if (options.vault !== undefined) queryParams.append('vault', options.vault);
+    if (options.category !== undefined) queryParams.append('category', options.category);
+    if (options.mechanism !== undefined) queryParams.append('mechanism', options.mechanism);
+
+    const qs = queryParams.toString();
+    const path = qs ? `/vaults/events?${qs}` : '/vaults/events';
+
+    const response: HttpResponse<VaultEventsResponse> = await this.httpClient.get(path, {
+      timeout: options.timeout,
+      signal: options.signal,
+    });
+
+    return response.data;
+  }
+
   async get(address: string, options: VaultDetailOptions): Promise<VaultDetailResponse> {
     const chain = options.chain;
     this.validateAddress(address, chain);

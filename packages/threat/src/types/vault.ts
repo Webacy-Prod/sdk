@@ -45,7 +45,28 @@ export type VaultSortKey =
   | 'tvl_asc'
   | 'apy_desc'
   | 'looping_desc'
-  | 'name_asc';
+  | 'name_asc'
+  | 'lockup_asc';
+
+/** Curated event categories returned by the vault events endpoint */
+export type VaultEventCategory =
+  | 'vault_contract'
+  | 'strategy_protocol'
+  | 'infrastructure'
+  | 'stablecoin'
+  | 'governance_admin';
+
+/** Curated attack/failure mechanisms returned by the vault events endpoint */
+export type VaultEventMechanism =
+  | 'oracle_manipulation'
+  | 'flash_loan'
+  | 'reentrancy'
+  | 'logic_error'
+  | 'donation_attack'
+  | 'collateral_mispricing'
+  | 'insolvency_cascade'
+  | 'liquidity_freeze'
+  | 'bridge_exploit';
 
 // ─── Vault context items ────────────────────────────────────────────────────
 
@@ -349,6 +370,61 @@ export interface VaultCursorListOptions extends VaultListOptions {
 export interface VaultDetailOptions {
   /** Chain (required) — eth, arb, base, opt, pol, bsc */
   chain: Chain;
+  /** Request timeout in milliseconds */
+  timeout?: number;
+  /** Abort signal */
+  signal?: AbortSignal;
+}
+
+// ─── Events ─────────────────────────────────────────────────────────────────
+
+/** Single curated vault incident/attack event */
+export interface VaultEvent {
+  id: string | null;
+  name: string | null;
+  protocol: string | null;
+  vault_symbol: string | null;
+  vault_address: string | null;
+  chain: string | null;
+  event_type: string | null;
+  start: string | null;
+  end: string | null;
+  loss_usd: number | null;
+  description: string | null;
+  category: VaultEventCategory | null;
+  mechanism: VaultEventMechanism | null;
+  maps_to_sub_scores: string[];
+  affected_assets: string[];
+  affected_chains: string[];
+  reference_url: string | null;
+  direct_vault_exploit: boolean | null;
+  verified_vault_key: string | null;
+}
+
+/** Response for GET /vaults/events */
+export interface VaultEventsResponse {
+  generated_at: string | null;
+  stale: boolean;
+  count: number;
+  events: VaultEvent[];
+}
+
+/**
+ * Options for listing curated vault incidents/attacks
+ *
+ * All filters are optional. When none are provided, returns the full curated
+ * event catalog.
+ */
+export interface VaultEventsOptions {
+  /**
+   * Scope events to a single vault in the form `<chain>:<0x-address>`
+   * (e.g. `eth:0xabc...`). Case-insensitive.
+   */
+  vault?: string;
+  /** Filter by curated event category */
+  category?: VaultEventCategory;
+  /** Filter by curated attack/failure mechanism */
+  mechanism?: VaultEventMechanism;
   /** Request timeout in milliseconds */
   timeout?: number;
   /** Abort signal */
