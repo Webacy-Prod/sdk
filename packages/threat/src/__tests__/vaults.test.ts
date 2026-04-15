@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { VaultsResource } from '../resources/vaults';
+import { VaultEventCategory, VaultEventMechanism } from '../types/vault';
 import { Chain, ValidationError, HttpClient } from '@webacy-xyz/sdk-core';
 
 const createMockHttpClient = () => ({
@@ -178,8 +179,8 @@ describe('VaultsResource', () => {
 
       await vaults.listEvents({
         vault: 'eth:0xabc',
-        category: 'vault_contract',
-        mechanism: 'oracle_manipulation',
+        category: VaultEventCategory.VAULT_CONTRACT,
+        mechanism: VaultEventMechanism.ORACLE_MANIPULATION,
       });
 
       const calledUrl = mockHttpClient.get.mock.calls[0][0] as string;

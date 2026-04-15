@@ -187,9 +187,9 @@ export type {
   VaultListOptions,
   VaultCursorListOptions,
   VaultDetailOptions,
-  VaultEventCategory,
-  VaultEventMechanism,
   VaultEvent,
   VaultEventsResponse,
   VaultEventsOptions,
 } from './vault';
+
+export { VaultEventCategory, VaultEventMechanism } from './vault';

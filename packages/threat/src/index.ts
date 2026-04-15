@@ -175,7 +175,13 @@ export type {
   VaultListOptions,
   VaultCursorListOptions,
   VaultDetailOptions,
+  VaultEvent,
+  VaultEventsResponse,
+  VaultEventsOptions,
 } from './types';
+
+// Enum re-exports (must be value exports, not type-only)
+export { VaultEventCategory, VaultEventMechanism } from './types';
 
 // Re-export commonly used types from core
 export {

@@ -163,7 +163,13 @@ export type {
   VaultListOptions,
   VaultCursorListOptions,
   VaultDetailOptions,
+  VaultEvent,
+  VaultEventsResponse,
+  VaultEventsOptions,
 } from '@webacy-xyz/sdk-threat';
+
+// Vault enum re-exports (must be value exports, not type-only)
+export { VaultEventCategory, VaultEventMechanism } from '@webacy-xyz/sdk-threat';
 
 // Re-export core types and utilities
 export {

@@ -49,24 +49,26 @@ export type VaultSortKey =
   | 'lockup_asc';
 
 /** Curated event categories returned by the vault events endpoint */
-export type VaultEventCategory =
-  | 'vault_contract'
-  | 'strategy_protocol'
-  | 'infrastructure'
-  | 'stablecoin'
-  | 'governance_admin';
+export enum VaultEventCategory {
+  VAULT_CONTRACT = 'vault_contract',
+  STRATEGY_PROTOCOL = 'strategy_protocol',
+  INFRASTRUCTURE = 'infrastructure',
+  STABLECOIN = 'stablecoin',
+  GOVERNANCE_ADMIN = 'governance_admin',
+}
 
 /** Curated attack/failure mechanisms returned by the vault events endpoint */
-export type VaultEventMechanism =
-  | 'oracle_manipulation'
-  | 'flash_loan'
-  | 'reentrancy'
-  | 'logic_error'
-  | 'donation_attack'
-  | 'collateral_mispricing'
-  | 'insolvency_cascade'
-  | 'liquidity_freeze'
-  | 'bridge_exploit';
+export enum VaultEventMechanism {
+  ORACLE_MANIPULATION = 'oracle_manipulation',
+  FLASH_LOAN = 'flash_loan',
+  REENTRANCY = 'reentrancy',
+  LOGIC_ERROR = 'logic_error',
+  DONATION_ATTACK = 'donation_attack',
+  COLLATERAL_MISPRICING = 'collateral_mispricing',
+  INSOLVENCY_CASCADE = 'insolvency_cascade',
+  LIQUIDITY_FREEZE = 'liquidity_freeze',
+  BRIDGE_EXPLOIT = 'bridge_exploit',
+}
 
 // ─── Vault context items ────────────────────────────────────────────────────
 
