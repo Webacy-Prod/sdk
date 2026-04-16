@@ -245,6 +245,23 @@ describe('VaultsResource', () => {
         expect.objectContaining({ timeout: 15000, signal: controller.signal })
       );
     });
+
+    it('should normalize degraded response missing generated_at and count', async () => {
+      mockHttpClient.get.mockResolvedValueOnce({
+        data: { stale: true, events: [] },
+        status: 200,
+        headers: new Headers(),
+      });
+
+      const result = await vaults.listEvents();
+
+      expect(result).toEqual({
+        generated_at: null,
+        stale: true,
+        count: 0,
+        events: [],
+      });
+    });
   });
 
   describe('listEventsForAddress', () => {

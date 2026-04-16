@@ -165,12 +165,12 @@ export class VaultsResource extends BaseResource {
     const qs = queryParams.toString();
     const path = qs ? `/vaults/events?${qs}` : '/vaults/events';
 
-    const response: HttpResponse<VaultEventsResponse> = await this.httpClient.get(path, {
+    const response: HttpResponse<Partial<VaultEventsResponse>> = await this.httpClient.get(path, {
       timeout: options.timeout,
       signal: options.signal,
     });
 
-    return response.data;
+    return this.normalizeEventsResponse(response.data);
   }
 
   /**
@@ -210,7 +210,7 @@ export class VaultsResource extends BaseResource {
     if (options.category !== undefined) queryParams.append('category', options.category);
     if (options.mechanism !== undefined) queryParams.append('mechanism', options.mechanism);
 
-    const response: HttpResponse<VaultEventsResponse> = await this.httpClient.get(
+    const response: HttpResponse<Partial<VaultEventsResponse>> = await this.httpClient.get(
       `/vaults/${encodeURIComponent(address)}/events?${queryParams.toString()}`,
       {
         timeout: options.timeout,
@@ -218,7 +218,21 @@ export class VaultsResource extends BaseResource {
       }
     );
 
-    return response.data;
+    return this.normalizeEventsResponse(response.data);
+  }
+
+  /**
+   * Fill defaults for the degraded `{ stale: true, events: [] }` response
+   * shape so callers always receive a conforming VaultEventsResponse.
+   */
+  private normalizeEventsResponse(data: Partial<VaultEventsResponse>): VaultEventsResponse {
+    const events = data.events ?? [];
+    return {
+      generated_at: data.generated_at ?? null,
+      stale: data.stale ?? false,
+      count: data.count ?? events.length,
+      events,
+    };
   }
 
   /**
