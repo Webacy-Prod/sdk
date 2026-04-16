@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { VaultsResource } from '../resources/vaults';
+import { VaultEventCategory, VaultEventMechanism } from '../types/vault';
 import { Chain, ValidationError, HttpClient } from '@webacy-xyz/sdk-core';
 
 const createMockHttpClient = () => ({
@@ -153,6 +154,176 @@ describe('VaultsResource', () => {
       expect(calledUrl).toContain('chain=eth');
       expect(calledUrl).toContain('protocol=morpho');
       expect(calledUrl).toContain('tier=high');
+    });
+  });
+
+  describe('listEvents', () => {
+    it('should call /vaults/events with no params when none provided', async () => {
+      mockHttpClient.get.mockResolvedValueOnce({
+        data: { generated_at: null, stale: false, count: 0, events: [] },
+        status: 200,
+        headers: new Headers(),
+      });
+
+      await vaults.listEvents();
+
+      expect(mockHttpClient.get).toHaveBeenCalledWith('/vaults/events', expect.any(Object));
+    });
+
+    it('should pass category and mechanism filters', async () => {
+      mockHttpClient.get.mockResolvedValueOnce({
+        data: { generated_at: null, stale: false, count: 0, events: [] },
+        status: 200,
+        headers: new Headers(),
+      });
+
+      await vaults.listEvents({
+        category: VaultEventCategory.VAULT_CONTRACT,
+        mechanism: VaultEventMechanism.ORACLE_MANIPULATION,
+      });
+
+      const calledUrl = mockHttpClient.get.mock.calls[0][0] as string;
+      expect(calledUrl).toContain('/vaults/events?');
+      expect(calledUrl).toContain('category=vault_contract');
+      expect(calledUrl).toContain('mechanism=oracle_manipulation');
+    });
+
+    it('should return response data', async () => {
+      const mockData = {
+        generated_at: '2026-04-01T00:00:00Z',
+        stale: false,
+        count: 1,
+        events: [
+          {
+            id: 'evt-1',
+            name: 'Test exploit',
+            protocol: 'morpho',
+            vault_symbol: 'mwUSDC',
+            vault_address: '0xabc',
+            chain: 'eth',
+            event_type: 'exploit',
+            start: '2026-01-01',
+            end: null,
+            loss_usd: 1000000,
+            description: 'test',
+            category: 'vault_contract',
+            mechanism: 'oracle_manipulation',
+            maps_to_sub_scores: ['price'],
+            affected_assets: ['USDC'],
+            affected_chains: ['eth'],
+            reference_url: null,
+            direct_vault_exploit: true,
+            verified_vault_key: 'eth:0xabc',
+          },
+        ],
+      };
+      mockHttpClient.get.mockResolvedValueOnce({
+        data: mockData,
+        status: 200,
+        headers: new Headers(),
+      });
+
+      const result = await vaults.listEvents();
+
+      expect(result.count).toBe(1);
+      expect(result.events[0].category).toBe('vault_contract');
+      expect(result.events[0].mechanism).toBe('oracle_manipulation');
+    });
+
+    it('should pass timeout and signal to httpClient', async () => {
+      mockHttpClient.get.mockResolvedValueOnce({
+        data: { generated_at: null, stale: false, count: 0, events: [] },
+        status: 200,
+        headers: new Headers(),
+      });
+
+      const controller = new AbortController();
+      await vaults.listEvents({ timeout: 15000, signal: controller.signal });
+
+      expect(mockHttpClient.get).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({ timeout: 15000, signal: controller.signal })
+      );
+    });
+
+    it('should normalize degraded response missing generated_at and count', async () => {
+      mockHttpClient.get.mockResolvedValueOnce({
+        data: { stale: true, events: [] },
+        status: 200,
+        headers: new Headers(),
+      });
+
+      const result = await vaults.listEvents();
+
+      expect(result).toEqual({
+        generated_at: null,
+        stale: true,
+        count: 0,
+        events: [],
+      });
+    });
+  });
+
+  describe('listEventsForAddress', () => {
+    const address = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e';
+
+    it('should call /vaults/:address/events with required chain', async () => {
+      mockHttpClient.get.mockResolvedValueOnce({
+        data: { generated_at: null, stale: false, count: 0, events: [] },
+        status: 200,
+        headers: new Headers(),
+      });
+
+      await vaults.listEventsForAddress(address, { chain: Chain.ETH });
+
+      const calledUrl = mockHttpClient.get.mock.calls[0][0] as string;
+      expect(calledUrl).toBe(`/vaults/${encodeURIComponent(address)}/events?chain=eth`);
+    });
+
+    it('should include category and mechanism filters', async () => {
+      mockHttpClient.get.mockResolvedValueOnce({
+        data: { generated_at: null, stale: false, count: 0, events: [] },
+        status: 200,
+        headers: new Headers(),
+      });
+
+      await vaults.listEventsForAddress(address, {
+        chain: Chain.ETH,
+        category: VaultEventCategory.VAULT_CONTRACT,
+        mechanism: VaultEventMechanism.ORACLE_MANIPULATION,
+      });
+
+      const calledUrl = mockHttpClient.get.mock.calls[0][0] as string;
+      expect(calledUrl).toContain(`/vaults/${encodeURIComponent(address)}/events?`);
+      expect(calledUrl).toContain('chain=eth');
+      expect(calledUrl).toContain('category=vault_contract');
+      expect(calledUrl).toContain('mechanism=oracle_manipulation');
+    });
+
+    it('should throw ValidationError for invalid address', async () => {
+      await expect(vaults.listEventsForAddress('invalid', { chain: Chain.ETH })).rejects.toThrow(
+        ValidationError
+      );
+    });
+
+    it('should pass timeout and signal to httpClient', async () => {
+      mockHttpClient.get.mockResolvedValueOnce({
+        data: { generated_at: null, stale: false, count: 0, events: [] },
+        status: 200,
+        headers: new Headers(),
+      });
+
+      const controller = new AbortController();
+      await vaults.listEventsForAddress(address, {
+        chain: Chain.ETH,
+        timeout: 15000,
+        signal: controller.signal,
+      });
+
+      expect(mockHttpClient.get).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({ timeout: 15000, signal: controller.signal })
+      );
     });
   });
 

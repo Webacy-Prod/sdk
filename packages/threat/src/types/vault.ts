@@ -45,7 +45,30 @@ export type VaultSortKey =
   | 'tvl_asc'
   | 'apy_desc'
   | 'looping_desc'
-  | 'name_asc';
+  | 'name_asc'
+  | 'lockup_asc';
+
+/** Curated event categories returned by the vault events endpoint */
+export enum VaultEventCategory {
+  VAULT_CONTRACT = 'vault_contract',
+  STRATEGY_PROTOCOL = 'strategy_protocol',
+  INFRASTRUCTURE = 'infrastructure',
+  STABLECOIN = 'stablecoin',
+  GOVERNANCE_ADMIN = 'governance_admin',
+}
+
+/** Curated attack/failure mechanisms returned by the vault events endpoint */
+export enum VaultEventMechanism {
+  ORACLE_MANIPULATION = 'oracle_manipulation',
+  FLASH_LOAN = 'flash_loan',
+  REENTRANCY = 'reentrancy',
+  LOGIC_ERROR = 'logic_error',
+  DONATION_ATTACK = 'donation_attack',
+  COLLATERAL_MISPRICING = 'collateral_mispricing',
+  INSOLVENCY_CASCADE = 'insolvency_cascade',
+  LIQUIDITY_FREEZE = 'liquidity_freeze',
+  BRIDGE_EXPLOIT = 'bridge_exploit',
+}
 
 // ─── Vault context items ────────────────────────────────────────────────────
 
@@ -299,7 +322,7 @@ export interface VaultListOptions {
   page?: number;
   /** Items per page (default 50, max 500) */
   pageSize?: number;
-  /** Filter by chain: eth, arb, base, opt, pol, bsc */
+  /** Filter by chain: eth, sol, base, bsc, pol, arb, opt, ton, sui, stellar, btc, sei */
   chain?: Chain;
   /** Filter by risk tier */
   tier?: VaultTier;
@@ -347,8 +370,75 @@ export interface VaultCursorListOptions extends VaultListOptions {
  * Options for getting detailed risk data for a specific vault
  */
 export interface VaultDetailOptions {
-  /** Chain (required) — eth, arb, base, opt, pol, bsc */
+  /** Chain (required) — eth, sol, base, bsc, pol, arb, opt, ton, sui, stellar, btc, sei */
   chain: Chain;
+  /** Request timeout in milliseconds */
+  timeout?: number;
+  /** Abort signal */
+  signal?: AbortSignal;
+}
+
+// ─── Events ─────────────────────────────────────────────────────────────────
+
+/** Single curated vault incident/attack event */
+export interface VaultEvent {
+  id: string | null;
+  name: string | null;
+  protocol: string | null;
+  vault_symbol: string | null;
+  vault_address: string | null;
+  chain: string | null;
+  event_type: string | null;
+  start: string | null;
+  end: string | null;
+  loss_usd: number | null;
+  description: string | null;
+  category: VaultEventCategory | null;
+  mechanism: VaultEventMechanism | null;
+  maps_to_sub_scores: string[];
+  affected_assets: string[];
+  affected_chains: string[];
+  reference_url: string | null;
+  direct_vault_exploit: boolean | null;
+  verified_vault_key: string | null;
+}
+
+/** Response for GET /vaults/events */
+export interface VaultEventsResponse {
+  generated_at: string | null;
+  stale: boolean;
+  count: number;
+  events: VaultEvent[];
+}
+
+/**
+ * Options for listing curated vault incidents/attacks
+ *
+ * All filters are optional. When none are provided, returns the full curated
+ * event catalog. To scope events to a single vault, use
+ * {@link VaultsResource.listEventsForAddress} instead.
+ */
+export interface VaultEventsOptions {
+  /** Filter by curated event category */
+  category?: VaultEventCategory;
+  /** Filter by curated attack/failure mechanism */
+  mechanism?: VaultEventMechanism;
+  /** Request timeout in milliseconds */
+  timeout?: number;
+  /** Abort signal */
+  signal?: AbortSignal;
+}
+
+/**
+ * Options for listing curated incidents scoped to a specific vault
+ */
+export interface VaultEventsForAddressOptions {
+  /** Chain (required) — eth, sol, base, bsc, pol, arb, opt, ton, sui, stellar, btc, sei */
+  chain: Chain;
+  /** Filter by curated event category */
+  category?: VaultEventCategory;
+  /** Filter by curated attack/failure mechanism */
+  mechanism?: VaultEventMechanism;
   /** Request timeout in milliseconds */
   timeout?: number;
   /** Abort signal */
