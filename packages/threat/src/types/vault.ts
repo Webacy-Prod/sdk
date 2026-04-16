@@ -322,7 +322,7 @@ export interface VaultListOptions {
   page?: number;
   /** Items per page (default 50, max 500) */
   pageSize?: number;
-  /** Filter by chain: eth, arb, base, opt, pol, bsc */
+  /** Filter by chain: eth, sol, base, bsc, pol, arb, opt, ton, sui, stellar, btc, sei */
   chain?: Chain;
   /** Filter by risk tier */
   tier?: VaultTier;
@@ -370,7 +370,7 @@ export interface VaultCursorListOptions extends VaultListOptions {
  * Options for getting detailed risk data for a specific vault
  */
 export interface VaultDetailOptions {
-  /** Chain (required) — eth, arb, base, opt, pol, bsc */
+  /** Chain (required) — eth, sol, base, bsc, pol, arb, opt, ton, sui, stellar, btc, sei */
   chain: Chain;
   /** Request timeout in milliseconds */
   timeout?: number;
@@ -433,7 +433,7 @@ export interface VaultEventsOptions {
  * Options for listing curated incidents scoped to a specific vault
  */
 export interface VaultEventsForAddressOptions {
-  /** Chain (required) — eth, arb, base, opt, pol, bsc */
+  /** Chain (required) — eth, sol, base, bsc, pol, arb, opt, ton, sui, stellar, btc, sei */
   chain: Chain;
   /** Filter by curated event category */
   category?: VaultEventCategory;

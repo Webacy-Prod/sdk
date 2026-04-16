@@ -134,36 +134,6 @@ export class VaultsResource extends BaseResource {
   }
 
   /**
-   * Get detailed risk data for a specific vault
-   *
-   * Returns comprehensive vault detail including metadata, risk breakdown,
-   * looping markets, composition, Morpho-specific data, and Webacy findings.
-   *
-   * @param address - Vault contract address
-   * @param options - Query options (chain is required)
-   * @returns Detailed vault risk data
-   *
-   * @example
-   * ```typescript
-   * const detail = await client.vaults.get('0x...', { chain: Chain.ETH });
-   *
-   * console.log(`Score: ${detail.risk.score}`);
-   * console.log(`TVL: $${detail.metadata.tvl_usd}`);
-   * console.log(`Protocol: ${detail.metadata.protocol}`);
-   * console.log(`Listing verdict: ${detail.metadata.listing_verdict}`);
-   *
-   * // Check Morpho-specific data
-   * if (detail.morpho) {
-   *   console.log(`Morpho liquidity: $${detail.morpho.liquidity_usd}`);
-   * }
-   *
-   * // Check risk issues
-   * for (const issue of detail.risk.issues) {
-   *   console.log(`Risk score: ${issue.score}, tags: ${issue.tags.join(', ')}`);
-   * }
-   * ```
-   */
-  /**
    * List curated historical vault incidents and attacks
    *
    * Returns the full catalog of curated vault incidents (exploits, rugs,
@@ -251,6 +221,36 @@ export class VaultsResource extends BaseResource {
     return response.data;
   }
 
+  /**
+   * Get detailed risk data for a specific vault
+   *
+   * Returns comprehensive vault detail including metadata, risk breakdown,
+   * looping markets, composition, Morpho-specific data, and Webacy findings.
+   *
+   * @param address - Vault contract address
+   * @param options - Query options (chain is required)
+   * @returns Detailed vault risk data
+   *
+   * @example
+   * ```typescript
+   * const detail = await client.vaults.get('0x...', { chain: Chain.ETH });
+   *
+   * console.log(`Score: ${detail.risk.score}`);
+   * console.log(`TVL: $${detail.metadata.tvl_usd}`);
+   * console.log(`Protocol: ${detail.metadata.protocol}`);
+   * console.log(`Listing verdict: ${detail.metadata.listing_verdict}`);
+   *
+   * // Check Morpho-specific data
+   * if (detail.morpho) {
+   *   console.log(`Morpho liquidity: $${detail.morpho.liquidity_usd}`);
+   * }
+   *
+   * // Check risk issues
+   * for (const issue of detail.risk.issues) {
+   *   console.log(`Risk score: ${issue.score}, tags: ${issue.tags.join(', ')}`);
+   * }
+   * ```
+   */
   async get(address: string, options: VaultDetailOptions): Promise<VaultDetailResponse> {
     const chain = options.chain;
     this.validateAddress(address, chain);
