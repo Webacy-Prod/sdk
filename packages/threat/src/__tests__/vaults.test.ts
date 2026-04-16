@@ -170,7 +170,7 @@ describe('VaultsResource', () => {
       expect(mockHttpClient.get).toHaveBeenCalledWith('/vaults/events', expect.any(Object));
     });
 
-    it('should pass vault, category, and mechanism filters', async () => {
+    it('should pass category and mechanism filters', async () => {
       mockHttpClient.get.mockResolvedValueOnce({
         data: { generated_at: null, stale: false, count: 0, events: [] },
         status: 200,
@@ -178,14 +178,12 @@ describe('VaultsResource', () => {
       });
 
       await vaults.listEvents({
-        vault: 'eth:0xabc',
         category: VaultEventCategory.VAULT_CONTRACT,
         mechanism: VaultEventMechanism.ORACLE_MANIPULATION,
       });
 
       const calledUrl = mockHttpClient.get.mock.calls[0][0] as string;
       expect(calledUrl).toContain('/vaults/events?');
-      expect(calledUrl).toContain('vault=eth%3A0xabc');
       expect(calledUrl).toContain('category=vault_contract');
       expect(calledUrl).toContain('mechanism=oracle_manipulation');
     });
@@ -241,6 +239,69 @@ describe('VaultsResource', () => {
 
       const controller = new AbortController();
       await vaults.listEvents({ timeout: 15000, signal: controller.signal });
+
+      expect(mockHttpClient.get).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({ timeout: 15000, signal: controller.signal })
+      );
+    });
+  });
+
+  describe('listEventsForAddress', () => {
+    const address = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e';
+
+    it('should call /vaults/:address/events with required chain', async () => {
+      mockHttpClient.get.mockResolvedValueOnce({
+        data: { generated_at: null, stale: false, count: 0, events: [] },
+        status: 200,
+        headers: new Headers(),
+      });
+
+      await vaults.listEventsForAddress(address, { chain: Chain.ETH });
+
+      const calledUrl = mockHttpClient.get.mock.calls[0][0] as string;
+      expect(calledUrl).toBe(`/vaults/${encodeURIComponent(address)}/events?chain=eth`);
+    });
+
+    it('should include category and mechanism filters', async () => {
+      mockHttpClient.get.mockResolvedValueOnce({
+        data: { generated_at: null, stale: false, count: 0, events: [] },
+        status: 200,
+        headers: new Headers(),
+      });
+
+      await vaults.listEventsForAddress(address, {
+        chain: Chain.ETH,
+        category: VaultEventCategory.VAULT_CONTRACT,
+        mechanism: VaultEventMechanism.ORACLE_MANIPULATION,
+      });
+
+      const calledUrl = mockHttpClient.get.mock.calls[0][0] as string;
+      expect(calledUrl).toContain(`/vaults/${encodeURIComponent(address)}/events?`);
+      expect(calledUrl).toContain('chain=eth');
+      expect(calledUrl).toContain('category=vault_contract');
+      expect(calledUrl).toContain('mechanism=oracle_manipulation');
+    });
+
+    it('should throw ValidationError for invalid address', async () => {
+      await expect(vaults.listEventsForAddress('invalid', { chain: Chain.ETH })).rejects.toThrow(
+        ValidationError
+      );
+    });
+
+    it('should pass timeout and signal to httpClient', async () => {
+      mockHttpClient.get.mockResolvedValueOnce({
+        data: { generated_at: null, stale: false, count: 0, events: [] },
+        status: 200,
+        headers: new Headers(),
+      });
+
+      const controller = new AbortController();
+      await vaults.listEventsForAddress(address, {
+        chain: Chain.ETH,
+        timeout: 15000,
+        signal: controller.signal,
+      });
 
       expect(mockHttpClient.get).toHaveBeenCalledWith(
         expect.any(String),

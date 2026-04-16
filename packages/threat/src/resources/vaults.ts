@@ -8,6 +8,7 @@ import {
   VaultDetailOptions,
   VaultEventsResponse,
   VaultEventsOptions,
+  VaultEventsForAddressOptions,
 } from '../types';
 
 /**
@@ -165,12 +166,13 @@ export class VaultsResource extends BaseResource {
   /**
    * List curated historical vault incidents and attacks
    *
-   * Returns the catalog of curated vault incidents (exploits, rugs, depegs,
-   * oracle attacks). The endpoint degrades gracefully: when the upstream
-   * curated source is unreachable the response is `{ stale: true, events: [] }`
-   * rather than an error.
+   * Returns the full catalog of curated vault incidents (exploits, rugs,
+   * depegs, oracle attacks). To scope events to a single vault, use
+   * {@link listEventsForAddress} instead. The endpoint degrades gracefully:
+   * when the upstream curated source is unreachable the response is
+   * `{ stale: true, events: [] }` rather than an error.
    *
-   * @param options - Optional filters (vault, category, mechanism)
+   * @param options - Optional filters (category, mechanism)
    * @returns Curated vault events with generated-at metadata
    *
    * @example
@@ -178,21 +180,15 @@ export class VaultsResource extends BaseResource {
    * // All curated events
    * const all = await client.vaults.listEvents();
    *
-   * // Events for a specific vault
-   * const forVault = await client.vaults.listEvents({
-   *   vault: 'eth:0xabc...',
-   * });
-   *
    * // Filter by category and mechanism
    * const oracleAttacks = await client.vaults.listEvents({
-   *   category: 'vault_contract',
-   *   mechanism: 'oracle_manipulation',
+   *   category: VaultEventCategory.VAULT_CONTRACT,
+   *   mechanism: VaultEventMechanism.ORACLE_MANIPULATION,
    * });
    * ```
    */
   async listEvents(options: VaultEventsOptions = {}): Promise<VaultEventsResponse> {
     const queryParams = new URLSearchParams();
-    if (options.vault !== undefined) queryParams.append('vault', options.vault);
     if (options.category !== undefined) queryParams.append('category', options.category);
     if (options.mechanism !== undefined) queryParams.append('mechanism', options.mechanism);
 
@@ -203,6 +199,54 @@ export class VaultsResource extends BaseResource {
       timeout: options.timeout,
       signal: options.signal,
     });
+
+    return response.data;
+  }
+
+  /**
+   * List curated historical incidents for a specific vault
+   *
+   * Returns the curated incident catalog scoped to a single vault. Like
+   * {@link listEvents}, the endpoint degrades gracefully when the upstream
+   * source is unreachable (`{ stale: true, events: [] }`).
+   *
+   * @param address - Vault contract address
+   * @param options - Query options (chain is required)
+   * @returns Curated vault events scoped to the given vault
+   *
+   * @example
+   * ```typescript
+   * // All curated events for a vault
+   * const events = await client.vaults.listEventsForAddress('0xabc...', {
+   *   chain: Chain.ETH,
+   * });
+   *
+   * // Filter by category
+   * const contractIssues = await client.vaults.listEventsForAddress('0xabc...', {
+   *   chain: Chain.ETH,
+   *   category: VaultEventCategory.VAULT_CONTRACT,
+   * });
+   * ```
+   */
+  async listEventsForAddress(
+    address: string,
+    options: VaultEventsForAddressOptions
+  ): Promise<VaultEventsResponse> {
+    const chain = options.chain;
+    this.validateAddress(address, chain);
+
+    const queryParams = new URLSearchParams();
+    queryParams.append('chain', chain);
+    if (options.category !== undefined) queryParams.append('category', options.category);
+    if (options.mechanism !== undefined) queryParams.append('mechanism', options.mechanism);
+
+    const response: HttpResponse<VaultEventsResponse> = await this.httpClient.get(
+      `/vaults/${encodeURIComponent(address)}/events?${queryParams.toString()}`,
+      {
+        timeout: options.timeout,
+        signal: options.signal,
+      }
+    );
 
     return response.data;
   }

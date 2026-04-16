@@ -415,14 +415,26 @@ export interface VaultEventsResponse {
  * Options for listing curated vault incidents/attacks
  *
  * All filters are optional. When none are provided, returns the full curated
- * event catalog.
+ * event catalog. To scope events to a single vault, use
+ * {@link VaultsResource.listEventsForAddress} instead.
  */
 export interface VaultEventsOptions {
-  /**
-   * Scope events to a single vault in the form `<chain>:<0x-address>`
-   * (e.g. `eth:0xabc...`). Case-insensitive.
-   */
-  vault?: string;
+  /** Filter by curated event category */
+  category?: VaultEventCategory;
+  /** Filter by curated attack/failure mechanism */
+  mechanism?: VaultEventMechanism;
+  /** Request timeout in milliseconds */
+  timeout?: number;
+  /** Abort signal */
+  signal?: AbortSignal;
+}
+
+/**
+ * Options for listing curated incidents scoped to a specific vault
+ */
+export interface VaultEventsForAddressOptions {
+  /** Chain (required) — eth, arb, base, opt, pol, bsc */
+  chain: Chain;
   /** Filter by curated event category */
   category?: VaultEventCategory;
   /** Filter by curated attack/failure mechanism */

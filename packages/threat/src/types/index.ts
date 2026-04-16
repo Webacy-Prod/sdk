@@ -190,6 +190,7 @@ export type {
   VaultEvent,
   VaultEventsResponse,
   VaultEventsOptions,
+  VaultEventsForAddressOptions,
 } from './vault';
 
 export { VaultEventCategory, VaultEventMechanism } from './vault';
