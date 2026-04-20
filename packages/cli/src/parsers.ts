@@ -1,11 +1,13 @@
 import { Chain, ValidationError } from '@webacy-xyz/sdk-core';
 
+const INTEGER_PATTERN = /^-?\d+$/;
+const FLOAT_PATTERN = /^-?(\d+\.?\d*|\.\d+)$/;
+
 export function parseNumber(value: string): number {
-  const parsed = Number.parseInt(value, 10);
-  if (Number.isNaN(parsed)) {
+  if (!INTEGER_PATTERN.test(value)) {
     throw new ValidationError(`Expected an integer, got "${value}".`);
   }
-  return parsed;
+  return Number.parseInt(value, 10);
 }
 
 export function parseNonNegativeNumber(value: string): number {
@@ -17,11 +19,28 @@ export function parseNonNegativeNumber(value: string): number {
 }
 
 export function parseFloatOption(value: string): number {
-  const parsed = Number.parseFloat(value);
-  if (Number.isNaN(parsed)) {
+  if (!FLOAT_PATTERN.test(value)) {
     throw new ValidationError(`Expected a number, got "${value}".`);
   }
-  return parsed;
+  return Number.parseFloat(value);
+}
+
+export function parseEnumList<T extends string>(
+  value: string,
+  allowed: readonly T[],
+  flag: string
+): T[] {
+  const items = value
+    .split(',')
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0);
+  const invalid = items.filter((s) => !(allowed as readonly string[]).includes(s));
+  if (invalid.length > 0) {
+    throw new ValidationError(
+      `Invalid ${flag} value(s): ${invalid.join(', ')}. Allowed: ${allowed.join(', ')}.`
+    );
+  }
+  return items as T[];
 }
 
 export function narrowChain<T extends Chain>(

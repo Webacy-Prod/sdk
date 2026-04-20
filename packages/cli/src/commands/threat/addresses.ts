@@ -1,8 +1,8 @@
 import { Command } from 'commander';
+import { RiskModule } from '@webacy-xyz/sdk-core';
 import { QUICK_PROFILE_CHAINS } from '../../chain-subsets';
-import { narrowChain, parseNumber } from '../../parsers';
+import { narrowChain, parseEnumList, parseNumber } from '../../parsers';
 import { run } from '../../runner';
-import { parseListInput } from '../../output';
 
 export function registerAddresses(program: Command): void {
   const group = program
@@ -28,7 +28,9 @@ Examples:
       await run(cmd, ({ clients, opts }) =>
         clients.threat.addresses.analyze(address, {
           ...(opts.chain && { chain: opts.chain }),
-          ...(local.modules && { modules: parseListInput(local.modules) as never }),
+          ...(local.modules && {
+            modules: parseEnumList(local.modules as string, Object.values(RiskModule), '--modules'),
+          }),
           ...(local.detailed !== undefined && { detailed: local.detailed as boolean }),
           ...(local.deployerRisk !== undefined && {
             deployerRisk: local.deployerRisk as boolean,

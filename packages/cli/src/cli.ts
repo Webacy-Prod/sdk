@@ -20,10 +20,11 @@ import { registerHolderAnalysis } from './commands/trading/holder-analysis';
 import { registerTradingLite } from './commands/trading/trading-lite';
 import { registerTokens } from './commands/trading/tokens';
 
-const pkgPath = path.join(__dirname, '..', 'package.json');
-const { version: pkgVersion } = JSON.parse(fs.readFileSync(pkgPath, 'utf8')) as {
-  version: string;
-};
+function readPackageVersion(): string {
+  const pkgPath = path.join(__dirname, '..', 'package.json');
+  const { version } = JSON.parse(fs.readFileSync(pkgPath, 'utf8')) as { version: string };
+  return version;
+}
 
 export function buildProgram(): Command {
   const program = new Command();
@@ -31,7 +32,7 @@ export function buildProgram(): Command {
   program
     .name('webacy')
     .description('Command-line interface for the Webacy SDK')
-    .version(pkgVersion)
+    .version(readPackageVersion())
     .addHelpText(
       'after',
       `
@@ -75,6 +76,12 @@ Run \`webacy <group> --help\` for group-level commands, or
 
 /* c8 ignore start */
 if (require.main === module) {
+  // Handle EPIPE gracefully — `webacy ... | head -1` should exit 0, not crash.
+  process.stdout.on('error', (err: NodeJS.ErrnoException) => {
+    if (err.code === 'EPIPE') process.exit(0);
+    throw err;
+  });
+
   buildProgram().parseAsync(process.argv).catch(handleError);
 }
 /* c8 ignore stop */

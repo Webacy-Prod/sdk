@@ -122,6 +122,21 @@ describe('parseJsonInput', () => {
     tmpFiles.push(fullPath);
     expect(parseJsonInput(`@~/${name}`)).toEqual({ tilde: true });
   });
+
+  it('rejects @files larger than the 16 MiB cap', () => {
+    const tmp = path.join(os.tmpdir(), `cli-big-${Date.now()}.json`);
+    // 17 MiB of JSON — well over the 16 MiB cap. Write once, sparse.
+    const fh = fs.openSync(tmp, 'w');
+    try {
+      fs.writeSync(fh, '"');
+      fs.writeSync(fh, 'x'.repeat(17 * 1024 * 1024));
+      fs.writeSync(fh, '"');
+    } finally {
+      fs.closeSync(fh);
+    }
+    tmpFiles.push(tmp);
+    expect(() => parseJsonInput(`@${tmp}`)).toThrow(/16 MiB/);
+  });
 });
 
 describe('handleError', () => {

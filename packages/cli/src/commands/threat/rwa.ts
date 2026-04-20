@@ -1,8 +1,8 @@
 import { Command } from 'commander';
 import type { RwaListOptions } from '@webacy-xyz/sdk-threat';
-import { parseFloatOption, parseNumber } from '../../parsers';
+import { RWA_TOKEN_TYPES } from '../../chain-subsets';
+import { parseEnumList, parseFloatOption, parseNumber } from '../../parsers';
 import { run } from '../../runner';
-import { parseListInput } from '../../output';
 
 export function registerRwa(program: Command): void {
   const group = program
@@ -14,7 +14,7 @@ export function registerRwa(program: Command): void {
     .description('List pegged tokens with depeg risk data')
     .option('--denomination <denom>', 'Filter by denomination (e.g. USD)')
     .option('--tier <tier>', 'Filter by risk tier')
-    .option('--tags <list>', 'Filter by comma-separated tags')
+    .option('--tags <list>', `Filter by comma-separated tags (${RWA_TOKEN_TYPES.join('|')})`)
     .option('--min-score <n>', 'Minimum risk score', parseFloatOption)
     .option('--max-score <n>', 'Maximum risk score', parseFloatOption)
     .option('--min-mcap <n>', 'Minimum market cap', parseFloatOption)
@@ -32,7 +32,9 @@ export function registerRwa(program: Command): void {
           ...(globalOpts.chain && { chain: globalOpts.chain }),
           ...(local.denomination && { denomination: local.denomination as string }),
           ...(local.tier && { tier: local.tier as RwaListOptions['tier'] }),
-          ...(local.tags && { tags: parseListInput(local.tags as string) }),
+          ...(local.tags && {
+            tags: parseEnumList(local.tags as string, RWA_TOKEN_TYPES, '--tags'),
+          }),
           ...(local.minScore !== undefined && { minScore: local.minScore as number }),
           ...(local.maxScore !== undefined && { maxScore: local.maxScore as number }),
           ...(local.minMcap !== undefined && { minMcap: local.minMcap as number }),
