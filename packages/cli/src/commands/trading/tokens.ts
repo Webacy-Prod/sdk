@@ -1,6 +1,6 @@
 import { Command } from 'commander';
 import { TradingClient } from '@webacy-xyz/sdk-trading';
-import { TOKEN_ECONOMICS_CHAINS } from '../../chain-subsets';
+import { TOKEN_ECONOMICS_CHAINS } from '../../token-economics-chains';
 import { parseNumber, requireChainIn } from '../../parsers';
 import { run } from '../../runner';
 

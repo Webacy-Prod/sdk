@@ -1,7 +1,8 @@
 import { Chain, ValidationError } from '@webacy-xyz/sdk-core';
 
 const INTEGER_PATTERN = /^-?\d+$/;
-const FLOAT_PATTERN = /^-?(\d+\.?\d*|\.\d+)$/;
+// Accept leading +/-, decimals, and scientific notation (e.g. 1e6, 1.5e-3).
+const FLOAT_PATTERN = /^[+-]?(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?$/;
 
 export function parseNumber(value: string): number {
   if (!INTEGER_PATTERN.test(value)) {
@@ -23,24 +24,6 @@ export function parseFloatOption(value: string): number {
     throw new ValidationError(`Expected a number, got "${value}".`);
   }
   return Number.parseFloat(value);
-}
-
-export function parseEnumList<T extends string>(
-  value: string,
-  allowed: readonly T[],
-  flag: string
-): T[] {
-  const items = value
-    .split(',')
-    .map((s) => s.trim())
-    .filter((s) => s.length > 0);
-  const invalid = items.filter((s) => !(allowed as readonly string[]).includes(s));
-  if (invalid.length > 0) {
-    throw new ValidationError(
-      `Invalid ${flag} value(s): ${invalid.join(', ')}. Allowed: ${allowed.join(', ')}.`
-    );
-  }
-  return items as T[];
 }
 
 export function narrowChain<T extends Chain>(

@@ -69,15 +69,17 @@ const allMocks = [
   ...Object.values(trading).flatMap((group) => Object.values(group)),
 ];
 
-async function runCli(argv: string[]): Promise<void> {
+async function runCli(argv: string[], swallowErrors = false): Promise<void> {
   const { buildProgram } = await import('../cli');
-  try {
-    await buildProgram().parseAsync(['node', 'webacy', '--api-key', 'test-key', ...argv]);
-  } catch {
-    // In tests process.exit is mocked, so runner.ts's re-throw and
-    // commander's invalidArgument throws propagate here. Tests assert
-    // on stderr / exit spy calls — not on throw behavior.
+  const promise = buildProgram().parseAsync(['node', 'webacy', '--api-key', 'test-key', ...argv]);
+  if (swallowErrors) {
+    // Error-path tests assert on stderr + exit spy calls; runner.ts's
+    // re-throw and commander's invalidArgument would otherwise fail
+    // the test. Only enable for tests that explicitly expect a throw.
+    await promise.catch(() => undefined);
+    return;
   }
+  await promise;
 }
 
 beforeEach(() => {
@@ -247,7 +249,7 @@ describe('error paths', () => {
     const stderr = vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
     const exit = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
 
-    await runCli(['trading-lite', 'analyze', 'token', '--chain', 'eth']);
+    await runCli(['trading-lite', 'analyze', 'token', '--chain', 'eth'], true);
 
     const output = stderr.mock.calls.map((c) => c[0] as string).join('');
     expect(output).toContain('ValidationError');
@@ -262,7 +264,7 @@ describe('error paths', () => {
     const stderr = vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
     const exit = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
 
-    await runCli(['batch', 'addresses', '0xaaa']);
+    await runCli(['batch', 'addresses', '0xaaa'], true);
 
     const output = stderr.mock.calls.map((c) => c[0] as string).join('');
     expect(output).toContain('ValidationError');
@@ -276,15 +278,18 @@ describe('error paths', () => {
     const stderr = vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
     const exit = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
 
-    await runCli([
-      'addresses',
-      'analyze',
-      '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
-      '--chain',
-      'eth',
-      '--modules',
-      'governance_analysis,nonsense_module',
-    ]);
+    await runCli(
+      [
+        'addresses',
+        'analyze',
+        '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
+        '--chain',
+        'eth',
+        '--modules',
+        'governance_analysis,nonsense_module',
+      ],
+      true
+    );
 
     const output = stderr.mock.calls.map((c) => c[0] as string).join('');
     expect(output).toContain('ValidationError');
@@ -299,7 +304,7 @@ describe('error paths', () => {
     const stderr = vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
     const exit = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
 
-    await runCli(['rwa', 'list', '--tags', 'standard,garbage']);
+    await runCli(['rwa', 'list', '--tags', 'standard,garbage'], true);
 
     const output = stderr.mock.calls.map((c) => c[0] as string).join('');
     expect(output).toContain('ValidationError');
@@ -314,7 +319,7 @@ describe('error paths', () => {
     const stderr = vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
     const exit = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
 
-    await runCli(['addresses', 'analyze', '0x0', '--chain', 'sep']);
+    await runCli(['addresses', 'analyze', '0x0', '--chain', 'sep'], true);
 
     const output = stderr.mock.calls.map((c) => c[0] as string).join('');
     // Commander rejects invalid choice; it goes to stderr via its own error channel.
@@ -329,7 +334,7 @@ describe('error paths', () => {
     const stderr = vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
     const exit = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
 
-    await runCli(['scan', 'transaction', '0xSigner', '@/nope/nope/nope.json']);
+    await runCli(['scan', 'transaction', '0xSigner', '@/nope/nope/nope.json'], true);
 
     const output = stderr.mock.calls.map((c) => c[0] as string).join('');
     expect(output).toContain('ValidationError');

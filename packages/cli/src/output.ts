@@ -52,7 +52,12 @@ export function parseJsonInput(value: string): unknown {
       const msg = err instanceof Error ? err.message : String(err);
       throw new ValidationError(`Could not read "${filePath}": ${msg}`);
     }
-    if (stat.isFile() && stat.size > MAX_JSON_FILE_BYTES) {
+    // Reject non-regular files (FIFOs, /dev/stdin, sockets) so the 16 MiB
+    // cap can't be bypassed by feeding a stream into readFileSync.
+    if (!stat.isFile()) {
+      throw new ValidationError(`"${filePath}" must point to a regular file; got non-file path.`);
+    }
+    if (stat.size > MAX_JSON_FILE_BYTES) {
       throw new ValidationError(
         `File "${filePath}" is ${stat.size} bytes; max is ${MAX_JSON_FILE_BYTES} bytes (16 MiB).`
       );

@@ -1,7 +1,8 @@
 import { Command } from 'commander';
 import { RiskModule } from '@webacy-xyz/sdk-core';
-import { QUICK_PROFILE_CHAINS } from '../../chain-subsets';
-import { narrowChain, parseEnumList, parseNumber } from '../../parsers';
+import { QUICK_PROFILE_CHAINS } from '../../quick-profile-chains';
+import { parseEnumList } from '../../parse-enum-list';
+import { narrowChain, parseNumber } from '../../parsers';
 import { run } from '../../runner';
 
 export function registerAddresses(program: Command): void {

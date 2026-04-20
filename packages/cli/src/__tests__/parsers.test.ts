@@ -2,13 +2,13 @@ import { describe, expect, it } from 'vitest';
 import { Chain, ValidationError } from '@webacy-xyz/sdk-core';
 import {
   narrowChain,
-  parseEnumList,
   parseFloatOption,
   parseNonNegativeNumber,
   parseNumber,
   requireChain,
   requireChainIn,
 } from '../parsers';
+import { parseEnumList } from '../parse-enum-list';
 
 describe('parseNumber', () => {
   it('parses an integer', () => {
@@ -74,6 +74,17 @@ describe('parseFloatOption', () => {
 
   it('throws ValidationError for trailing garbage', () => {
     expect(() => parseFloatOption('3.14abc')).toThrow(ValidationError);
+  });
+
+  it('accepts scientific notation', () => {
+    expect(parseFloatOption('1e6')).toBe(1e6);
+    expect(parseFloatOption('1.5e-3')).toBeCloseTo(1.5e-3);
+    expect(parseFloatOption('2E4')).toBe(2e4);
+  });
+
+  it('accepts leading +', () => {
+    expect(parseFloatOption('+0.5')).toBe(0.5);
+    expect(parseFloatOption('+42')).toBe(42);
   });
 });
 

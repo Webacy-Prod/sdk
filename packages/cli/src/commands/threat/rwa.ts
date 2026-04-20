@@ -1,7 +1,8 @@
 import { Command } from 'commander';
 import type { RwaListOptions } from '@webacy-xyz/sdk-threat';
-import { RWA_TOKEN_TYPES } from '../../chain-subsets';
-import { parseEnumList, parseFloatOption, parseNumber } from '../../parsers';
+import { RWA_TOKEN_TYPES } from '../../rwa-token-types';
+import { parseEnumList } from '../../parse-enum-list';
+import { parseFloatOption, parseNumber } from '../../parsers';
 import { run } from '../../runner';
 
 export function registerRwa(program: Command): void {

@@ -1,6 +1,6 @@
 import { Command, Option } from 'commander';
 import { Chain, DebugMode } from '@webacy-xyz/sdk-core';
-import { SUPPORTED_CHAINS } from './chain-subsets';
+import { SUPPORTED_CHAINS } from './supported-chains';
 import { parseNonNegativeNumber } from './parsers';
 
 export interface GlobalOptions {

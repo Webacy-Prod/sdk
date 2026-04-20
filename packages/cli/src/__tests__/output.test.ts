@@ -123,6 +123,12 @@ describe('parseJsonInput', () => {
     expect(parseJsonInput(`@~/${name}`)).toEqual({ tilde: true });
   });
 
+  it('rejects @paths pointing at a directory (non-regular file)', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'cli-dir-'));
+    tmpFiles.push(dir); // best-effort cleanup; rmdir may not match but ignore
+    expect(() => parseJsonInput(`@${dir}`)).toThrow(/must point to a regular file/);
+  });
+
   it('rejects @files larger than the 16 MiB cap', () => {
     const tmp = path.join(os.tmpdir(), `cli-big-${Date.now()}.json`);
     // 17 MiB of JSON — well over the 16 MiB cap. Write once, sparse.

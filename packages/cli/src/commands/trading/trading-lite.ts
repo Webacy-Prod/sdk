@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import { TRADING_LITE_CHAINS } from '../../chain-subsets';
+import { TRADING_LITE_CHAINS } from '../../trading-lite-chains';
 import { narrowChain } from '../../parsers';
 import { run } from '../../runner';
 
