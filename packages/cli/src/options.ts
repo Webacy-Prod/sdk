@@ -29,7 +29,10 @@ export function addGlobalOptions(program: Command): void {
         'Enable debug logging. Level: requests | responses | errors | all'
       ).choices([...DEBUG_LEVELS])
     )
-    .option('--pretty', 'Pretty-print JSON output');
+    .option(
+      '--pretty',
+      'Pretty-print JSON output (defaults on when stdout is a TTY; use --no-pretty to force compact)'
+    );
 }
 
 export function resolveGlobalOptions(cmd: Command): GlobalOptions {

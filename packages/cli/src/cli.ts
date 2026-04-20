@@ -31,7 +31,25 @@ export function buildProgram(): Command {
   program
     .name('webacy')
     .description('Command-line interface for the Webacy SDK')
-    .version(pkgVersion);
+    .version(pkgVersion)
+    .addHelpText(
+      'after',
+      `
+Examples:
+  $ export WEBACY_API_KEY=your-key
+  $ webacy addresses analyze 0x742d35Cc6634C0532925a3b844Bc454e4438f44e --chain eth
+  $ webacy url check https://example.com
+  $ webacy tokens trending --chain sol --limit 10
+  $ webacy batch addresses @./addrs.json --chain eth
+  $ webacy --debug all addresses analyze 0x... --chain eth
+
+Pipe JSON into jq or any tool:
+  $ webacy addresses analyze 0x... --chain eth | jq .overallRisk
+
+Run \`webacy <group> --help\` for group-level commands, or
+\`webacy <group> <subcommand> --help\` for subcommand flags.
+`
+    );
 
   addGlobalOptions(program);
 

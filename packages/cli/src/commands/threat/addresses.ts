@@ -15,6 +15,15 @@ export function registerAddresses(program: Command): void {
     .option('--modules <list>', 'Comma-separated risk modules to include')
     .option('--detailed', 'Include detailed analysis data')
     .option('--deployer-risk', 'Include deployer risk (contracts only)')
+    .addHelpText(
+      'after',
+      `
+Examples:
+  $ webacy addresses analyze 0x742d35Cc6634C0532925a3b844Bc454e4438f44e --chain eth
+  $ webacy addresses analyze 0x... --chain eth --detailed --pretty
+  $ webacy addresses analyze 0x... --chain eth | jq .overallRisk
+`
+    )
     .action(async (address: string, local, cmd) => {
       await run(cmd, ({ clients, opts }) =>
         clients.threat.addresses.analyze(address, {

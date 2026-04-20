@@ -5,7 +5,10 @@ import { ValidationError, WebacyError } from '@webacy-xyz/sdk-core';
 import { GlobalOptions } from './options';
 
 export function printResult(data: unknown, opts: GlobalOptions): void {
-  const json = opts.pretty ? JSON.stringify(data, null, 2) : JSON.stringify(data);
+  // Default to pretty-print when stdout is a TTY (interactive shell),
+  // compact when piped/redirected. --pretty / --no-pretty override.
+  const pretty = opts.pretty ?? Boolean(process.stdout.isTTY);
+  const json = pretty ? JSON.stringify(data, null, 2) : JSON.stringify(data);
   process.stdout.write(json + '\n');
 }
 

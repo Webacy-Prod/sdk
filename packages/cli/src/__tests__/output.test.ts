@@ -7,19 +7,38 @@ import { handleError, parseJsonInput, parseListInput, printResult } from '../out
 
 describe('printResult', () => {
   const spy = vi.spyOn(process.stdout, 'write').mockImplementation(() => true);
+  const originalIsTTY = process.stdout.isTTY;
 
   afterEach(() => {
     spy.mockClear();
+    Object.defineProperty(process.stdout, 'isTTY', {
+      value: originalIsTTY,
+      configurable: true,
+    });
   });
 
-  it('writes compact JSON by default', () => {
+  it('writes compact JSON when stdout is not a TTY and --pretty is not set', () => {
+    Object.defineProperty(process.stdout, 'isTTY', { value: false, configurable: true });
     printResult({ foo: 'bar' }, {});
     expect(spy).toHaveBeenCalledWith('{"foo":"bar"}\n');
   });
 
-  it('writes pretty JSON when --pretty is set', () => {
+  it('writes pretty JSON when stdout is a TTY and --pretty is not set', () => {
+    Object.defineProperty(process.stdout, 'isTTY', { value: true, configurable: true });
+    printResult({ foo: 'bar' }, {});
+    expect(spy).toHaveBeenCalledWith('{\n  "foo": "bar"\n}\n');
+  });
+
+  it('writes pretty JSON when --pretty is explicitly true, regardless of TTY', () => {
+    Object.defineProperty(process.stdout, 'isTTY', { value: false, configurable: true });
     printResult({ foo: 'bar' }, { pretty: true });
     expect(spy).toHaveBeenCalledWith('{\n  "foo": "bar"\n}\n');
+  });
+
+  it('writes compact JSON when --pretty is explicitly false, regardless of TTY', () => {
+    Object.defineProperty(process.stdout, 'isTTY', { value: true, configurable: true });
+    printResult({ foo: 'bar' }, { pretty: false });
+    expect(spy).toHaveBeenCalledWith('{"foo":"bar"}\n');
   });
 });
 
