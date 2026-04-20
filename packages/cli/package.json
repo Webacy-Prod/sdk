@@ -1,0 +1,59 @@
+{
+  "name": "@webacy-xyz/cli",
+  "version": "1.4.0",
+  "description": "Command-line interface for the Webacy SDK",
+  "type": "commonjs",
+  "bin": {
+    "webacy": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc && chmod +x dist/cli.js",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src --ext .ts",
+    "test": "vitest run",
+    "test:watch": "vitest watch"
+  },
+  "dependencies": {
+    "@webacy-xyz/sdk-core": "workspace:*",
+    "@webacy-xyz/sdk-threat": "workspace:*",
+    "@webacy-xyz/sdk-trading": "workspace:*",
+    "commander": "^12.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.0"
+  },
+  "keywords": [
+    "webacy",
+    "cli",
+    "sdk",
+    "threat",
+    "risk",
+    "security",
+    "blockchain",
+    "crypto"
+  ],
+  "author": "Webacy",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Webacy-Prod/sdk.git",
+    "directory": "packages/cli"
+  },
+  "bugs": {
+    "url": "https://github.com/Webacy-Prod/sdk/issues"
+  },
+  "homepage": "https://github.com/Webacy-Prod/sdk/tree/main/packages/cli#readme",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  }
+}
