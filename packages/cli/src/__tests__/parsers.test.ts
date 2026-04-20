@@ -108,15 +108,17 @@ describe('parseEnumList', () => {
   });
 
   it('error message names the flag, bad values, and allowed set', () => {
+    let caught: unknown;
     try {
       parseEnumList('a,bad', allowed, '--test');
     } catch (err) {
-      expect(err).toBeInstanceOf(ValidationError);
-      const msg = (err as Error).message;
-      expect(msg).toContain('--test');
-      expect(msg).toContain('bad');
-      expect(msg).toContain('a, b, c');
+      caught = err;
     }
+    expect(caught).toBeInstanceOf(ValidationError);
+    const msg = (caught as Error).message;
+    expect(msg).toContain('--test');
+    expect(msg).toContain('bad');
+    expect(msg).toContain('a, b, c');
   });
 });
 
@@ -136,14 +138,16 @@ describe('narrowChain', () => {
   });
 
   it('error message lists allowed chains and the command name', () => {
+    let caught: unknown;
     try {
       narrowChain(Chain.SOL, allowed, 'my-command');
     } catch (err) {
-      expect(err).toBeInstanceOf(ValidationError);
-      expect((err as Error).message).toContain('my-command');
-      expect((err as Error).message).toContain('eth');
-      expect((err as Error).message).toContain('base');
+      caught = err;
     }
+    expect(caught).toBeInstanceOf(ValidationError);
+    expect((caught as Error).message).toContain('my-command');
+    expect((caught as Error).message).toContain('eth');
+    expect((caught as Error).message).toContain('base');
   });
 });
 
