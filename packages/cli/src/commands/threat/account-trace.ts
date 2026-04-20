@@ -1,4 +1,5 @@
 import { Command } from 'commander';
+import { parseNumber } from '../../parsers';
 import { run } from '../../runner';
 
 export function registerAccountTrace(program: Command): void {
@@ -7,7 +8,7 @@ export function registerAccountTrace(program: Command): void {
   group
     .command('trace <address>')
     .description('Trace fund flows for an address')
-    .option('--depth <n>', 'Trace depth (number of hops)', (v) => Number.parseInt(v, 10))
+    .option('--depth <n>', 'Trace depth (number of hops)', parseNumber)
     .action(async (address: string, local, cmd) => {
       await run(cmd, ({ clients, opts }) =>
         clients.threat.accountTrace.trace(address, {

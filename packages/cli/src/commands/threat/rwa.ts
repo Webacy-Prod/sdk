@@ -1,10 +1,8 @@
 import { Command } from 'commander';
 import type { RwaListOptions } from '@webacy-xyz/sdk-threat';
+import { parseFloatOption, parseNumber } from '../../parsers';
 import { run } from '../../runner';
 import { parseListInput } from '../../output';
-
-const parseNumber = (v: string): number => Number.parseInt(v, 10);
-const parseFloatArg = (v: string): number => Number.parseFloat(v);
 
 export function registerRwa(program: Command): void {
   const group = program
@@ -17,9 +15,9 @@ export function registerRwa(program: Command): void {
     .option('--denomination <denom>', 'Filter by denomination (e.g. USD)')
     .option('--tier <tier>', 'Filter by risk tier')
     .option('--tags <list>', 'Filter by comma-separated tags')
-    .option('--min-score <n>', 'Minimum risk score', parseFloatArg)
-    .option('--max-score <n>', 'Maximum risk score', parseFloatArg)
-    .option('--min-mcap <n>', 'Minimum market cap', parseFloatArg)
+    .option('--min-score <n>', 'Minimum risk score', parseFloatOption)
+    .option('--max-score <n>', 'Maximum risk score', parseFloatOption)
+    .option('--min-mcap <n>', 'Minimum market cap', parseFloatOption)
     .option('--liquidity <tier>', 'Liquidity tier filter')
     .option('--q <query>', 'Search query')
     .option('--sort <field>', 'Sort field')

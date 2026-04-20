@@ -2,7 +2,7 @@
   "name": "@webacy-xyz/cli",
   "version": "1.4.0",
   "description": "Command-line interface for the Webacy SDK",
-  "main": "dist/cli.js",
+  "type": "commonjs",
   "bin": {
     "webacy": "dist/cli.js"
   },

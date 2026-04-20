@@ -1,4 +1,5 @@
 import { Command } from 'commander';
+import { parseNumber } from '../../parsers';
 import { run } from '../../runner';
 
 export function registerHolderAnalysis(program: Command): void {
@@ -11,9 +12,7 @@ export function registerHolderAnalysis(program: Command): void {
     .description('Get comprehensive holder analysis for a token')
     .option('--disable-refetch', 'Disable refetching cached data')
     .option('--use-cache', 'Prefer cached data')
-    .option('--max-holders <n>', 'Maximum number of holders to analyze', (v) =>
-      Number.parseInt(v, 10)
-    )
+    .option('--max-holders <n>', 'Maximum number of holders to analyze', parseNumber)
     .action(async (address: string, local, cmd) => {
       await run(cmd, ({ clients, opts }) =>
         clients.trading.holderAnalysis.get(address, {

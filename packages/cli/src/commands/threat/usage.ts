@@ -1,4 +1,5 @@
 import { Command } from 'commander';
+import { parseNumber } from '../../parsers';
 import { run } from '../../runner';
 
 export function registerUsage(program: Command): void {
@@ -36,8 +37,8 @@ export function registerUsage(program: Command): void {
     .command('max-rps')
     .description('Get peak requests-per-second for an organization')
     .requiredOption('--organization <name>', 'Organization name')
-    .requiredOption('--from <timestamp>', 'Start timestamp (ms)', (v) => Number.parseInt(v, 10))
-    .requiredOption('--to <timestamp>', 'End timestamp (ms)', (v) => Number.parseInt(v, 10))
+    .requiredOption('--from <timestamp>', 'Start timestamp (ms)', parseNumber)
+    .requiredOption('--to <timestamp>', 'End timestamp (ms)', parseNumber)
     .action(async (local, cmd) => {
       await run(cmd, ({ clients }) =>
         clients.threat.usage.getMaxRps({

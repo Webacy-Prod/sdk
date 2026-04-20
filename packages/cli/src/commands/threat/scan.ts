@@ -3,36 +3,47 @@ import type { ScanTransactionRequest, ScanEIP712Request } from '@webacy-xyz/sdk-
 import { run } from '../../runner';
 import { parseJsonInput } from '../../output';
 
+const CHAIN_IN_BODY_NOTE =
+  ' (chain ID lives in the JSON body, e.g. {"chain":1,...}; the global --chain flag is not used)';
+
 export function registerScan(program: Command): void {
   const group = program.command('scan').description('Pre-signing scans and wallet risk scans');
 
   group
     .command('transaction <fromAddress> <request>')
-    .description('Scan a raw transaction before signing (JSON or @file.json)')
+    .description(`Scan a raw transaction before signing (JSON or @file.json).${CHAIN_IN_BODY_NOTE}`)
     .option('--refresh-cache', 'Force refresh cached analysis')
     .action(async (fromAddress: string, requestRaw: string, local, cmd) => {
-      const body = parseJsonInput(requestRaw) as ScanTransactionRequest;
       await run(cmd, ({ clients }) =>
-        clients.threat.scan.scanTransaction(fromAddress, body, {
-          ...(local.refreshCache !== undefined && {
-            refreshCache: local.refreshCache as boolean,
-          }),
-        })
+        clients.threat.scan.scanTransaction(
+          fromAddress,
+          parseJsonInput(requestRaw) as ScanTransactionRequest,
+          {
+            ...(local.refreshCache !== undefined && {
+              refreshCache: local.refreshCache as boolean,
+            }),
+          }
+        )
       );
     });
 
   group
     .command('eip712 <fromAddress> <request>')
-    .description('Scan EIP-712 typed data before signing (JSON or @file.json)')
+    .description(
+      `Scan EIP-712 typed data before signing (JSON or @file.json).${CHAIN_IN_BODY_NOTE}`
+    )
     .option('--refresh-cache', 'Force refresh cached analysis')
     .action(async (fromAddress: string, requestRaw: string, local, cmd) => {
-      const body = parseJsonInput(requestRaw) as ScanEIP712Request;
       await run(cmd, ({ clients }) =>
-        clients.threat.scan.scanEip712(fromAddress, body, {
-          ...(local.refreshCache !== undefined && {
-            refreshCache: local.refreshCache as boolean,
-          }),
-        })
+        clients.threat.scan.scanEip712(
+          fromAddress,
+          parseJsonInput(requestRaw) as ScanEIP712Request,
+          {
+            ...(local.refreshCache !== undefined && {
+              refreshCache: local.refreshCache as boolean,
+            }),
+          }
+        )
       );
     });
 

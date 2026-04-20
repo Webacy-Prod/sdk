@@ -1,6 +1,9 @@
 #!/usr/bin/env node
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 import { Command } from 'commander';
 import { addGlobalOptions } from './options';
+import { handleError } from './output';
 import { registerAddresses } from './commands/threat/addresses';
 import { registerContracts } from './commands/threat/contracts';
 import { registerUrl } from './commands/threat/url';
@@ -17,8 +20,10 @@ import { registerHolderAnalysis } from './commands/trading/holder-analysis';
 import { registerTradingLite } from './commands/trading/trading-lite';
 import { registerTokens } from './commands/trading/tokens';
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const pkg = require('../package.json') as { version: string };
+const pkgPath = path.join(__dirname, '..', 'package.json');
+const { version: pkgVersion } = JSON.parse(fs.readFileSync(pkgPath, 'utf8')) as {
+  version: string;
+};
 
 export function buildProgram(): Command {
   const program = new Command();
@@ -26,7 +31,7 @@ export function buildProgram(): Command {
   program
     .name('webacy')
     .description('Command-line interface for the Webacy SDK')
-    .version(pkg.version);
+    .version(pkgVersion);
 
   addGlobalOptions(program);
 
@@ -52,11 +57,6 @@ export function buildProgram(): Command {
 
 /* c8 ignore start */
 if (require.main === module) {
-  buildProgram()
-    .parseAsync(process.argv)
-    .catch((err: unknown) => {
-      process.stderr.write(`${err instanceof Error ? err.message : String(err)}\n`);
-      process.exit(1);
-    });
+  buildProgram().parseAsync(process.argv).catch(handleError);
 }
 /* c8 ignore stop */

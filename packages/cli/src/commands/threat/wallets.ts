@@ -1,4 +1,5 @@
 import { Command } from 'commander';
+import { parseNumber } from '../../parsers';
 import { run } from '../../runner';
 
 export function registerWallets(program: Command): void {
@@ -7,8 +8,8 @@ export function registerWallets(program: Command): void {
   group
     .command('transactions <address>')
     .description('Get wallet transaction risk analysis')
-    .option('--limit <n>', 'Max transactions to return', (v) => Number.parseInt(v, 10))
-    .option('--offset <n>', 'Pagination offset', (v) => Number.parseInt(v, 10))
+    .option('--limit <n>', 'Max transactions to return', parseNumber)
+    .option('--offset <n>', 'Pagination offset', parseNumber)
     .action(async (address: string, local, cmd) => {
       await run(cmd, ({ clients, opts }) =>
         clients.threat.wallets.getTransactions(address, {

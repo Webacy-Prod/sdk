@@ -1,4 +1,7 @@
-import { WebacyError } from '@webacy-xyz/sdk-core';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+import * as os from 'node:os';
+import { ValidationError, WebacyError } from '@webacy-xyz/sdk-core';
 import { GlobalOptions } from './options';
 
 export function printResult(data: unknown, opts: GlobalOptions): void {
@@ -8,12 +11,8 @@ export function printResult(data: unknown, opts: GlobalOptions): void {
 
 export function handleError(error: unknown): never {
   if (error instanceof WebacyError) {
-    const suggestion =
-      typeof (error as { getRecoverySuggestion?: () => string }).getRecoverySuggestion ===
-      'function'
-        ? (error as { getRecoverySuggestion: () => string }).getRecoverySuggestion()
-        : undefined;
     process.stderr.write(`${error.name}: ${error.message}\n`);
+    const suggestion = error.getRecoverySuggestion();
     if (suggestion) {
       process.stderr.write(`Hint: ${suggestion}\n`);
     }
@@ -25,16 +24,40 @@ export function handleError(error: unknown): never {
   process.exit(1);
 }
 
+function resolveFileRef(ref: string): string {
+  if (ref === '') {
+    throw new ValidationError('Empty file reference after "@".');
+  }
+  if (ref.startsWith('~/') || ref === '~') {
+    return path.join(os.homedir(), ref.slice(1));
+  }
+  return ref;
+}
+
 export function parseJsonInput(value: string): unknown {
   const trimmed = value.trim();
   if (trimmed.startsWith('@')) {
-    const path = trimmed.slice(1);
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const fs = require('node:fs') as typeof import('node:fs');
-    const content = fs.readFileSync(path, 'utf8');
-    return JSON.parse(content);
+    const filePath = resolveFileRef(trimmed.slice(1));
+    let content: string;
+    try {
+      content = fs.readFileSync(filePath, 'utf8');
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      throw new ValidationError(`Could not read "${filePath}": ${msg}`);
+    }
+    try {
+      return JSON.parse(content);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      throw new ValidationError(`Invalid JSON in "${filePath}": ${msg}`);
+    }
   }
-  return JSON.parse(trimmed);
+  try {
+    return JSON.parse(trimmed);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    throw new ValidationError(`Invalid JSON input: ${msg}`);
+  }
 }
 
 export function parseListInput(value: string): string[] {
@@ -42,7 +65,7 @@ export function parseListInput(value: string): string[] {
   if (trimmed.startsWith('@')) {
     const parsed = parseJsonInput(trimmed);
     if (!Array.isArray(parsed)) {
-      throw new Error('Expected a JSON array in the referenced file.');
+      throw new ValidationError('Expected a JSON array in the referenced file.');
     }
     return parsed.map(String);
   }

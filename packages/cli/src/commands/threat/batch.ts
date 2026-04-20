@@ -1,7 +1,7 @@
 import { Command } from 'commander';
+import { requireChain } from '../../parsers';
 import { run } from '../../runner';
 import { parseListInput } from '../../output';
-import { GlobalOptions } from '../../options';
 
 export function registerBatch(program: Command): void {
   const group = program
@@ -14,9 +14,11 @@ export function registerBatch(program: Command): void {
       'Batch analyze addresses. Pass a comma-separated list or @file.json with a JSON array.'
     )
     .action(async (items: string, _local, cmd) => {
-      const addresses = parseListInput(items);
       await run(cmd, ({ clients, opts }) =>
-        clients.threat.batch.addresses({ addresses, chain: requireChain(opts) })
+        clients.threat.batch.addresses({
+          addresses: parseListInput(items),
+          chain: requireChain(opts.chain, 'batch addresses'),
+        })
       );
     });
 
@@ -26,9 +28,11 @@ export function registerBatch(program: Command): void {
       'Batch analyze contracts. Pass a comma-separated list or @file.json with a JSON array.'
     )
     .action(async (items: string, _local, cmd) => {
-      const addresses = parseListInput(items);
       await run(cmd, ({ clients, opts }) =>
-        clients.threat.batch.contracts({ addresses, chain: requireChain(opts) })
+        clients.threat.batch.contracts({
+          addresses: parseListInput(items),
+          chain: requireChain(opts.chain, 'batch contracts'),
+        })
       );
     });
 
@@ -38,16 +42,11 @@ export function registerBatch(program: Command): void {
       'Batch analyze transactions. Pass a comma-separated list or @file.json with a JSON array.'
     )
     .action(async (items: string, _local, cmd) => {
-      const transactions = parseListInput(items);
       await run(cmd, ({ clients, opts }) =>
-        clients.threat.batch.transactions({ transactions, chain: requireChain(opts) })
+        clients.threat.batch.transactions({
+          transactions: parseListInput(items),
+          chain: requireChain(opts.chain, 'batch transactions'),
+        })
       );
     });
-}
-
-function requireChain(opts: GlobalOptions): NonNullable<GlobalOptions['chain']> {
-  if (!opts.chain) {
-    throw new Error('--chain is required for batch commands.');
-  }
-  return opts.chain;
 }

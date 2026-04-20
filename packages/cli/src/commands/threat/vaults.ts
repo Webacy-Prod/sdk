@@ -1,11 +1,9 @@
 import { Command } from 'commander';
 import type { VaultListOptions, VaultCursorListOptions } from '@webacy-xyz/sdk-threat';
 import { VaultEventCategory, VaultEventMechanism } from '@webacy-xyz/sdk-threat';
+import { parseFloatOption, parseNumber, requireChain } from '../../parsers';
 import { run } from '../../runner';
 import { GlobalOptions } from '../../options';
-
-const parseNumber = (v: string): number => Number.parseInt(v, 10);
-const parseFloatArg = (v: string): number => Number.parseFloat(v);
 
 export function registerVaults(program: Command): void {
   const group = program.command('vaults').description('DeFi vault (ERC-4626) risk analysis');
@@ -15,10 +13,10 @@ export function registerVaults(program: Command): void {
       .option('--tier <tier>', 'Filter by risk tier')
       .option('--underlying <asset>', 'Filter by underlying asset')
       .option('--protocol <protocol>', 'Filter by protocol')
-      .option('--min-tvl <n>', 'Minimum TVL', parseFloatArg)
+      .option('--min-tvl <n>', 'Minimum TVL', parseFloatOption)
       .option('--underlying-risk <tier>', 'Underlying risk tier filter')
-      .option('--min-score <n>', 'Minimum risk score', parseFloatArg)
-      .option('--max-score <n>', 'Maximum risk score', parseFloatArg)
+      .option('--min-score <n>', 'Minimum risk score', parseFloatOption)
+      .option('--max-score <n>', 'Maximum risk score', parseFloatOption)
       .option('--contract-type <type>', 'Contract type filter')
       .option('--attention-needed', 'Only show vaults needing attention')
       .option('--risk-flags <list>', 'Comma-separated risk flags')
@@ -92,10 +90,11 @@ export function registerVaults(program: Command): void {
     .command('get <address>')
     .description('Get detailed vault risk data (requires --chain)')
     .action(async (address: string, _local, cmd) => {
-      await run(cmd, ({ clients, opts }) => {
-        if (!opts.chain) throw new Error('--chain is required.');
-        return clients.threat.vaults.get(address, { chain: opts.chain });
-      });
+      await run(cmd, ({ clients, opts }) =>
+        clients.threat.vaults.get(address, {
+          chain: requireChain(opts.chain, 'vaults get'),
+        })
+      );
     });
 
   group
@@ -124,13 +123,12 @@ export function registerVaults(program: Command): void {
     .option('--category <category>', 'Filter by category')
     .option('--mechanism <mechanism>', 'Filter by mechanism')
     .action(async (address: string, local, cmd) => {
-      await run(cmd, ({ clients, opts }) => {
-        if (!opts.chain) throw new Error('--chain is required.');
-        return clients.threat.vaults.listEventsForAddress(address, {
-          chain: opts.chain,
+      await run(cmd, ({ clients, opts }) =>
+        clients.threat.vaults.listEventsForAddress(address, {
+          chain: requireChain(opts.chain, 'vaults list-events-for-address'),
           ...(local.category && { category: local.category as VaultEventCategory }),
           ...(local.mechanism && { mechanism: local.mechanism as VaultEventMechanism }),
-        });
-      });
+        })
+      );
     });
 }

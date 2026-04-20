@@ -1,4 +1,6 @@
 import { Command } from 'commander';
+import { QUICK_PROFILE_CHAINS } from '../../chain-subsets';
+import { narrowChain, parseNumber } from '../../parsers';
 import { run } from '../../runner';
 import { parseListInput } from '../../output';
 
@@ -50,15 +52,16 @@ export function registerAddresses(program: Command): void {
 
   group
     .command('quick-profile <address>')
-    .description('Get a quick risk profile for an address')
+    .description(`Get a quick risk profile. Supported chains: ${QUICK_PROFILE_CHAINS.join(', ')}.`)
     .option('--with-approvals', 'Include token approvals')
     .option('--with-new-approvals', 'Include only new approvals')
     .option('--refresh-cache', 'Force refresh cached data')
     .option('--hide-trust-flags', 'Hide trust flags in the response')
     .action(async (address: string, local, cmd) => {
-      await run(cmd, ({ clients, opts }) =>
-        clients.threat.addresses.getQuickProfile(address, {
-          ...(opts.chain && { chain: opts.chain as never }),
+      await run(cmd, ({ clients, opts }) => {
+        const chain = narrowChain(opts.chain, QUICK_PROFILE_CHAINS, 'addresses quick-profile');
+        return clients.threat.addresses.getQuickProfile(address, {
+          ...(chain && { chain }),
           ...(local.withApprovals !== undefined && {
             withApprovals: local.withApprovals as boolean,
           }),
@@ -71,14 +74,14 @@ export function registerAddresses(program: Command): void {
           ...(local.hideTrustFlags !== undefined && {
             hideTrustFlags: local.hideTrustFlags as boolean,
           }),
-        })
-      );
+        });
+      });
     });
 
   group
     .command('summary <address>')
     .description('Get transaction risk summary for an address')
-    .option('--page <number>', 'Pagination page number', (v) => Number.parseInt(v, 10))
+    .option('--page <number>', 'Pagination page number', parseNumber)
     .action(async (address: string, local, cmd) => {
       await run(cmd, ({ clients, opts }) =>
         clients.threat.addresses.getSummary(address, {
