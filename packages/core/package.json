@@ -1,6 +1,6 @@
 {
   "name": "@webacy-xyz/sdk-core",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "Core utilities for Webacy SDK packages",
   "author": "Webacy",
   "license": "MIT",

@@ -1,0 +1,61 @@
+import { Command, Option } from 'commander';
+import { Chain, DebugMode } from '@webacy-xyz/sdk-core';
+import { SUPPORTED_CHAINS } from './supported-chains';
+import { parseNonNegativeNumber } from './parsers';
+
+export interface GlobalOptions {
+  apiKey?: string;
+  baseUrl?: string;
+  chain?: Chain;
+  timeout?: number;
+  debug?: DebugMode;
+  pretty?: boolean;
+}
+
+const DEBUG_LEVELS = ['requests', 'responses', 'errors', 'all'] as const;
+
+export function addGlobalOptions(program: Command): void {
+  program
+    .option('--api-key <key>', 'Webacy API key (falls back to WEBACY_API_KEY env var)')
+    .option('--base-url <url>', 'Override the API base URL')
+    .addOption(
+      new Option('--chain <chain>', 'Default blockchain for the command').choices([
+        ...SUPPORTED_CHAINS,
+      ])
+    )
+    .option('--timeout <ms>', 'Request timeout in milliseconds', parseNonNegativeNumber)
+    .addOption(
+      new Option(
+        '--debug [level]',
+        'Enable debug logging. Level: requests | responses | errors | all'
+      ).choices([...DEBUG_LEVELS])
+    )
+    .option(
+      '--pretty',
+      'Pretty-print JSON output (defaults on when stdout is a TTY; use --no-pretty to force compact)'
+    );
+}
+
+export function resolveGlobalOptions(cmd: Command): GlobalOptions {
+  const opts = cmd.optsWithGlobals<Record<string, unknown>>();
+  const debug = normalizeDebug(opts.debug);
+
+  return {
+    apiKey: (opts.apiKey as string | undefined) ?? process.env.WEBACY_API_KEY,
+    baseUrl: opts.baseUrl as string | undefined,
+    chain: opts.chain as Chain | undefined,
+    timeout: opts.timeout as number | undefined,
+    debug,
+    pretty: opts.pretty as boolean | undefined,
+  };
+}
+
+export function normalizeDebug(raw: unknown): DebugMode | undefined {
+  if (raw === undefined) return undefined;
+  if (raw === true) return 'all';
+  if (raw === false) return false;
+  if (raw === 'all' || raw === 'requests' || raw === 'responses' || raw === 'errors') {
+    return raw;
+  }
+  return undefined;
+}
