@@ -1,6 +1,6 @@
 import { Command } from 'commander';
 import { TradingClient } from '@webacy-xyz/sdk-trading';
-import { TOKEN_ECONOMICS_CHAINS } from '../../chain-subsets';
+import { TOKEN_ECONOMICS_CHAINS } from '../../token-economics-chains';
 import { parseNumber, requireChainIn } from '../../parsers';
 import { run } from '../../runner';
 
@@ -26,6 +26,14 @@ export function registerTokens(program: Command): void {
     .command('trending')
     .description('Get trending tokens')
     .option('--limit <n>', 'Max tokens to return', parseNumber)
+    .addHelpText(
+      'after',
+      `
+Examples:
+  $ webacy tokens trending --chain sol --limit 10
+  $ webacy tokens trending --chain eth | jq '.tokens[] | select(.risk.overallRisk > 50)'
+`
+    )
     .action(async (local, cmd) => {
       await run(cmd, ({ clients, opts }) =>
         clients.trading.tokens.getTrending({

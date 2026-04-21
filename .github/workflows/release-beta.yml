@@ -58,7 +58,7 @@ jobs:
         run: |
           BETA_VERSION="${{ steps.version.outputs.beta_version }}"
           # Update all package.json files to beta version
-          for pkg in packages/core packages/threat packages/trading packages/sdk; do
+          for pkg in packages/core packages/threat packages/trading packages/sdk packages/cli; do
             node -e "
               const fs = require('fs');
               const pkg = JSON.parse(fs.readFileSync('${pkg}/package.json'));

@@ -5,7 +5,10 @@ import { ValidationError, WebacyError } from '@webacy-xyz/sdk-core';
 import { GlobalOptions } from './options';
 
 export function printResult(data: unknown, opts: GlobalOptions): void {
-  const json = opts.pretty ? JSON.stringify(data, null, 2) : JSON.stringify(data);
+  // Default to pretty-print when stdout is a TTY (interactive shell),
+  // compact when piped/redirected. --pretty / --no-pretty override.
+  const pretty = opts.pretty ?? Boolean(process.stdout.isTTY);
+  const json = pretty ? JSON.stringify(data, null, 2) : JSON.stringify(data);
   process.stdout.write(json + '\n');
 }
 
@@ -34,22 +37,56 @@ function resolveFileRef(ref: string): string {
   return ref;
 }
 
+// Cap JSON @file inputs at 16 MiB. Bigger than any reasonable SDK body,
+// small enough to prevent accidental OOM on /dev/stdin or stray logs.
+const MAX_JSON_FILE_BYTES = 16 * 1024 * 1024;
+
 export function parseJsonInput(value: string): unknown {
   const trimmed = value.trim();
   if (trimmed.startsWith('@')) {
     const filePath = resolveFileRef(trimmed.slice(1));
-    let content: string;
+    // Open once, stat + read via the same file descriptor so a symlink
+    // swap between checks can't make us validate one inode and read another.
+    let fd: number | undefined;
     try {
-      content = fs.readFileSync(filePath, 'utf8');
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      throw new ValidationError(`Could not read "${filePath}": ${msg}`);
-    }
-    try {
-      return JSON.parse(content);
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      throw new ValidationError(`Invalid JSON in "${filePath}": ${msg}`);
+      try {
+        fd = fs.openSync(filePath, 'r');
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        throw new ValidationError(`Could not read "${filePath}": ${msg}`);
+      }
+      const stat = fs.fstatSync(fd);
+      // Reject non-regular files (FIFOs, /dev/stdin, sockets) so the 16 MiB
+      // cap can't be bypassed by feeding a stream into readFileSync.
+      if (!stat.isFile()) {
+        throw new ValidationError(`"${filePath}" must point to a regular file; got non-file path.`);
+      }
+      if (stat.size > MAX_JSON_FILE_BYTES) {
+        throw new ValidationError(
+          `File "${filePath}" is ${stat.size} bytes; max is ${MAX_JSON_FILE_BYTES} bytes (16 MiB).`
+        );
+      }
+      let content: string;
+      try {
+        content = fs.readFileSync(fd, 'utf8');
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        throw new ValidationError(`Could not read "${filePath}": ${msg}`);
+      }
+      try {
+        return JSON.parse(content);
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        throw new ValidationError(`Invalid JSON in "${filePath}": ${msg}`);
+      }
+    } finally {
+      if (fd !== undefined) {
+        try {
+          fs.closeSync(fd);
+        } catch {
+          /* best-effort close */
+        }
+      }
     }
   }
   try {

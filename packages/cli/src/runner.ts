@@ -16,5 +16,9 @@ export async function run<T>(cmd: Command, fn: (ctx: RunContext) => Promise<T>):
     printResult(result, opts);
   } catch (error) {
     handleError(error);
+    // handleError is typed `never` because it calls process.exit(1).
+    // Tests mock process.exit, so re-throw to prevent silent resume past
+    // a caught error.
+    throw error;
   }
 }

@@ -1,8 +1,9 @@
 import { Command } from 'commander';
-import { QUICK_PROFILE_CHAINS } from '../../chain-subsets';
+import { RiskModule } from '@webacy-xyz/sdk-core';
+import { QUICK_PROFILE_CHAINS } from '../../quick-profile-chains';
+import { parseEnumList } from '../../parse-enum-list';
 import { narrowChain, parseNumber } from '../../parsers';
 import { run } from '../../runner';
-import { parseListInput } from '../../output';
 
 export function registerAddresses(program: Command): void {
   const group = program
@@ -15,11 +16,22 @@ export function registerAddresses(program: Command): void {
     .option('--modules <list>', 'Comma-separated risk modules to include')
     .option('--detailed', 'Include detailed analysis data')
     .option('--deployer-risk', 'Include deployer risk (contracts only)')
+    .addHelpText(
+      'after',
+      `
+Examples:
+  $ webacy addresses analyze 0x742d35Cc6634C0532925a3b844Bc454e4438f44e --chain eth
+  $ webacy addresses analyze 0x... --chain eth --detailed --pretty
+  $ webacy addresses analyze 0x... --chain eth | jq .overallRisk
+`
+    )
     .action(async (address: string, local, cmd) => {
       await run(cmd, ({ clients, opts }) =>
         clients.threat.addresses.analyze(address, {
           ...(opts.chain && { chain: opts.chain }),
-          ...(local.modules && { modules: parseListInput(local.modules) as never }),
+          ...(local.modules && {
+            modules: parseEnumList(local.modules as string, Object.values(RiskModule), '--modules'),
+          }),
           ...(local.detailed !== undefined && { detailed: local.detailed as boolean }),
           ...(local.deployerRisk !== undefined && {
             deployerRisk: local.deployerRisk as boolean,

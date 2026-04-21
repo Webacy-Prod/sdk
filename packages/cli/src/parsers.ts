@@ -1,11 +1,14 @@
 import { Chain, ValidationError } from '@webacy-xyz/sdk-core';
 
+const INTEGER_PATTERN = /^-?\d+$/;
+// Accept leading +/-, decimals, and scientific notation (e.g. 1e6, 1.5e-3).
+const FLOAT_PATTERN = /^[+-]?(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?$/;
+
 export function parseNumber(value: string): number {
-  const parsed = Number.parseInt(value, 10);
-  if (Number.isNaN(parsed)) {
+  if (!INTEGER_PATTERN.test(value)) {
     throw new ValidationError(`Expected an integer, got "${value}".`);
   }
-  return parsed;
+  return Number.parseInt(value, 10);
 }
 
 export function parseNonNegativeNumber(value: string): number {
@@ -17,11 +20,10 @@ export function parseNonNegativeNumber(value: string): number {
 }
 
 export function parseFloatOption(value: string): number {
-  const parsed = Number.parseFloat(value);
-  if (Number.isNaN(parsed)) {
+  if (!FLOAT_PATTERN.test(value)) {
     throw new ValidationError(`Expected a number, got "${value}".`);
   }
-  return parsed;
+  return Number.parseFloat(value);
 }
 
 export function narrowChain<T extends Chain>(

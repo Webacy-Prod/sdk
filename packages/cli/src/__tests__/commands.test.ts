@@ -59,8 +59,9 @@ const trading = {
   },
 };
 
+const buildClientsSpy = vi.fn(() => ({ threat, trading }));
 vi.mock('../context', () => ({
-  buildClients: () => ({ threat, trading }),
+  buildClients: (...args: unknown[]) => buildClientsSpy(...(args as [])),
 }));
 
 const allMocks = [
@@ -68,13 +69,22 @@ const allMocks = [
   ...Object.values(trading).flatMap((group) => Object.values(group)),
 ];
 
-async function runCli(argv: string[]): Promise<void> {
+async function runCli(argv: string[], swallowErrors = false): Promise<void> {
   const { buildProgram } = await import('../cli');
-  await buildProgram().parseAsync(['node', 'webacy', '--api-key', 'test-key', ...argv]);
+  const promise = buildProgram().parseAsync(['node', 'webacy', '--api-key', 'test-key', ...argv]);
+  if (swallowErrors) {
+    // Error-path tests assert on stderr + exit spy calls; runner.ts's
+    // re-throw and commander's invalidArgument would otherwise fail
+    // the test. Only enable for tests that explicitly expect a throw.
+    await promise.catch(() => undefined);
+    return;
+  }
+  await promise;
 }
 
 beforeEach(() => {
   allMocks.forEach((m) => m.mockReset().mockResolvedValue({}));
+  buildClientsSpy.mockClear();
   vi.spyOn(process.stdout, 'write').mockImplementation(() => true);
 });
 
@@ -183,12 +193,63 @@ describe('trading groups', () => {
   });
 });
 
+describe('global options → buildClients wiring', () => {
+  it('forwards --api-key, --base-url, --timeout, --debug, --chain together', async () => {
+    await runCli([
+      '--base-url',
+      'https://staging.api.webacy.com',
+      '--timeout',
+      '60000',
+      '--debug',
+      'all',
+      '--chain',
+      'eth',
+      'usage',
+      'current',
+    ]);
+
+    expect(buildClientsSpy).toHaveBeenCalledTimes(1);
+    expect(buildClientsSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        apiKey: 'test-key',
+        baseUrl: 'https://staging.api.webacy.com',
+        timeout: 60000,
+        debug: 'all',
+        chain: Chain.ETH,
+      })
+    );
+  });
+
+  it('falls back to WEBACY_API_KEY env var when --api-key is omitted', async () => {
+    const original = process.env.WEBACY_API_KEY;
+    process.env.WEBACY_API_KEY = 'env-key';
+    try {
+      const { buildProgram } = await import('../cli');
+      try {
+        await buildProgram().parseAsync(['node', 'webacy', 'usage', 'current']);
+      } catch {
+        /* runner re-throws in tests; spy assertions are what we care about */
+      }
+      expect(buildClientsSpy).toHaveBeenCalledWith(expect.objectContaining({ apiKey: 'env-key' }));
+    } finally {
+      if (original === undefined) delete process.env.WEBACY_API_KEY;
+      else process.env.WEBACY_API_KEY = original;
+    }
+  });
+
+  it('normalizes bare --debug to "all"', async () => {
+    // Place --debug at the end of argv so commander sees no value follow it.
+    await runCli(['usage', 'current', '--debug']);
+    expect(buildClientsSpy).toHaveBeenCalledWith(expect.objectContaining({ debug: 'all' }));
+  });
+});
+
 describe('error paths', () => {
   it('trading-lite analyze rejects non-SOL chain with ValidationError', async () => {
     const stderr = vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
     const exit = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
 
-    await runCli(['trading-lite', 'analyze', 'token', '--chain', 'eth']);
+    await runCli(['trading-lite', 'analyze', 'token', '--chain', 'eth'], true);
 
     const output = stderr.mock.calls.map((c) => c[0] as string).join('');
     expect(output).toContain('ValidationError');
@@ -203,7 +264,7 @@ describe('error paths', () => {
     const stderr = vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
     const exit = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
 
-    await runCli(['batch', 'addresses', '0xaaa']);
+    await runCli(['batch', 'addresses', '0xaaa'], true);
 
     const output = stderr.mock.calls.map((c) => c[0] as string).join('');
     expect(output).toContain('ValidationError');
@@ -213,11 +274,67 @@ describe('error paths', () => {
     exit.mockRestore();
   });
 
+  it('rejects unknown --modules values with ValidationError', async () => {
+    const stderr = vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
+    const exit = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
+
+    await runCli(
+      [
+        'addresses',
+        'analyze',
+        '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
+        '--chain',
+        'eth',
+        '--modules',
+        'governance_analysis,nonsense_module',
+      ],
+      true
+    );
+
+    const output = stderr.mock.calls.map((c) => c[0] as string).join('');
+    expect(output).toContain('ValidationError');
+    expect(output).toContain('nonsense_module');
+    expect(exit).toHaveBeenCalledWith(1);
+
+    stderr.mockRestore();
+    exit.mockRestore();
+  });
+
+  it('rejects unknown rwa --tags values with ValidationError', async () => {
+    const stderr = vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
+    const exit = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
+
+    await runCli(['rwa', 'list', '--tags', 'standard,garbage'], true);
+
+    const output = stderr.mock.calls.map((c) => c[0] as string).join('');
+    expect(output).toContain('ValidationError');
+    expect(output).toContain('garbage');
+    expect(exit).toHaveBeenCalledWith(1);
+
+    stderr.mockRestore();
+    exit.mockRestore();
+  });
+
+  it('rejects --chain values outside SUPPORTED_CHAINS (e.g. sep)', async () => {
+    const stderr = vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
+    const exit = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
+
+    await runCli(['addresses', 'analyze', '0x0', '--chain', 'sep'], true);
+
+    const output = stderr.mock.calls.map((c) => c[0] as string).join('');
+    // Commander rejects invalid choice; it goes to stderr via its own error channel.
+    expect(output).toContain("'sep'");
+    expect(exit).toHaveBeenCalled();
+
+    stderr.mockRestore();
+    exit.mockRestore();
+  });
+
   it('malformed @file.json surfaces ValidationError with Hint', async () => {
     const stderr = vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
     const exit = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
 
-    await runCli(['scan', 'transaction', '0xSigner', '@/nope/nope/nope.json']);
+    await runCli(['scan', 'transaction', '0xSigner', '@/nope/nope/nope.json'], true);
 
     const output = stderr.mock.calls.map((c) => c[0] as string).join('');
     expect(output).toContain('ValidationError');

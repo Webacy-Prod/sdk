@@ -7,19 +7,38 @@ import { handleError, parseJsonInput, parseListInput, printResult } from '../out
 
 describe('printResult', () => {
   const spy = vi.spyOn(process.stdout, 'write').mockImplementation(() => true);
+  const originalIsTTY = process.stdout.isTTY;
 
   afterEach(() => {
     spy.mockClear();
+    Object.defineProperty(process.stdout, 'isTTY', {
+      value: originalIsTTY,
+      configurable: true,
+    });
   });
 
-  it('writes compact JSON by default', () => {
+  it('writes compact JSON when stdout is not a TTY and --pretty is not set', () => {
+    Object.defineProperty(process.stdout, 'isTTY', { value: false, configurable: true });
     printResult({ foo: 'bar' }, {});
     expect(spy).toHaveBeenCalledWith('{"foo":"bar"}\n');
   });
 
-  it('writes pretty JSON when --pretty is set', () => {
+  it('writes pretty JSON when stdout is a TTY and --pretty is not set', () => {
+    Object.defineProperty(process.stdout, 'isTTY', { value: true, configurable: true });
+    printResult({ foo: 'bar' }, {});
+    expect(spy).toHaveBeenCalledWith('{\n  "foo": "bar"\n}\n');
+  });
+
+  it('writes pretty JSON when --pretty is explicitly true, regardless of TTY', () => {
+    Object.defineProperty(process.stdout, 'isTTY', { value: false, configurable: true });
     printResult({ foo: 'bar' }, { pretty: true });
     expect(spy).toHaveBeenCalledWith('{\n  "foo": "bar"\n}\n');
+  });
+
+  it('writes compact JSON when --pretty is explicitly false, regardless of TTY', () => {
+    Object.defineProperty(process.stdout, 'isTTY', { value: true, configurable: true });
+    printResult({ foo: 'bar' }, { pretty: false });
+    expect(spy).toHaveBeenCalledWith('{"foo":"bar"}\n');
   });
 });
 
@@ -102,6 +121,27 @@ describe('parseJsonInput', () => {
     fs.writeFileSync(fullPath, JSON.stringify({ tilde: true }));
     tmpFiles.push(fullPath);
     expect(parseJsonInput(`@~/${name}`)).toEqual({ tilde: true });
+  });
+
+  it('rejects @paths pointing at a directory (non-regular file)', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'cli-dir-'));
+    tmpFiles.push(dir); // best-effort cleanup; rmdir may not match but ignore
+    expect(() => parseJsonInput(`@${dir}`)).toThrow(/must point to a regular file/);
+  });
+
+  it('rejects @files larger than the 16 MiB cap', () => {
+    const tmp = path.join(os.tmpdir(), `cli-big-${Date.now()}.json`);
+    // 17 MiB of JSON — well over the 16 MiB cap. Write once, sparse.
+    const fh = fs.openSync(tmp, 'w');
+    try {
+      fs.writeSync(fh, '"');
+      fs.writeSync(fh, 'x'.repeat(17 * 1024 * 1024));
+      fs.writeSync(fh, '"');
+    } finally {
+      fs.closeSync(fh);
+    }
+    tmpFiles.push(tmp);
+    expect(() => parseJsonInput(`@${tmp}`)).toThrow(/16 MiB/);
   });
 });
 

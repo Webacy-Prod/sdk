@@ -1,5 +1,6 @@
 import { Command, Option } from 'commander';
 import { Chain, DebugMode } from '@webacy-xyz/sdk-core';
+import { SUPPORTED_CHAINS } from './supported-chains';
 import { parseNonNegativeNumber } from './parsers';
 
 export interface GlobalOptions {
@@ -18,9 +19,9 @@ export function addGlobalOptions(program: Command): void {
     .option('--api-key <key>', 'Webacy API key (falls back to WEBACY_API_KEY env var)')
     .option('--base-url <url>', 'Override the API base URL')
     .addOption(
-      new Option('--chain <chain>', 'Default blockchain for the command').choices(
-        Object.values(Chain)
-      )
+      new Option('--chain <chain>', 'Default blockchain for the command').choices([
+        ...SUPPORTED_CHAINS,
+      ])
     )
     .option('--timeout <ms>', 'Request timeout in milliseconds', parseNonNegativeNumber)
     .addOption(
@@ -29,7 +30,10 @@ export function addGlobalOptions(program: Command): void {
         'Enable debug logging. Level: requests | responses | errors | all'
       ).choices([...DEBUG_LEVELS])
     )
-    .option('--pretty', 'Pretty-print JSON output');
+    .option(
+      '--pretty',
+      'Pretty-print JSON output (defaults on when stdout is a TTY; use --no-pretty to force compact)'
+    );
 }
 
 export function resolveGlobalOptions(cmd: Command): GlobalOptions {

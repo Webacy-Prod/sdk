@@ -13,6 +13,14 @@ export function registerBatch(program: Command): void {
     .description(
       'Batch analyze addresses. Pass a comma-separated list or @file.json with a JSON array.'
     )
+    .addHelpText(
+      'after',
+      `
+Examples:
+  $ webacy batch addresses 0xaaa,0xbbb,0xccc --chain eth
+  $ webacy batch addresses @./addresses.json --chain eth --pretty
+`
+    )
     .action(async (items: string, _local, cmd) => {
       await run(cmd, ({ clients, opts }) =>
         clients.threat.batch.addresses({

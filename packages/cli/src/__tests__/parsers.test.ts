@@ -8,6 +8,7 @@ import {
   requireChain,
   requireChainIn,
 } from '../parsers';
+import { parseEnumList } from '../parse-enum-list';
 
 describe('parseNumber', () => {
   it('parses an integer', () => {
@@ -20,6 +21,18 @@ describe('parseNumber', () => {
 
   it('throws ValidationError for non-numeric input', () => {
     expect(() => parseNumber('abc')).toThrow(ValidationError);
+  });
+
+  it('throws ValidationError for floats (no silent truncation)', () => {
+    expect(() => parseNumber('3.9')).toThrow(ValidationError);
+  });
+
+  it('throws ValidationError for trailing garbage (no silent accept)', () => {
+    expect(() => parseNumber('10abc')).toThrow(ValidationError);
+  });
+
+  it('throws ValidationError for empty string', () => {
+    expect(() => parseNumber('')).toThrow(ValidationError);
   });
 });
 
@@ -36,6 +49,10 @@ describe('parseNonNegativeNumber', () => {
   it('rejects non-numeric input', () => {
     expect(() => parseNonNegativeNumber('nope')).toThrow(ValidationError);
   });
+
+  it('rejects floats', () => {
+    expect(() => parseNonNegativeNumber('2.5')).toThrow(ValidationError);
+  });
 });
 
 describe('parseFloatOption', () => {
@@ -43,8 +60,65 @@ describe('parseFloatOption', () => {
     expect(parseFloatOption('3.14')).toBeCloseTo(3.14);
   });
 
+  it('parses an integer as float', () => {
+    expect(parseFloatOption('42')).toBe(42);
+  });
+
+  it('parses a negative float', () => {
+    expect(parseFloatOption('-0.5')).toBe(-0.5);
+  });
+
   it('throws ValidationError for non-numeric input', () => {
     expect(() => parseFloatOption('notanumber')).toThrow(ValidationError);
+  });
+
+  it('throws ValidationError for trailing garbage', () => {
+    expect(() => parseFloatOption('3.14abc')).toThrow(ValidationError);
+  });
+
+  it('accepts scientific notation', () => {
+    expect(parseFloatOption('1e6')).toBe(1e6);
+    expect(parseFloatOption('1.5e-3')).toBeCloseTo(1.5e-3);
+    expect(parseFloatOption('2E4')).toBe(2e4);
+  });
+
+  it('accepts leading +', () => {
+    expect(parseFloatOption('+0.5')).toBe(0.5);
+    expect(parseFloatOption('+42')).toBe(42);
+  });
+});
+
+describe('parseEnumList', () => {
+  const allowed = ['a', 'b', 'c'] as const;
+
+  it('parses a comma-separated list of allowed values', () => {
+    expect(parseEnumList('a,b', allowed, '--test')).toEqual(['a', 'b']);
+  });
+
+  it('trims whitespace', () => {
+    expect(parseEnumList('a , b ,c', allowed, '--test')).toEqual(['a', 'b', 'c']);
+  });
+
+  it('drops empty entries', () => {
+    expect(parseEnumList('a,,b,', allowed, '--test')).toEqual(['a', 'b']);
+  });
+
+  it('rejects values not in the allowed set', () => {
+    expect(() => parseEnumList('a,zzz', allowed, '--test')).toThrow(ValidationError);
+  });
+
+  it('error message names the flag, bad values, and allowed set', () => {
+    let caught: unknown;
+    try {
+      parseEnumList('a,bad', allowed, '--test');
+    } catch (err) {
+      caught = err;
+    }
+    expect(caught).toBeInstanceOf(ValidationError);
+    const msg = (caught as Error).message;
+    expect(msg).toContain('--test');
+    expect(msg).toContain('bad');
+    expect(msg).toContain('a, b, c');
   });
 });
 
@@ -64,14 +138,16 @@ describe('narrowChain', () => {
   });
 
   it('error message lists allowed chains and the command name', () => {
+    let caught: unknown;
     try {
       narrowChain(Chain.SOL, allowed, 'my-command');
     } catch (err) {
-      expect(err).toBeInstanceOf(ValidationError);
-      expect((err as Error).message).toContain('my-command');
-      expect((err as Error).message).toContain('eth');
-      expect((err as Error).message).toContain('base');
+      caught = err;
     }
+    expect(caught).toBeInstanceOf(ValidationError);
+    expect((caught as Error).message).toContain('my-command');
+    expect((caught as Error).message).toContain('eth');
+    expect((caught as Error).message).toContain('base');
   });
 });
 

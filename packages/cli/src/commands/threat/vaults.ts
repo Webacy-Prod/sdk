@@ -19,7 +19,7 @@ export function registerVaults(program: Command): void {
       .option('--max-score <n>', 'Maximum risk score', parseFloatOption)
       .option('--contract-type <type>', 'Contract type filter')
       .option('--attention-needed', 'Only show vaults needing attention')
-      .option('--risk-flags <list>', 'Comma-separated risk flags')
+      .option('--risk-flags <list>', 'Comma-separated risk flags (pass-through filter)')
       .option('--risk-flags-mode <mode>', 'Risk flag match mode (any|all)')
       .option('--q <query>', 'Search query')
       .option('--sort <key>', 'Sort key');
@@ -120,8 +120,14 @@ export function registerVaults(program: Command): void {
   group
     .command('list-events-for-address <address>')
     .description('List curated incidents for a specific vault (requires --chain)')
-    .option('--category <category>', 'Filter by category')
-    .option('--mechanism <mechanism>', 'Filter by mechanism')
+    .option(
+      '--category <category>',
+      `Filter by category (${Object.values(VaultEventCategory).join('|')})`
+    )
+    .option(
+      '--mechanism <mechanism>',
+      `Filter by mechanism (${Object.values(VaultEventMechanism).join('|')})`
+    )
     .action(async (address: string, local, cmd) => {
       await run(cmd, ({ clients, opts }) =>
         clients.threat.vaults.listEventsForAddress(address, {

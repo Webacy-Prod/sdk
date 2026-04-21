@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import { TRANSACTION_CHAINS } from '../../chain-subsets';
+import { TRANSACTION_CHAINS } from '../../transaction-chains';
 import { narrowChain } from '../../parsers';
 import { run } from '../../runner';
 

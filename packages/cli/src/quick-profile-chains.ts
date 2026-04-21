@@ -1,0 +1,11 @@
+import { Chain } from '@webacy-xyz/sdk-core';
+
+export const QUICK_PROFILE_CHAINS = [
+  Chain.ETH,
+  Chain.BASE,
+  Chain.BSC,
+  Chain.POL,
+  Chain.OPT,
+  Chain.ARB,
+  Chain.SOL,
+] as const;
