@@ -1,6 +1,6 @@
 {
   "name": "@webacy-xyz/cli",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "Command-line interface for the Webacy SDK",
   "type": "commonjs",
   "bin": {
