@@ -22,6 +22,9 @@ npm install @webacy-xyz/sdk-trading
 
 # Threat analysis only - address risk, sanctions, contracts, URL safety
 npm install @webacy-xyz/sdk-threat
+
+# Command-line interface - use the SDK from your terminal
+npm install -g @webacy-xyz/cli
 ```
 
 ## Quick Start
@@ -101,6 +104,31 @@ const contract = await client.contracts.analyze('0xContract...', {
 });
 ```
 
+### CLI
+
+Every SDK resource method is also exposed as a `webacy` subcommand, so you can script
+security checks and pipe JSON into other tools without writing TypeScript:
+
+```bash
+# One-time setup
+npm install -g @webacy-xyz/cli
+export WEBACY_API_KEY=your-key
+
+# Address risk analysis
+webacy addresses analyze 0x742d35Cc6634C0532925a3b844Bc454e4438f44e --chain eth --pretty
+
+# Pipe into jq
+webacy tokens trending --chain sol --limit 10 | jq '.tokens[] | select(.risk.overallRisk > 50)'
+
+# Batch inputs from a file
+webacy batch addresses @./addrs.json --chain eth
+
+# See all 15 command groups
+webacy --help
+```
+
+Full flag reference lives in [`packages/cli/README.md`](./packages/cli/README.md).
+
 ## Packages
 
 | Package | Description |
@@ -109,6 +137,7 @@ const contract = await client.contracts.analyze('0xContract...', {
 | `@webacy-xyz/sdk-trading` | Token trading analysis (holder analysis, snipers, bundlers) |
 | `@webacy-xyz/sdk-threat` | Threat/risk analysis (addresses, contracts, URL safety) |
 | `@webacy-xyz/sdk-core` | Shared internals (auto-installed as dependency) |
+| `@webacy-xyz/cli` | `webacy` binary wrapping every SDK resource method as a subcommand |
 
 ## Features
 
@@ -285,7 +314,8 @@ webacy-sdk/
 │   ├── sdk/        # @webacy-xyz/sdk - unified entry point
 │   ├── core/       # @webacy-xyz/sdk-core - shared utilities
 │   ├── trading/    # @webacy-xyz/sdk-trading - trading analysis
-│   └── threat/     # @webacy-xyz/sdk-threat - threat analysis
+│   ├── threat/     # @webacy-xyz/sdk-threat - threat analysis
+│   └── cli/        # @webacy-xyz/cli - webacy command-line binary
 ├── examples/       # Usage examples
 └── docs/           # Documentation
 ```
