@@ -15,6 +15,16 @@ npm install @webacy-xyz/sdk-trading   # Trading analysis only
 npm install @webacy-xyz/sdk-threat    # Threat analysis only
 ```
 
+Prefer the terminal? Install the CLI instead:
+
+```bash
+npm install -g @webacy-xyz/cli
+webacy addresses analyze 0x... --chain eth
+```
+
+The `webacy` binary exposes every `ThreatClient` and `TradingClient` method as a
+subcommand. See [`@webacy-xyz/cli`](https://www.npmjs.com/package/@webacy-xyz/cli).
+
 ## Quick Start
 
 ```typescript
