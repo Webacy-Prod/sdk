@@ -191,6 +191,14 @@ export type {
   VaultEventsResponse,
   VaultEventsOptions,
   VaultEventsForAddressOptions,
+  VaultHistoryRange,
+  VaultTvlPoint,
+  VaultTvlHistoryResponse,
+  VaultTvlHistoryOptions,
+  VaultSharePricePoint,
+  VaultSharePriceLatest,
+  VaultSharePriceHistoryResponse,
+  VaultSharePriceHistoryOptions,
 } from './vault';
 
 export { VaultEventCategory, VaultEventMechanism } from './vault';
