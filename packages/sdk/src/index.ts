@@ -166,6 +166,7 @@ export type {
   VaultEvent,
   VaultEventsResponse,
   VaultEventsOptions,
+  VaultEventsForAddressOptions,
 } from '@webacy-xyz/sdk-threat';
 
 // Vault enum re-exports (must be value exports, not type-only)

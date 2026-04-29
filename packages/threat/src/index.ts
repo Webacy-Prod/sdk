@@ -178,6 +178,7 @@ export type {
   VaultEvent,
   VaultEventsResponse,
   VaultEventsOptions,
+  VaultEventsForAddressOptions,
 } from './types';
 
 // Enum re-exports (must be value exports, not type-only)
