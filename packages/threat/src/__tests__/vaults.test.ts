@@ -411,4 +411,100 @@ describe('VaultsResource', () => {
       );
     });
   });
+
+  describe('getTvlHistory', () => {
+    const address = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e';
+    const emptyResponse = {
+      stale: false,
+      days: 30,
+      count: 0,
+      from: null,
+      to: null,
+      latest: null,
+      series: [],
+    };
+
+    it('should call /vaults/:address/tvl-history with chain only when range omitted', async () => {
+      mockHttpClient.get.mockResolvedValueOnce({
+        data: emptyResponse,
+        status: 200,
+        headers: new Headers(),
+      });
+
+      await vaults.getTvlHistory(address, { chain: Chain.ETH });
+
+      expect(mockHttpClient.get).toHaveBeenCalledWith(
+        `/vaults/${encodeURIComponent(address)}/tvl-history?chain=eth`,
+        expect.any(Object)
+      );
+    });
+
+    it('should include range when supplied', async () => {
+      mockHttpClient.get.mockResolvedValueOnce({
+        data: emptyResponse,
+        status: 200,
+        headers: new Headers(),
+      });
+
+      await vaults.getTvlHistory(address, { chain: Chain.ETH, range: '7d' });
+
+      const calledUrl = mockHttpClient.get.mock.calls[0][0] as string;
+      expect(calledUrl).toBe(
+        `/vaults/${encodeURIComponent(address)}/tvl-history?chain=eth&range=7d`
+      );
+    });
+
+    it('should throw ValidationError for invalid address', async () => {
+      await expect(vaults.getTvlHistory('invalid', { chain: Chain.ETH })).rejects.toThrow(
+        ValidationError
+      );
+    });
+
+    it('should pass through the response envelope unchanged', async () => {
+      const mockData = {
+        stale: false,
+        days: 7,
+        count: 2,
+        from: '2026-04-21T00:00:00.000Z',
+        to: '2026-04-22T00:00:00.000Z',
+        latest: { ts: '2026-04-22T00:00:00.000Z', tvl_usd: 2514259979.56 },
+        series: [
+          { ts: '2026-04-21T00:00:00.000Z', tvl_usd: 3122465748.18 },
+          { ts: '2026-04-22T00:00:00.000Z', tvl_usd: 2514259979.56 },
+        ],
+      };
+      mockHttpClient.get.mockResolvedValueOnce({
+        data: mockData,
+        status: 200,
+        headers: new Headers(),
+      });
+
+      const result = await vaults.getTvlHistory(address, {
+        chain: Chain.ETH,
+        range: '7d',
+      });
+
+      expect(result).toEqual(mockData);
+    });
+
+    it('should pass timeout and signal to httpClient', async () => {
+      mockHttpClient.get.mockResolvedValueOnce({
+        data: emptyResponse,
+        status: 200,
+        headers: new Headers(),
+      });
+
+      const controller = new AbortController();
+      await vaults.getTvlHistory(address, {
+        chain: Chain.ETH,
+        timeout: 15000,
+        signal: controller.signal,
+      });
+
+      expect(mockHttpClient.get).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({ timeout: 15000, signal: controller.signal })
+      );
+    });
+  });
 });

@@ -167,6 +167,10 @@ export type {
   VaultEventsResponse,
   VaultEventsOptions,
   VaultEventsForAddressOptions,
+  VaultHistoryRange,
+  VaultTvlPoint,
+  VaultTvlHistoryResponse,
+  VaultTvlHistoryOptions,
 } from '@webacy-xyz/sdk-threat';
 
 // Vault enum re-exports (must be value exports, not type-only)

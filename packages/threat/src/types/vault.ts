@@ -444,3 +444,52 @@ export interface VaultEventsForAddressOptions {
   /** Abort signal */
   signal?: AbortSignal;
 }
+
+// ─── Historical series ──────────────────────────────────────────────────────
+
+/** Range token shared by the TVL and share-price history endpoints */
+export type VaultHistoryRange = '7d' | '30d' | '60d' | '3m';
+
+/** Single point in a vault TVL time series */
+export interface VaultTvlPoint {
+  /** ISO timestamp at UTC midnight for the day the sample represents */
+  ts: string;
+  /** Total value locked in USD */
+  tvl_usd: number;
+}
+
+/**
+ * Response for `GET /vaults/:address/tvl-history`
+ *
+ * `latest` hoists the most recent point so stat-tile consumers don't need to
+ * fetch the full series. `stale` flips `true` when the latest sample is older
+ * than 48h or the series is empty.
+ */
+export interface VaultTvlHistoryResponse {
+  /** True when the latest sample is older than 48h or the series is empty */
+  stale: boolean;
+  /** Number of days the requested `range` resolved to */
+  days: number;
+  /** Number of points in `series` */
+  count: number;
+  /** Timestamp of the earliest point in `series`, or null when empty */
+  from: string | null;
+  /** Timestamp of the latest point in `series`, or null when empty */
+  to: string | null;
+  /** Most recent point hoisted out of `series`, or null when empty */
+  latest: VaultTvlPoint | null;
+  /** Daily TVL samples in ascending order by `ts` */
+  series: VaultTvlPoint[];
+}
+
+/** Options for getting the TVL history of a specific vault */
+export interface VaultTvlHistoryOptions {
+  /** Chain (required) — eth, sol, base, bsc, pol, arb, opt, ton, sui, stellar, btc, sei */
+  chain: Chain;
+  /** Window length to return. Defaults to `30d` server-side when omitted. */
+  range?: VaultHistoryRange;
+  /** Request timeout in milliseconds */
+  timeout?: number;
+  /** Abort signal */
+  signal?: AbortSignal;
+}

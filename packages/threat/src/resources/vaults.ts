@@ -9,6 +9,8 @@ import {
   VaultEventsResponse,
   VaultEventsOptions,
   VaultEventsForAddressOptions,
+  VaultTvlHistoryResponse,
+  VaultTvlHistoryOptions,
 } from '../types';
 
 /**
@@ -274,6 +276,58 @@ export class VaultsResource extends BaseResource {
 
     const response: HttpResponse<VaultDetailResponse> = await this.httpClient.get(
       `/vaults/${encodeURIComponent(address)}?${queryParams.toString()}`,
+      {
+        timeout: options.timeout,
+        signal: options.signal,
+      }
+    );
+
+    return response.data;
+  }
+
+  /**
+   * Get the daily TVL history for a specific vault
+   *
+   * Returns a daily time series of total value locked (USD) for the vault,
+   * along with a hoisted `latest` aggregate so stat-tile consumers can render
+   * the current value without requesting the full series. `stale` flips
+   * `true` when the latest sample is older than 48h or the series is empty.
+   *
+   * @param address - Vault contract address
+   * @param options - Query options (chain is required; range optional, defaults to `30d`)
+   * @returns Daily TVL series with envelope and latest aggregate
+   *
+   * @example
+   * ```typescript
+   * // Default 30-day window
+   * const history = await client.vaults.getTvlHistory('0x...', {
+   *   chain: Chain.ETH,
+   * });
+   *
+   * if (history.latest) {
+   *   console.log(`Current TVL: $${history.latest.tvl_usd}`);
+   * }
+   *
+   * // 7-day window
+   * const week = await client.vaults.getTvlHistory('0x...', {
+   *   chain: Chain.ETH,
+   *   range: '7d',
+   * });
+   * ```
+   */
+  async getTvlHistory(
+    address: string,
+    options: VaultTvlHistoryOptions
+  ): Promise<VaultTvlHistoryResponse> {
+    const chain = options.chain;
+    this.validateAddress(address, chain);
+
+    const queryParams = new URLSearchParams();
+    queryParams.append('chain', chain);
+    if (options.range !== undefined) queryParams.append('range', options.range);
+
+    const response: HttpResponse<VaultTvlHistoryResponse> = await this.httpClient.get(
+      `/vaults/${encodeURIComponent(address)}/tvl-history?${queryParams.toString()}`,
       {
         timeout: options.timeout,
         signal: options.signal,

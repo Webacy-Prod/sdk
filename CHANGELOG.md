@@ -33,6 +33,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Vault TVL History** (`@webacy-xyz/sdk-threat`):
+  - `vaults.getTvlHistory(address, { chain, range? })` — daily TVL series for a vault with a hoisted `latest` aggregate and a 48h-freshness `stale` flag. Range tokens: `7d`, `30d`, `60d`, `3m` (defaults to `30d` server-side).
+  - New types: `VaultTvlPoint`, `VaultTvlHistoryResponse`, `VaultTvlHistoryOptions`, `VaultHistoryRange`.
 - **Type Safety**: Chain enum enforced in all option types (prevents string typos)
 - **Input Validation**: Address format validation client-side before API calls
 - **Error Improvements**:
