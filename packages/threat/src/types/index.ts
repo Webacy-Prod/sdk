@@ -195,6 +195,10 @@ export type {
   VaultTvlPoint,
   VaultTvlHistoryResponse,
   VaultTvlHistoryOptions,
+  VaultSharePricePoint,
+  VaultSharePriceLatest,
+  VaultSharePriceHistoryResponse,
+  VaultSharePriceHistoryOptions,
 } from './vault';
 
 export { VaultEventCategory, VaultEventMechanism } from './vault';

@@ -493,3 +493,68 @@ export interface VaultTvlHistoryOptions {
   /** Abort signal */
   signal?: AbortSignal;
 }
+
+/** Single point in a vault share-price time series */
+export interface VaultSharePricePoint {
+  /** ISO timestamp at UTC midnight for the day the sample represents */
+  ts: string;
+  /** Share price denominated in USD (strictly > 0) */
+  share_price_usd: number;
+  /**
+   * Annualised return computed against the sample 7 days earlier. `null` when
+   * the 7d-prior sample is missing or the absolute value exceeds 100 (likely
+   * pricing artifact).
+   */
+  apy_trailing_7d: number | null;
+}
+
+/**
+ * Most recent share-price point hoisted to the top-level `latest` aggregate.
+ *
+ * Extends {@link VaultSharePricePoint} with `apy_trailing_30d` (smoother — only
+ * provided on `latest`, not per-point, since the headline / stat-tile is the
+ * single use case for the 30-day window).
+ */
+export interface VaultSharePriceLatest extends VaultSharePricePoint {
+  /**
+   * Annualised return computed against the sample 30 days earlier. `null`
+   * under the same rules as `apy_trailing_7d`.
+   */
+  apy_trailing_30d: number | null;
+}
+
+/**
+ * Response for `GET /vaults/:address/share-price-history`
+ *
+ * `latest` hoists the most recent point and adds `apy_trailing_30d`. `stale`
+ * flips `true` when the latest sample is older than 48h or the series is
+ * empty.
+ */
+export interface VaultSharePriceHistoryResponse {
+  /** True when the latest sample is older than 48h or the series is empty */
+  stale: boolean;
+  /** Number of days the requested `range` resolved to */
+  days: number;
+  /** Number of points in `series` */
+  count: number;
+  /** Timestamp of the earliest point in `series`, or null when empty */
+  from: string | null;
+  /** Timestamp of the latest point in `series`, or null when empty */
+  to: string | null;
+  /** Most recent point hoisted out of `series` with `apy_trailing_30d`, or null when empty */
+  latest: VaultSharePriceLatest | null;
+  /** Daily share-price samples in ascending order by `ts` */
+  series: VaultSharePricePoint[];
+}
+
+/** Options for getting the share-price history of a specific vault */
+export interface VaultSharePriceHistoryOptions {
+  /** Chain (required) — eth, sol, base, bsc, pol, arb, opt, ton, sui, stellar, btc, sei */
+  chain: Chain;
+  /** Window length to return. Defaults to `30d` server-side when omitted. */
+  range?: VaultHistoryRange;
+  /** Request timeout in milliseconds */
+  timeout?: number;
+  /** Abort signal */
+  signal?: AbortSignal;
+}
