@@ -192,6 +192,8 @@ export type {
   VaultEventsOptions,
   VaultEventsForAddressOptions,
   VaultHistoryRange,
+  VaultQualityFlag,
+  VaultHistoryStaleReason,
   VaultTvlPoint,
   VaultTvlHistoryResponse,
   VaultTvlHistoryOptions,

@@ -33,6 +33,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Vault history quality filtering** (`@webacy-xyz/sdk-threat`, follow-up to [WEB-3510](https://linear.app/webacy/issue/WEB-3510)):
+  - `vaults.getTvlHistory()` and `vaults.getSharePriceHistory()` accept a new optional `includeFlagged?: boolean` (default `false`). When `true`, the SDK forwards `?includeFlagged=true` so power users / researchers see the full raw series including `'capped'` / `'diverged'` / `'spike'` samples.
+  - Per-point `quality_flag: 'ok' | 'capped' | 'diverged' | 'spike' | 'unknown'` on every `VaultTvlPoint` / `VaultSharePricePoint` and on the hoisted `latest` aggregate. Default response only ever carries `'ok'` / `'unknown'` (read-side allowlist).
+  - Response envelopes now expose `schema_version: string` (currently `'s3'`), `filtered_count: number` (samples dropped by the quality filter), and `stale_reason: 'fresh' | 'pipeline_lag' | 'all_filtered' | 'no_samples_yet'` — which disambiguates the four conditions previously collapsed into `stale: true`. `stale` is preserved and is true ⟺ `stale_reason !== 'fresh'`.
+  - New union types `VaultQualityFlag` and `VaultHistoryStaleReason` exported from `@webacy-xyz/sdk-threat`.
 - **Vault Historical Data** (`@webacy-xyz/sdk-threat`):
   - `vaults.getTvlHistory(address, { chain, range? })` — daily TVL series for a vault with a hoisted `latest` aggregate and a 48h-freshness `stale` flag. Range tokens: `7d`, `30d`, `60d`, `3m` (defaults to `30d` server-side).
   - `vaults.getSharePriceHistory(address, { chain, range? })` — daily share-price series with per-point `apy_trailing_7d` and `latest.apy_trailing_30d` for headline display. Same range tokens as TVL.
