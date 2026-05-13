@@ -450,28 +450,62 @@ export interface VaultEventsForAddressOptions {
 /** Range token shared by the TVL and share-price history endpoints */
 export type VaultHistoryRange = '7d' | '30d' | '60d' | '3m';
 
+/**
+ * Quality classification applied to each sample by the pipeline.
+ *
+ * The default response only ever carries `'ok'` / `'unknown'` (read-side
+ * allowlist). Pass `includeFlagged: true` to also surface `'capped'`,
+ * `'diverged'`, and `'spike'` samples.
+ */
+export type VaultQualityFlag = 'ok' | 'capped' | 'diverged' | 'spike' | 'unknown';
+
+/**
+ * Disambiguates the four conditions previously collapsed into `stale: true`
+ * (or an empty `series`).
+ *
+ * - `fresh`: the series is current; `stale` is `false`.
+ * - `pipeline_lag`: the latest sample is older than 48h.
+ * - `all_filtered`: samples exist but every one was dropped by the
+ *   `quality_flag` filter (call with `includeFlagged: true` to see them).
+ * - `no_samples_yet`: no samples have been ingested for this vault.
+ *
+ * Invariant: `stale === true` ⟺ `stale_reason !== 'fresh'`.
+ */
+export type VaultHistoryStaleReason = 'fresh' | 'pipeline_lag' | 'all_filtered' | 'no_samples_yet';
+
 /** Single point in a vault TVL time series */
 export interface VaultTvlPoint {
   /** ISO timestamp at UTC midnight for the day the sample represents */
   ts: string;
   /** Total value locked in USD */
   tvl_usd: number;
+  /** Pipeline quality classification for this sample */
+  quality_flag: VaultQualityFlag;
 }
 
 /**
  * Response for `GET /vaults/:address/tvl-history`
  *
  * `latest` hoists the most recent point so stat-tile consumers don't need to
- * fetch the full series. `stale` flips `true` when the latest sample is older
- * than 48h or the series is empty.
+ * fetch the full series. `stale` flips `true` when the series isn't fresh
+ * (see {@link VaultHistoryStaleReason} for the disambiguated reason).
  */
 export interface VaultTvlHistoryResponse {
-  /** True when the latest sample is older than 48h or the series is empty */
+  /**
+   * Wire-payload shape version. Bumped any time the shape changes so cache
+   * and wire signal stay in lock-step. Currently `'s3'`.
+   */
+  schema_version: string;
+  /** True when `stale_reason !== 'fresh'` */
   stale: boolean;
+  /** Disambiguates the four stale conditions */
+  stale_reason: VaultHistoryStaleReason;
   /** Number of days the requested `range` resolved to */
   days: number;
   /** Number of points in `series` */
   count: number;
+  /** Count of samples dropped by the `quality_flag` filter */
+  filtered_count: number;
   /** Timestamp of the earliest point in `series`, or null when empty */
   from: string | null;
   /** Timestamp of the latest point in `series`, or null when empty */
@@ -488,6 +522,12 @@ export interface VaultTvlHistoryOptions {
   chain: Chain;
   /** Window length to return. Defaults to `30d` server-side when omitted. */
   range?: VaultHistoryRange;
+  /**
+   * When `true`, drops the `quality_flag` allowlist so the full raw series —
+   * including `'capped'`, `'diverged'`, and `'spike'` samples — is returned.
+   * Defaults to `false` server-side when omitted.
+   */
+  includeFlagged?: boolean;
   /** Request timeout in milliseconds */
   timeout?: number;
   /** Abort signal */
@@ -506,6 +546,8 @@ export interface VaultSharePricePoint {
    * pricing artifact).
    */
   apy_trailing_7d: number | null;
+  /** Pipeline quality classification for this sample */
+  quality_flag: VaultQualityFlag;
 }
 
 /**
@@ -527,16 +569,25 @@ export interface VaultSharePriceLatest extends VaultSharePricePoint {
  * Response for `GET /vaults/:address/share-price-history`
  *
  * `latest` hoists the most recent point and adds `apy_trailing_30d`. `stale`
- * flips `true` when the latest sample is older than 48h or the series is
- * empty.
+ * flips `true` when the series isn't fresh (see
+ * {@link VaultHistoryStaleReason} for the disambiguated reason).
  */
 export interface VaultSharePriceHistoryResponse {
-  /** True when the latest sample is older than 48h or the series is empty */
+  /**
+   * Wire-payload shape version. Bumped any time the shape changes so cache
+   * and wire signal stay in lock-step. Currently `'s3'`.
+   */
+  schema_version: string;
+  /** True when `stale_reason !== 'fresh'` */
   stale: boolean;
+  /** Disambiguates the four stale conditions */
+  stale_reason: VaultHistoryStaleReason;
   /** Number of days the requested `range` resolved to */
   days: number;
   /** Number of points in `series` */
   count: number;
+  /** Count of samples dropped by the `quality_flag` filter */
+  filtered_count: number;
   /** Timestamp of the earliest point in `series`, or null when empty */
   from: string | null;
   /** Timestamp of the latest point in `series`, or null when empty */
@@ -553,6 +604,12 @@ export interface VaultSharePriceHistoryOptions {
   chain: Chain;
   /** Window length to return. Defaults to `30d` server-side when omitted. */
   range?: VaultHistoryRange;
+  /**
+   * When `true`, drops the `quality_flag` allowlist so the full raw series —
+   * including `'capped'`, `'diverged'`, and `'spike'` samples — is returned.
+   * Defaults to `false` server-side when omitted.
+   */
+  includeFlagged?: boolean;
   /** Request timeout in milliseconds */
   timeout?: number;
   /** Abort signal */

@@ -293,10 +293,15 @@ export class VaultsResource extends BaseResource {
    * Returns a daily time series of total value locked (USD) for the vault,
    * along with a hoisted `latest` aggregate so stat-tile consumers can render
    * the current value without requesting the full series. `stale` flips
-   * `true` when the latest sample is older than 48h or the series is empty.
+   * `true` when `stale_reason !== 'fresh'`.
+   *
+   * Each sample (and `latest`) carries a `quality_flag` so consumers can spot
+   * pipeline-flagged samples. By default the response only contains `'ok'` /
+   * `'unknown'` rows — pass `includeFlagged: true` to also surface `'capped'`,
+   * `'diverged'`, and `'spike'` samples.
    *
    * @param address - Vault contract address
-   * @param options - Query options (chain is required; range optional, defaults to `30d`)
+   * @param options - Query options (chain is required; range and includeFlagged are optional)
    * @returns Daily TVL series with envelope and latest aggregate
    *
    * @example
@@ -315,6 +320,12 @@ export class VaultsResource extends BaseResource {
    *   chain: Chain.ETH,
    *   range: '7d',
    * });
+   *
+   * // Include flagged samples (researcher / power-user view)
+   * const raw = await client.vaults.getTvlHistory('0x...', {
+   *   chain: Chain.ETH,
+   *   includeFlagged: true,
+   * });
    * ```
    */
   async getTvlHistory(
@@ -327,6 +338,7 @@ export class VaultsResource extends BaseResource {
     const queryParams = new URLSearchParams();
     queryParams.append('chain', chain);
     if (options.range !== undefined) queryParams.append('range', options.range);
+    if (options.includeFlagged === true) queryParams.append('includeFlagged', 'true');
 
     const response: HttpResponse<VaultTvlHistoryResponse> = await this.httpClient.get(
       `/vaults/${encodeURIComponent(address)}/tvl-history?${queryParams.toString()}`,
@@ -346,10 +358,15 @@ export class VaultsResource extends BaseResource {
    * `apy_trailing_7d` annualised against the sample 7 days earlier. The
    * hoisted `latest` aggregate also carries `apy_trailing_30d` (smoother —
    * intended for headline / stat-tile display). `stale` flips `true` when
-   * the latest sample is older than 48h or the series is empty.
+   * `stale_reason !== 'fresh'`.
+   *
+   * Each sample (and `latest`) carries a `quality_flag` so consumers can spot
+   * pipeline-flagged samples. By default the response only contains `'ok'` /
+   * `'unknown'` rows — pass `includeFlagged: true` to also surface `'capped'`,
+   * `'diverged'`, and `'spike'` samples.
    *
    * @param address - Vault contract address
-   * @param options - Query options (chain is required; range optional, defaults to `30d`)
+   * @param options - Query options (chain is required; range and includeFlagged are optional)
    * @returns Daily share-price series with envelope and latest aggregate
    *
    * @example
@@ -369,6 +386,12 @@ export class VaultsResource extends BaseResource {
    *   chain: Chain.ETH,
    *   range: '60d',
    * });
+   *
+   * // Include flagged samples (researcher / power-user view)
+   * const raw = await client.vaults.getSharePriceHistory('0x...', {
+   *   chain: Chain.ETH,
+   *   includeFlagged: true,
+   * });
    * ```
    */
   async getSharePriceHistory(
@@ -381,6 +404,7 @@ export class VaultsResource extends BaseResource {
     const queryParams = new URLSearchParams();
     queryParams.append('chain', chain);
     if (options.range !== undefined) queryParams.append('range', options.range);
+    if (options.includeFlagged === true) queryParams.append('includeFlagged', 'true');
 
     const response: HttpResponse<VaultSharePriceHistoryResponse> = await this.httpClient.get(
       `/vaults/${encodeURIComponent(address)}/share-price-history?${queryParams.toString()}`,

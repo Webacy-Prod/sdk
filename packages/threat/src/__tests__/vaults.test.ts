@@ -415,9 +415,12 @@ describe('VaultsResource', () => {
   describe('getTvlHistory', () => {
     const address = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e';
     const emptyResponse = {
-      stale: false,
+      schema_version: 's3',
+      stale: true,
+      stale_reason: 'no_samples_yet',
       days: 30,
       count: 0,
+      filtered_count: 0,
       from: null,
       to: null,
       latest: null,
@@ -454,6 +457,37 @@ describe('VaultsResource', () => {
       );
     });
 
+    it('should serialize includeFlagged=true to the query string', async () => {
+      mockHttpClient.get.mockResolvedValueOnce({
+        data: emptyResponse,
+        status: 200,
+        headers: new Headers(),
+      });
+
+      await vaults.getTvlHistory(address, { chain: Chain.ETH, includeFlagged: true });
+
+      const calledUrl = mockHttpClient.get.mock.calls[0][0] as string;
+      expect(calledUrl).toBe(
+        `/vaults/${encodeURIComponent(address)}/tvl-history?chain=eth&includeFlagged=true`
+      );
+    });
+
+    it('should omit includeFlagged when false or undefined', async () => {
+      mockHttpClient.get.mockResolvedValue({
+        data: emptyResponse,
+        status: 200,
+        headers: new Headers(),
+      });
+
+      await vaults.getTvlHistory(address, { chain: Chain.ETH, includeFlagged: false });
+      let calledUrl = mockHttpClient.get.mock.calls[0][0] as string;
+      expect(calledUrl).not.toContain('includeFlagged');
+
+      await vaults.getTvlHistory(address, { chain: Chain.ETH });
+      calledUrl = mockHttpClient.get.mock.calls[1][0] as string;
+      expect(calledUrl).not.toContain('includeFlagged');
+    });
+
     it('should throw ValidationError for invalid address', async () => {
       await expect(vaults.getTvlHistory('invalid', { chain: Chain.ETH })).rejects.toThrow(
         ValidationError
@@ -462,15 +496,30 @@ describe('VaultsResource', () => {
 
     it('should pass through the response envelope unchanged', async () => {
       const mockData = {
+        schema_version: 's3',
         stale: false,
+        stale_reason: 'fresh',
         days: 7,
         count: 2,
+        filtered_count: 0,
         from: '2026-04-21T00:00:00.000Z',
         to: '2026-04-22T00:00:00.000Z',
-        latest: { ts: '2026-04-22T00:00:00.000Z', tvl_usd: 2514259979.56 },
+        latest: {
+          ts: '2026-04-22T00:00:00.000Z',
+          tvl_usd: 2514259979.56,
+          quality_flag: 'ok',
+        },
         series: [
-          { ts: '2026-04-21T00:00:00.000Z', tvl_usd: 3122465748.18 },
-          { ts: '2026-04-22T00:00:00.000Z', tvl_usd: 2514259979.56 },
+          {
+            ts: '2026-04-21T00:00:00.000Z',
+            tvl_usd: 3122465748.18,
+            quality_flag: 'ok',
+          },
+          {
+            ts: '2026-04-22T00:00:00.000Z',
+            tvl_usd: 2514259979.56,
+            quality_flag: 'ok',
+          },
         ],
       };
       mockHttpClient.get.mockResolvedValueOnce({
@@ -485,6 +534,68 @@ describe('VaultsResource', () => {
       });
 
       expect(result).toEqual(mockData);
+      expect(result.schema_version).toBe('s3');
+      expect(result.stale_reason).toBe('fresh');
+      expect(result.filtered_count).toBe(0);
+      expect(result.latest?.quality_flag).toBe('ok');
+      for (const point of result.series) {
+        expect(point.quality_flag).toBe('ok');
+      }
+    });
+
+    it('should surface filtered_count and quality_flag variants when includeFlagged=true', async () => {
+      const mockData = {
+        schema_version: 's3',
+        stale: false,
+        stale_reason: 'fresh',
+        days: 7,
+        count: 3,
+        filtered_count: 0,
+        from: '2026-04-20T00:00:00.000Z',
+        to: '2026-04-22T00:00:00.000Z',
+        latest: {
+          ts: '2026-04-22T00:00:00.000Z',
+          tvl_usd: 9_000_000,
+          quality_flag: 'spike',
+        },
+        series: [
+          { ts: '2026-04-20T00:00:00.000Z', tvl_usd: 1_000_000, quality_flag: 'ok' },
+          { ts: '2026-04-21T00:00:00.000Z', tvl_usd: 1_050_000, quality_flag: 'capped' },
+          { ts: '2026-04-22T00:00:00.000Z', tvl_usd: 9_000_000, quality_flag: 'spike' },
+        ],
+      };
+      mockHttpClient.get.mockResolvedValueOnce({
+        data: mockData,
+        status: 200,
+        headers: new Headers(),
+      });
+
+      const result = await vaults.getTvlHistory(address, {
+        chain: Chain.ETH,
+        includeFlagged: true,
+      });
+
+      expect(result.filtered_count).toBe(0);
+      expect(result.series.map((p) => p.quality_flag)).toEqual(['ok', 'capped', 'spike']);
+      expect(result.latest?.quality_flag).toBe('spike');
+    });
+
+    it.each([
+      ['fresh', false],
+      ['pipeline_lag', true],
+      ['all_filtered', true],
+      ['no_samples_yet', true],
+    ] as const)('should round-trip stale_reason=%s', async (reason, stale) => {
+      mockHttpClient.get.mockResolvedValueOnce({
+        data: { ...emptyResponse, stale, stale_reason: reason },
+        status: 200,
+        headers: new Headers(),
+      });
+
+      const result = await vaults.getTvlHistory(address, { chain: Chain.ETH });
+
+      expect(result.stale_reason).toBe(reason);
+      expect(result.stale).toBe(stale);
     });
 
     it('should pass timeout and signal to httpClient', async () => {
@@ -511,9 +622,12 @@ describe('VaultsResource', () => {
   describe('getSharePriceHistory', () => {
     const address = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e';
     const emptyResponse = {
-      stale: false,
+      schema_version: 's3',
+      stale: true,
+      stale_reason: 'no_samples_yet',
       days: 30,
       count: 0,
+      filtered_count: 0,
       from: null,
       to: null,
       latest: null,
@@ -550,6 +664,37 @@ describe('VaultsResource', () => {
       );
     });
 
+    it('should serialize includeFlagged=true to the query string', async () => {
+      mockHttpClient.get.mockResolvedValueOnce({
+        data: emptyResponse,
+        status: 200,
+        headers: new Headers(),
+      });
+
+      await vaults.getSharePriceHistory(address, { chain: Chain.ETH, includeFlagged: true });
+
+      const calledUrl = mockHttpClient.get.mock.calls[0][0] as string;
+      expect(calledUrl).toBe(
+        `/vaults/${encodeURIComponent(address)}/share-price-history?chain=eth&includeFlagged=true`
+      );
+    });
+
+    it('should omit includeFlagged when false or undefined', async () => {
+      mockHttpClient.get.mockResolvedValue({
+        data: emptyResponse,
+        status: 200,
+        headers: new Headers(),
+      });
+
+      await vaults.getSharePriceHistory(address, { chain: Chain.ETH, includeFlagged: false });
+      let calledUrl = mockHttpClient.get.mock.calls[0][0] as string;
+      expect(calledUrl).not.toContain('includeFlagged');
+
+      await vaults.getSharePriceHistory(address, { chain: Chain.ETH });
+      calledUrl = mockHttpClient.get.mock.calls[1][0] as string;
+      expect(calledUrl).not.toContain('includeFlagged');
+    });
+
     it('should throw ValidationError for invalid address', async () => {
       await expect(vaults.getSharePriceHistory('invalid', { chain: Chain.ETH })).rejects.toThrow(
         ValidationError
@@ -558,9 +703,12 @@ describe('VaultsResource', () => {
 
     it('should pass through the response envelope including latest aggregate', async () => {
       const mockData = {
+        schema_version: 's3',
         stale: true,
+        stale_reason: 'pipeline_lag',
         days: 7,
         count: 5,
+        filtered_count: 0,
         from: '2026-04-23T00:00:00.000Z',
         to: '2026-04-27T00:00:00.000Z',
         latest: {
@@ -568,17 +716,20 @@ describe('VaultsResource', () => {
           share_price_usd: 1.229126764047821,
           apy_trailing_7d: 0.05067916458779709,
           apy_trailing_30d: null,
+          quality_flag: 'ok',
         },
         series: [
           {
             ts: '2026-04-23T00:00:00.000Z',
             share_price_usd: 1.2284373128041446,
             apy_trailing_7d: 0.0831246611487193,
+            quality_flag: 'ok',
           },
           {
             ts: '2026-04-27T00:00:00.000Z',
             share_price_usd: 1.229126764047821,
             apy_trailing_7d: 0.05067916458779709,
+            quality_flag: 'ok',
           },
         ],
       };
@@ -594,8 +745,87 @@ describe('VaultsResource', () => {
       });
 
       expect(result).toEqual(mockData);
+      expect(result.schema_version).toBe('s3');
+      expect(result.stale_reason).toBe('pipeline_lag');
+      expect(result.filtered_count).toBe(0);
       expect(result.latest?.apy_trailing_30d).toBeNull();
+      expect(result.latest?.quality_flag).toBe('ok');
       expect(result.series[0].apy_trailing_7d).toBe(0.0831246611487193);
+      for (const point of result.series) {
+        expect(point.quality_flag).toBe('ok');
+      }
+    });
+
+    it('should surface flagged quality variants when includeFlagged=true', async () => {
+      const mockData = {
+        schema_version: 's3',
+        stale: false,
+        stale_reason: 'fresh',
+        days: 7,
+        count: 3,
+        filtered_count: 0,
+        from: '2026-04-20T00:00:00.000Z',
+        to: '2026-04-22T00:00:00.000Z',
+        latest: {
+          ts: '2026-04-22T00:00:00.000Z',
+          share_price_usd: 1.5,
+          apy_trailing_7d: null,
+          apy_trailing_30d: null,
+          quality_flag: 'diverged',
+        },
+        series: [
+          {
+            ts: '2026-04-20T00:00:00.000Z',
+            share_price_usd: 1.1,
+            apy_trailing_7d: null,
+            quality_flag: 'ok',
+          },
+          {
+            ts: '2026-04-21T00:00:00.000Z',
+            share_price_usd: 1.2,
+            apy_trailing_7d: null,
+            quality_flag: 'capped',
+          },
+          {
+            ts: '2026-04-22T00:00:00.000Z',
+            share_price_usd: 1.5,
+            apy_trailing_7d: null,
+            quality_flag: 'diverged',
+          },
+        ],
+      };
+      mockHttpClient.get.mockResolvedValueOnce({
+        data: mockData,
+        status: 200,
+        headers: new Headers(),
+      });
+
+      const result = await vaults.getSharePriceHistory(address, {
+        chain: Chain.ETH,
+        includeFlagged: true,
+      });
+
+      expect(result.filtered_count).toBe(0);
+      expect(result.series.map((p) => p.quality_flag)).toEqual(['ok', 'capped', 'diverged']);
+      expect(result.latest?.quality_flag).toBe('diverged');
+    });
+
+    it.each([
+      ['fresh', false],
+      ['pipeline_lag', true],
+      ['all_filtered', true],
+      ['no_samples_yet', true],
+    ] as const)('should round-trip stale_reason=%s', async (reason, stale) => {
+      mockHttpClient.get.mockResolvedValueOnce({
+        data: { ...emptyResponse, stale, stale_reason: reason },
+        status: 200,
+        headers: new Headers(),
+      });
+
+      const result = await vaults.getSharePriceHistory(address, { chain: Chain.ETH });
+
+      expect(result.stale_reason).toBe(reason);
+      expect(result.stale).toBe(stale);
     });
 
     it('should pass timeout and signal to httpClient', async () => {
