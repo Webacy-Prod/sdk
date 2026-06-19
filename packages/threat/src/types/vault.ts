@@ -29,6 +29,10 @@ export type ListingVerdict = 'safe_to_list' | 'caution' | 'review_required' | 'd
 /** Withdrawal risk classification */
 export type WithdrawalRisk = 'blocked' | 'locked' | 'illiquid' | 'constrained' | 'delayed';
 
+/** Protocol generation, when the protocol is versioned (e.g. Morpho 'v1' =
+ *  MetaMorpho, 'v2' = Morpho Vault V2). 'v3' is reserved for future protocols. */
+export type VaultProtocolVersion = 'v1' | 'v2' | 'v3';
+
 /** Underlying asset risk classification */
 export type UnderlyingRiskTier =
   | 'battle_tested'
@@ -90,6 +94,9 @@ export interface VaultListMetadata {
   name: string;
   symbol: string;
   protocol: VaultProtocol | null;
+  /** Protocol generation, when known (e.g. Morpho 'v1' | 'v2'). Null for
+   *  unversioned protocols. */
+  protocol_version: VaultProtocolVersion | null;
   contract_type: string;
   tvl_usd: number | null;
   underlying_symbol: string | null;
@@ -330,10 +337,15 @@ export interface VaultListOptions {
   underlying?: string;
   /** Filter by DeFi protocol */
   protocol?: VaultProtocol;
+  /** Filter by protocol generation (e.g. Morpho 'v1' | 'v2'). Matches the
+   *  response `protocol_version`. */
+  version?: VaultProtocolVersion;
   /** Minimum TVL in USD */
   minTvl?: number;
   /** Filter by underlying asset risk tier */
   underlyingRisk?: UnderlyingRiskTier;
+  /** Filter by withdrawal (exit) risk classification */
+  withdrawalRisk?: WithdrawalRisk;
   /** Minimum risk score (0-100) */
   minScore?: number;
   /** Maximum risk score (0-100) */

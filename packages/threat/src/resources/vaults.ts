@@ -423,9 +423,12 @@ export class VaultsResource extends BaseResource {
     if (options.tier !== undefined) queryParams.append('tier', options.tier);
     if (options.underlying !== undefined) queryParams.append('underlying', options.underlying);
     if (options.protocol !== undefined) queryParams.append('protocol', options.protocol);
+    if (options.version !== undefined) queryParams.append('version', options.version);
     if (options.minTvl !== undefined) queryParams.append('minTvl', String(options.minTvl));
     if (options.underlyingRisk !== undefined)
       queryParams.append('underlyingRisk', options.underlyingRisk);
+    if (options.withdrawalRisk !== undefined)
+      queryParams.append('withdrawalRisk', options.withdrawalRisk);
     if (options.minScore !== undefined) queryParams.append('minScore', String(options.minScore));
     if (options.maxScore !== undefined) queryParams.append('maxScore', String(options.maxScore));
     if (options.contractType !== undefined)
