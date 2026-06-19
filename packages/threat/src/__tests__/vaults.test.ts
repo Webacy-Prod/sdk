@@ -50,8 +50,10 @@ describe('VaultsResource', () => {
         tier: 'high',
         underlying: 'USDC',
         protocol: 'morpho',
+        version: 'v2',
         minTvl: 1000000,
         underlyingRisk: 'battle_tested',
+        withdrawalRisk: 'illiquid',
         minScore: 20,
         maxScore: 80,
         contractType: 'erc4626_vault',
@@ -68,8 +70,10 @@ describe('VaultsResource', () => {
       expect(calledUrl).toContain('tier=high');
       expect(calledUrl).toContain('underlying=USDC');
       expect(calledUrl).toContain('protocol=morpho');
+      expect(calledUrl).toContain('version=v2');
       expect(calledUrl).toContain('minTvl=1000000');
       expect(calledUrl).toContain('underlyingRisk=battle_tested');
+      expect(calledUrl).toContain('withdrawalRisk=illiquid');
       expect(calledUrl).toContain('minScore=20');
       expect(calledUrl).toContain('maxScore=80');
       expect(calledUrl).toContain('contractType=erc4626_vault');
