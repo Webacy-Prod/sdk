@@ -148,6 +148,7 @@ export type {
   VaultRiskIssue,
   VaultRiskResponse,
   VaultTokenRisk,
+  VaultDeployment,
   VaultLoopingMarket,
   VaultCompositionItem,
   VaultLstCollateralMarket,

@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { VaultsResource } from '../resources/vaults';
 import { VaultEventCategory, VaultEventMechanism } from '../types/vault';
+import type { VaultDeployment, VaultListResponse } from '../types/vault';
 import { Chain, ValidationError, HttpClient } from '@webacy-xyz/sdk-core';
 
 const createMockHttpClient = () => ({
@@ -100,6 +101,94 @@ describe('VaultsResource', () => {
         expect.any(String),
         expect.objectContaining({ timeout: 30000, signal: controller.signal })
       );
+    });
+
+    it('should expose share-class grouping fields on item metadata', async () => {
+      // Trimmed GET /vaults?q=jaaa response — a grouped Centrifuge RWA fund.
+      const jaaaDeployment: VaultDeployment = {
+        chain: 'avax',
+        address: '0x1121000000000000000000000000000000000000',
+        // Mislabeled upstream (reports the share-token symbol, not the deposit asset).
+        deposit_asset_symbol: 'JAAA',
+        // Reliable discriminator between same-chain deployments.
+        deposit_asset_address: '0xb97e00000000000000000000000000000000000',
+        tvl_usd: 684033691.77,
+        vault_score: 4.1,
+        tier: 'low',
+        tokens: [],
+        token_enrichment_failed: false,
+      };
+
+      const groupedItem = {
+        metadata: {
+          name: 'Janus Henderson Anemoy AAA CLO Fund',
+          symbol: 'JAAA',
+          chain: 'avax',
+          share_class_id: '0x00010000000000070000000000000001',
+          chains: ['avax', 'base', 'eth', 'pharos', 'monad', 'bsc', 'arb'],
+          deployments: [jaaaDeployment],
+        },
+        risk: {},
+        tokens: [],
+      };
+
+      const nonRwaItem = {
+        metadata: {
+          name: 'Morpho USDC Vault',
+          symbol: 'mUSDC',
+          chain: 'eth',
+          // Non-RWA vaults have no grouping key and a single deployment.
+          share_class_id: null,
+          chains: ['eth'],
+          deployments: [
+            {
+              chain: 'eth',
+              address: '0x2222000000000000000000000000000000000000',
+              deposit_asset_symbol: 'USDC',
+              deposit_asset_address: '0xa0b8000000000000000000000000000000000000',
+              tvl_usd: 1000000,
+              vault_score: 2.5,
+              tier: 'low',
+              tokens: [],
+              token_enrichment_failed: false,
+            },
+          ],
+        },
+        risk: {},
+        tokens: [],
+      };
+
+      mockHttpClient.get.mockResolvedValueOnce({
+        data: {
+          items: [groupedItem, nonRwaItem],
+          pagination: {},
+          aggregates: {},
+          filtered_tier_counts: {},
+          stale: false,
+        },
+        status: 200,
+        headers: new Headers(),
+      });
+
+      const result = (await vaults.list({ q: 'jaaa' })) as VaultListResponse;
+
+      const grouped = result.items[0].metadata;
+      expect(grouped.share_class_id).toBe('0x00010000000000070000000000000001');
+      expect(grouped.chains).toEqual(['avax', 'base', 'eth', 'pharos', 'monad', 'bsc', 'arb']);
+      // Highest-risk chain is first in the deduped list.
+      expect(grouped.chains[0]).toBe('avax');
+      expect(grouped.deployments).toHaveLength(1);
+
+      const deployment = grouped.deployments[0];
+      // deposit_asset_address is the discriminator, not deposit_asset_symbol.
+      expect(deployment.deposit_asset_address).toBe('0xb97e00000000000000000000000000000000000');
+      expect(deployment.tier).toBe('low');
+      expect(deployment.tokens).toEqual([]);
+      expect(deployment.token_enrichment_failed).toBe(false);
+
+      // Non-RWA vault: null grouping key, single deployment.
+      expect(result.items[1].metadata.share_class_id).toBeNull();
+      expect(result.items[1].metadata.deployments).toHaveLength(1);
     });
   });
 
