@@ -217,43 +217,37 @@ See `.claude/PR_WORKFLOW.md` for detailed documentation.
 
 ## Publishing Workflow
 
-### Beta Releases (Testing)
+Releases are managed by [Changesets](https://github.com/changesets/changesets) with npm OIDC trusted publishing (no `NPM_TOKEN`, automatic provenance). All development happens on feature branches PR'd to `main` — there is no `staging` branch.
+
+### Adding a Changeset
+
+Any PR that changes a published `@webacy-xyz/*` package must include a changeset:
+
+```bash
+pnpm changeset
+# Select packages + bump type (patch/minor/major), commit the file under .changeset/
+```
+
+Docs/CI/chore PRs that don't touch a published package can skip this, or run `pnpm changeset --empty`.
+
+### Stable Releases (Automatic)
+
+```bash
+# On merge to main, .github/workflows/release.yml opens/updates a
+# "Version Packages" PR that bumps versions and updates CHANGELOG.md.
+# Merging that PR publishes changed packages to npm ('latest' tag) and
+# creates git tags + GitHub Releases automatically.
+```
+
+### Snapshot Releases (On-Demand Beta)
 
 ```bash
 /beta
-# Publishes @webacy-xyz/sdk@1.0.0-beta.0 with --tag beta
-# Doesn't affect 'latest' tag
-# Can run from any branch
+# Triggers .github/workflows/snapshot.yml via workflow_dispatch
+# Publishes x.y.z-beta-<hash> under the 'beta' dist-tag
 ```
 
 Install beta: `npm install @webacy-xyz/sdk@beta`
-
-### Stable Releases
-
-```bash
-/release
-# Bumps version in all packages
-# Publishes to npm with 'latest' tag
-# Creates git tag
-```
-
-### GitHub Release Notes
-
-```bash
-/release-notes
-# Creates GitHub release with detailed notes
-# Run after /release
-```
-
-### Manual Publishing
-
-```bash
-# Publish in dependency order
-pnpm --filter @webacy-xyz/sdk-core publish --access public
-pnpm --filter @webacy-xyz/sdk-threat publish --access public
-pnpm --filter @webacy-xyz/sdk-trading publish --access public
-pnpm --filter @webacy-xyz/sdk publish --access public
-```
 
 ## Supported Chains
 

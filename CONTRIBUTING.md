@@ -138,18 +138,19 @@ When making changes, ensure you don't introduce circular dependencies.
 
 ## Releasing
 
-Releases are managed by maintainers. Version bumps follow semver:
+Releases are managed with [Changesets](https://github.com/changesets/changesets) and version bumps follow semver, applied independently per package.
+
+As a contributor, add a changeset describing your change as part of your PR:
 
 ```bash
-# Patch release (bug fixes)
-pnpm version:patch
-
-# Minor release (new features)
-pnpm version:minor
-
-# Major release (breaking changes)
-pnpm version:major
+pnpm changeset
+# Select the affected package(s), choose a bump type (patch/minor/major),
+# and write a short summary. Commit the generated file under .changeset/.
 ```
+
+Docs/CI/chore PRs that don't touch a published package don't need one (`pnpm changeset --empty` if you want to record that explicitly).
+
+Maintainers publish releases by merging the auto-generated **"Version Packages" PR** (opened/updated on every merge to `main` by GitHub Actions), which bumps versions, updates each package's `CHANGELOG.md`, and publishes the changed packages to npm.
 
 ## Getting Help
 
