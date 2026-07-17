@@ -14,16 +14,17 @@ Keep commit messages and PR descriptions clean and professional without any AI-g
 
 ## Project Overview
 
-Webacy SDK is a TypeScript SDK for the Webacy API, providing blockchain security and risk analysis capabilities. The SDK is organized as a monorepo with 4 packages:
+Webacy SDK is a TypeScript SDK for the Webacy API, providing blockchain security and risk analysis capabilities. The SDK is organized as a monorepo with 5 packages:
 
 - **@webacy-xyz/sdk** - Unified SDK that re-exports all packages
 - **@webacy-xyz/sdk-core** - Core utilities: HTTP client, errors, Chain enum, retry logic
 - **@webacy-xyz/sdk-threat** - Threat analysis: addresses, contracts, sanctions, URL safety
 - **@webacy-xyz/sdk-trading** - Trading analysis: holder analysis, sniper detection, trading-lite
+- **@webacy-xyz/cli** - Command-line interface for the Webacy SDK
 
 ### Key Features
 
-- Multi-chain support: ETH, SOL, BTC, ARB, POL, OPT, BASE, BSC, TON, SUI, STELLAR, SEI
+- Multi-chain support: ETH, SEP, SOL, BTC, ARB, POL, OPT, BASE, BSC, TON, SUI, STELLAR, SEI, HEDERA
 - Type-safe Chain enum for all API calls
 - ESM and CommonJS dual build support
 - Debug/logging mode with granular control
@@ -41,7 +42,7 @@ pnpm install
 # Build all packages
 pnpm build
 
-# Run all tests (87 tests)
+# Run all tests
 pnpm test
 
 # Type check all packages
@@ -77,21 +78,28 @@ packages/
 │   │   ├── errors/         # Error classes (WebacyError, ValidationError, etc.)
 │   │   ├── types/          # Chain enum, common types
 │   │   └── utils/          # Address validation utilities
-│   └── __tests__/          # 65 tests
+│   └── __tests__/          # unit tests
 │
 ├── threat/         # @webacy-xyz/sdk-threat
 │   ├── src/
 │   │   ├── resources/      # AddressesResource, ContractsResource, etc.
 │   │   ├── types/          # Response types for threat endpoints
 │   │   └── client.ts       # ThreatClient
-│   └── __tests__/          # 10 tests
+│   └── __tests__/          # unit tests
 │
 ├── trading/        # @webacy-xyz/sdk-trading
 │   ├── src/
 │   │   ├── resources/      # HolderAnalysisResource, TradingLiteResource
 │   │   ├── types/          # Response types for trading endpoints
 │   │   └── client.ts       # TradingClient
-│   └── __tests__/          # 12 tests
+│   └── __tests__/          # unit tests
+│
+├── cli/            # @webacy-xyz/cli
+│   ├── src/
+│   │   ├── commands/       # CLI command implementations
+│   │   ├── cli.ts          # CLI entrypoint
+│   │   └── runner.ts       # Command runner
+│   └── __tests__/          # unit tests
 │
 ├── sdk/            # @webacy-xyz/sdk (unified)
 │   └── src/
@@ -121,7 +129,14 @@ WebacyClientBase (core)
 │   ├── contracts     # ContractsResource
 │   ├── url           # UrlResource
 │   ├── wallets       # WalletsResource
-│   └── usage         # UsageResource
+│   ├── ledger        # LedgerResource
+│   ├── accountTrace  # AccountTraceResource
+│   ├── transactions  # TransactionsResource
+│   ├── usage         # UsageResource
+│   ├── scan          # ScanResource
+│   ├── batch         # BatchResource
+│   ├── rwa           # RwaResource
+│   └── vaults        # VaultsResource
 │
 └── TradingClient
     ├── holderAnalysis  # HolderAnalysisResource
@@ -200,7 +215,7 @@ Each package builds to both ESM (`dist/esm/`) and CJS (`dist/cjs/`) with separat
 ## Testing
 
 - **Framework**: vitest with globals enabled
-- **Total Tests**: 87 (65 core + 12 trading + 10 threat)
+- Comprehensive unit tests across all packages (core, threat, trading, cli) — run `pnpm test`.
 - **Location**: `src/__tests__/*.test.ts` within each package
 
 ## PR Workflow
@@ -253,4 +268,4 @@ Install beta: `npm install @webacy-xyz/sdk@beta`
 
 ## Supported Chains
 
-Chain codes: `eth`, `sol`, `base`, `bsc`, `pol`, `arb`, `opt`, `ton`, `sui`, `stellar`, `btc`, `sei`
+Chain codes: `eth`, `sep`, `arb`, `pol`, `sol`, `opt`, `base`, `bsc`, `ton`, `sei`, `btc`, `sui`, `stellar`, `hedera`
