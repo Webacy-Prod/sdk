@@ -1,8 +1,12 @@
 ---
-description: Publish a beta version for testing without affecting the latest tag
+description: Publish an on-demand snapshot/beta release via the snapshot workflow
 ---
 
-You are helping publish a beta version of the Webacy SDK for testing. Beta versions allow testing new features before a stable release.
+You are helping publish a snapshot (beta) version of the Webacy SDK for testing. Snapshot releases let people install work-in-progress changes before a stable release, without touching the `latest` npm tag.
+
+## How it works
+
+Snapshot releases are published by the `.github/workflows/snapshot.yml` GitHub Actions workflow, triggered manually via `workflow_dispatch`. It builds the current state of the branch, versions the changed packages as `x.y.z-beta-<hash>` using Changesets snapshot mode, and publishes them under the `beta` dist-tag (or whatever tag you provide) via npm OIDC trusted publishing. There is no local `npm version`/`pnpm publish` step and nothing to revert afterward — the workflow does not commit anything back to the branch.
 
 ## Step 1: Verify Current State
 
@@ -13,231 +17,61 @@ git branch --show-current
 git status
 ```
 
-**Note**: Beta releases can be made from any branch (feature branches, main, etc.)
-
-If there are uncommitted changes:
-```text
-You have uncommitted changes. Please commit or stash them first.
-```
-
-## Step 2: Get Current Version Info
-
-Read current version and determine beta version:
+**Note**: Snapshots can be triggered from any branch (feature branches, main, etc.) — push your branch first so the workflow can check it out.
 
 ```bash
-CURRENT_VERSION=$(node -p "require('./package.json').version")
+git push -u origin {branch_name}
 ```
 
-Check for existing beta tags:
+## Step 2: Trigger the Snapshot Workflow
+
+Run the workflow via `gh`:
 
 ```bash
-git tag -l "v${CURRENT_VERSION}-beta.*" | sort -V | tail -1
+gh workflow run snapshot.yml --ref {branch_name} -f tag=beta
 ```
 
-Calculate next beta version:
-- If no existing beta: `{CURRENT_VERSION}-beta.0`
-- If beta.N exists: `{CURRENT_VERSION}-beta.{N+1}`
+- `--ref` selects the branch to build from.
+- `-f tag=beta` sets the npm dist-tag (defaults to `beta` if omitted). Use a different value (e.g. `alpha`, `rc`) for a differently-tagged snapshot.
 
-Show the user:
-```text
-Current stable version: 1.0.0
-Next beta version will be: 1.0.0-beta.0
-
-Or specify a custom prerelease identifier (e.g., "alpha", "rc")
-```
-
-## Step 3: Ask for Beta Type (Optional)
-
-Ask the user (use AskUserQuestion tool):
-
-- **Question**: "What type of prerelease?"
-- **Options**:
-  - **beta**: Standard beta (1.0.0-beta.0)
-  - **alpha**: Early alpha (1.0.0-alpha.0)
-  - **rc**: Release candidate (1.0.0-rc.0)
-  - **Custom**: Let user specify
-
-## Step 4: Run Tests
-
-Run the test suite:
+## Step 3: Watch the Run
 
 ```bash
-pnpm test
+gh run watch $(gh run list --workflow=snapshot.yml --limit 1 --json databaseId --jq '.[0].databaseId')
 ```
 
-If tests fail, warn but allow continuing (betas can have known issues):
-```text
-Tests failed. Do you want to continue with the beta release anyway?
-This is not recommended for production testing.
-```
+Or check progress in the GitHub Actions UI.
 
-## Step 5: Build All Packages
+## Step 4: Confirm
 
-Build all packages:
-
-```bash
-pnpm build
-```
-
-If build fails:
-```text
-Build failed. Cannot publish a broken beta.
-```
-
-## Step 6: Update Versions for Beta
-
-Update version in all package.json files with the beta version:
-
-```bash
-# Calculate beta version
-BETA_VERSION="{CURRENT_VERSION}-beta.{N}"
-
-# Update root package.json
-npm version ${BETA_VERSION} --no-git-tag-version
-
-# Update each package
-cd packages/core && npm version ${BETA_VERSION} --no-git-tag-version && cd ../..
-cd packages/threat && npm version ${BETA_VERSION} --no-git-tag-version && cd ../..
-cd packages/trading && npm version ${BETA_VERSION} --no-git-tag-version && cd ../..
-cd packages/sdk && npm version ${BETA_VERSION} --no-git-tag-version && cd ../..
-```
-
-Also update inter-package dependencies to the beta version in these files:
-
-**packages/threat/package.json** - update `@webacy-xyz/sdk-core` dependency:
-```json
-"dependencies": {
-  "@webacy-xyz/sdk-core": "^{BETA_VERSION}"
-}
-```
-
-**packages/trading/package.json** - update `@webacy-xyz/sdk-core` dependency:
-```json
-"dependencies": {
-  "@webacy-xyz/sdk-core": "^{BETA_VERSION}"
-}
-```
-
-**packages/sdk/package.json** - update all internal dependencies:
-```json
-"dependencies": {
-  "@webacy-xyz/sdk-core": "^{BETA_VERSION}",
-  "@webacy-xyz/sdk-threat": "^{BETA_VERSION}",
-  "@webacy-xyz/sdk-trading": "^{BETA_VERSION}"
-}
-```
-
-## Step 7: Publish to npm with Beta Tag
-
-Publish each package with the `beta` tag (NOT `latest`):
-
-```bash
-# Core first
-cd packages/core && pnpm publish --access public --tag beta && cd ../..
-
-# Threat and Trading
-cd packages/threat && pnpm publish --access public --tag beta && cd ../..
-cd packages/trading && pnpm publish --access public --tag beta && cd ../..
-
-# SDK last
-cd packages/sdk && pnpm publish --access public --tag beta && cd ../..
-```
-
-**IMPORTANT**: The `--tag beta` flag ensures:
-- Users running `npm install @webacy-xyz/sdk` get the stable version
-- Users must explicitly install `npm install @webacy-xyz/sdk@beta` to get this version
-
-## Step 8: Create Git Tag (Optional)
-
-Ask user if they want to create a git tag:
-
-```bash
-git tag v{BETA_VERSION}
-git push origin v{BETA_VERSION}
-```
-
-## Step 9: Revert Version Changes
-
-After publishing, revert the package.json changes so the repo stays on the stable version:
-
-```bash
-git checkout -- package.json packages/*/package.json pnpm-lock.yaml
-```
-
-## Step 10: Confirm
-
-Output a confirmation message:
+Once the workflow completes, it will have published each changed package as a snapshot version (e.g. `@webacy-xyz/sdk@1.1.0-beta-a1b2c3d`) under the `beta` tag.
 
 ```text
-Beta v{BETA_VERSION} published!
+Snapshot published!
 
-Published packages (tagged as 'beta'):
-- @webacy-xyz/sdk@{BETA_VERSION}
-- @webacy-xyz/sdk-core@{BETA_VERSION}
-- @webacy-xyz/sdk-threat@{BETA_VERSION}
-- @webacy-xyz/sdk-trading@{BETA_VERSION}
-
-To install the beta version:
+To install the latest snapshot:
   npm install @webacy-xyz/sdk@beta
-  # or
-  npm install @webacy-xyz/sdk@{BETA_VERSION}
 
-To install the stable version (unchanged):
+To install a specific snapshot version:
+  npm install @webacy-xyz/sdk@1.1.0-beta-a1b2c3d
+
+Stable version is unaffected:
   npm install @webacy-xyz/sdk
-
-Note: Package.json files have been reverted to stable version.
 ```
+
+## Promoting a Snapshot to Stable
+
+Snapshots are for testing only. To ship the change for real, add a changeset (`pnpm changeset`) and merge to `main` as usual — the release workflow will handle versioning and publishing under `latest`. Do not promote a snapshot dist-tag manually.
 
 ## Important Notes
 
-- Beta versions use npm's `--tag beta` to avoid affecting `latest`
-- Users must explicitly opt-in to beta: `npm install @webacy-xyz/sdk@beta`
-- Package.json is reverted after publish to keep repo on stable version
-- Beta can be published from any branch (feature branches, main, etc.)
-- Multiple betas can be published: beta.0, beta.1, beta.2, etc.
-
-## npm Tag System
-
-| Tag | Purpose | Install Command |
-|-----|---------|-----------------|
-| `latest` | Stable releases | `npm install @webacy-xyz/sdk` |
-| `beta` | Beta testing | `npm install @webacy-xyz/sdk@beta` |
-| `alpha` | Early testing | `npm install @webacy-xyz/sdk@alpha` |
-| `rc` | Release candidates | `npm install @webacy-xyz/sdk@rc` |
+- Snapshots are published via `workflow_dispatch` on `.github/workflows/snapshot.yml` — there is no automatic snapshot publish from any branch.
+- Publishing uses npm OIDC trusted publishing; no `NPM_TOKEN` is needed and provenance is automatic.
+- Snapshot versions never affect the `latest` dist-tag.
+- Multiple snapshots can be published from the same branch as it evolves; each gets a new content hash.
 
 ## Error Handling
 
-- If build fails: Stop, cannot publish broken code
-- If tests fail: Warn but allow continue (user's choice)
-- If npm publish fails: Check `npm whoami`, may need login
-- If tag already exists: Increment beta number
-
-## Example Flow
-
-```bash
-# On feature branch with new feature to test
-/beta
-# Select: beta
-# Tests pass, build succeeds
-# Publishes: @webacy-xyz/sdk@1.0.0-beta.0
-
-# After more changes
-/beta
-# Publishes: @webacy-xyz/sdk@1.0.0-beta.1
-
-# Ready for stable release
-/release
-# Publishes: @webacy-xyz/sdk@1.1.0 (as latest)
-```
-
-## Promoting Beta to Stable
-
-If a beta is ready to become the stable release:
-
-```bash
-# Option 1: Use /release command (recommended)
-# This creates a proper stable release with changelog
-
-# Option 2: Manually promote the tag (advanced)
-npm dist-tag add @webacy-xyz/sdk@1.0.0-beta.5 latest
-```
+- If `gh workflow run` fails: confirm you have `gh` authenticated and Actions write access.
+- If the workflow fails: check the run logs (`gh run view --log-failed`) for build or publish errors.
+- If no packages changed relative to their published version, the workflow may have nothing to snapshot.

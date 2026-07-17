@@ -17,13 +17,24 @@ If the file doesn't exist or is incomplete:
 Run the following commands to understand what changed:
 
 ```bash
-git diff --name-only staging...HEAD
-git diff --stat staging...HEAD
+git diff --name-only main...HEAD
+git diff --stat main...HEAD
 ```
 
 Show the user the list of changed files.
 
-## Step 3: Gather PR Information
+## Step 3: Check for a Changeset
+
+Check whether the PR touches a published package (`packages/core`, `packages/threat`, `packages/trading`, `packages/sdk`) and whether a changeset already exists:
+
+```bash
+git diff --name-only main...HEAD -- .changeset/
+pnpm changeset status --since=main
+```
+
+If a published package changed and no changeset is present, run `pnpm changeset` (pick the affected packages and bump type), then commit the generated file under `.changeset/`. Docs/CI/chore-only PRs can skip this or use `pnpm changeset --empty`.
+
+## Step 4: Gather PR Information
 
 Ask the user for the following information (use AskUserQuestion tool):
 
@@ -48,7 +59,7 @@ Ask the user for the following information (use AskUserQuestion tool):
 **Options**: "Yes" / "No"
 **Follow-up if Yes**: "Describe the breaking changes"
 
-## Step 4: Generate PR Description
+## Step 5: Generate PR Description
 
 Use the following template:
 
@@ -78,10 +89,10 @@ Use the following template:
 - [ ] Tests pass (`pnpm test`)
 - [ ] Build succeeds (`pnpm build`)
 - [ ] Documentation updated (if needed)
-- [ ] CHANGELOG.md updated (for features/fixes)
+- [ ] Changeset added (`pnpm changeset`) if a published package changed
 ```
 
-## Step 5: Push Branch
+## Step 6: Push Branch
 
 Run the following command:
 
@@ -89,7 +100,7 @@ Run the following command:
 git push -u origin {branch_name}
 ```
 
-## Step 6: Create PR
+## Step 7: Create PR
 
 Format the PR title from the commit message or branch name.
 
@@ -100,13 +111,13 @@ Examples:
 Run the following command:
 
 ```bash
-gh pr create --base staging --title "{PR_TITLE}" --body "$(cat <<'EOF'
+gh pr create --base main --title "{PR_TITLE}" --body "$(cat <<'EOF'
 {GENERATED_DESCRIPTION}
 EOF
 )"
 ```
 
-## Step 7: Confirm and Cleanup
+## Step 8: Confirm and Cleanup
 
 Output a confirmation message:
 
@@ -126,9 +137,10 @@ rm .claude/.pr-context.json
 
 ## Important Notes
 
-- Always use `--base staging` for the PR
+- Always use `--base main` for the PR
 - The PR title should follow Conventional Commits format
 - Generate a comprehensive description
+- Include a changeset (`pnpm changeset`) whenever a published `@webacy-xyz/*` package changed
 - Show the PR URL to the user after creation
 - If `gh` command fails, provide instructions for manual PR creation
 

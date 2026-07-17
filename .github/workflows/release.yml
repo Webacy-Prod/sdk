@@ -6,22 +6,25 @@ on:
 
 concurrency:
   group: release-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   validate:
     uses: ./.github/workflows/ci.yml
 
-  publish:
+  release:
     needs: validate
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    outputs:
-      version: ${{ steps.version.outputs.version }}
-      published: ${{ steps.check.outputs.skip == 'false' }}
+    permissions:
+      id-token: write # OIDC: npm trusted publishing (no NPM_TOKEN)
+      contents: write # version commit, git tags, GitHub releases
+      pull-requests: write # open/update the "Version Packages" PR
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -29,66 +32,27 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22.14.0'
           cache: 'pnpm'
           registry-url: 'https://registry.npmjs.org'
 
-      - name: Get version
-        id: version
-        run: echo "version=$(node -p "require('./packages/sdk/package.json').version")" >> $GITHUB_OUTPUT
-
-      - name: Check if all packages already published
-        id: check
-        run: |
-          VERSION="${{ steps.version.outputs.version }}"
-          PACKAGES=("@webacy-xyz/sdk-core" "@webacy-xyz/sdk-threat" "@webacy-xyz/sdk-trading" "@webacy-xyz/sdk" "@webacy-xyz/cli")
-          ALL_PUBLISHED=true
-
-          for pkg in "${PACKAGES[@]}"; do
-            if npm view "${pkg}@${VERSION}" version 2>/dev/null; then
-              echo "✓ ${pkg}@${VERSION} already published"
-            else
-              echo "✗ ${pkg}@${VERSION} not published"
-              ALL_PUBLISHED=false
-            fi
-          done
-
-          if [ "$ALL_PUBLISHED" = true ]; then
-            echo "All packages at version ${VERSION} already published, skipping..."
-            echo "skip=true" >> $GITHUB_OUTPUT
-          else
-            echo "Publishing version ${VERSION}"
-            echo "skip=false" >> $GITHUB_OUTPUT
-          fi
+      - name: Ensure npm supports trusted publishing
+        run: npm install -g npm@latest
 
       - name: Install dependencies
-        if: steps.check.outputs.skip == 'false'
         run: pnpm install --frozen-lockfile
 
       - name: Build
-        if: steps.check.outputs.skip == 'false'
         run: pnpm build
 
-      - name: Publish all packages
-        if: steps.check.outputs.skip == 'false'
-        run: pnpm publish -r --access public --no-git-checks
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-  github-release:
-    needs: publish
-    if: needs.publish.outputs.published == 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    permissions:
-      contents: write
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+      - name: Create Release PR or Publish
+        uses: changesets/action@v1
         with:
-          tag_name: v${{ needs.publish.outputs.version }}
-          name: v${{ needs.publish.outputs.version }}
-          generate_release_notes: true
+          version: pnpm ci:version
+          publish: pnpm ci:publish
+          title: 'chore: version packages'
+          commit: 'chore: version packages'
+          createGithubReleases: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # No NPM_TOKEN / NODE_AUTH_TOKEN: publishing authenticates via OIDC.
