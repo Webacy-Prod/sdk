@@ -3,6 +3,16 @@ name: Release
 on:
   push:
     branches: [main]
+  workflow_dispatch:
+    inputs:
+      snapshot:
+        description: 'Publish an on-demand snapshot/beta instead of a stable release'
+        type: boolean
+        default: true
+      tag:
+        description: 'npm dist-tag for the snapshot'
+        required: false
+        default: 'beta'
 
 concurrency:
   group: release-${{ github.workflow }}-${{ github.ref }}
@@ -12,7 +22,10 @@ jobs:
   validate:
     uses: ./.github/workflows/ci.yml
 
+  # Stable path: push to main only. Opens the "Version Packages" PR when
+  # changesets are pending, publishes to the 'latest' dist-tag when none are.
   release:
+    if: github.event_name == 'push'
     needs: validate
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -55,6 +68,54 @@ jobs:
           title: 'chore: version packages'
           commit: 'chore: version packages'
           createGithubReleases: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # No NPM_TOKEN / NODE_AUTH_TOKEN: publishing authenticates via OIDC.
+
+  # Snapshot/beta path: manual dispatch only. Publishes an ephemeral
+  # <version>-<tag>-<datetime> build under the given dist-tag (default 'beta'),
+  # without touching 'latest'. Kept in this file (not a separate workflow) so the
+  # OIDC token's workflow claim is 'release.yml' and matches the npm Trusted
+  # Publisher configured on each package. Requires a changeset on the dispatched
+  # ref, else `changeset version --snapshot` no-ops and nothing publishes.
+  snapshot:
+    if: github.event_name == 'workflow_dispatch' && inputs.snapshot
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      id-token: write # OIDC: npm trusted publishing (no NPM_TOKEN)
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.14.0'
+          cache: 'pnpm'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Ensure npm supports trusted publishing
+        run: npm install -g npm@11
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm build
+
+      - name: Version snapshot
+        run: pnpm changeset version --snapshot ${{ inputs.tag }}
+
+      - name: Publish snapshot
+        run: pnpm changeset publish --tag ${{ inputs.tag }} --no-git-tag
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # No NPM_TOKEN / NODE_AUTH_TOKEN: publishing authenticates via OIDC.
