@@ -243,8 +243,10 @@ Docs/CI/chore PRs that don't touch a published package can skip this, or run `pn
 
 ```bash
 /beta
-# Triggers .github/workflows/snapshot.yml via workflow_dispatch
-# Publishes x.y.z-beta-<hash> under the 'beta' dist-tag
+# Triggers the snapshot job inside .github/workflows/release.yml via
+# workflow_dispatch (snapshot=true, tag=beta). Requires a changeset already
+# on the branch being built, or the job no-ops.
+# Publishes x.y.z-beta-<datetime> under the 'beta' dist-tag
 ```
 
 Install beta: `npm install @webacy-xyz/sdk@beta`

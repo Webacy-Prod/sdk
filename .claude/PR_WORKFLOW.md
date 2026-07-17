@@ -235,7 +235,7 @@ Releases are managed by [Changesets](https://github.com/changesets/changesets) a
 - Add a changeset in your feature PR (`pnpm changeset`)
 - Merge to `main` → the release workflow opens/updates a **"Version Packages" PR**
 - Merge the "Version Packages" PR → packages are published to npm automatically
-- For on-demand testing builds, trigger the **snapshot workflow** manually (`/beta`)
+- For on-demand testing builds, trigger the **snapshot job** manually (`/beta`)
 
 ---
 
@@ -294,13 +294,13 @@ Because Changesets versions packages independently, `@webacy-xyz/sdk-core` can b
 
 ### `/beta` - Publish a Snapshot
 
-Snapshots are on-demand test builds, triggered manually rather than automatically:
+Snapshots are on-demand test builds, triggered manually rather than automatically. **They require a changeset already on the branch being built** — `changeset version --snapshot` no-ops if there are no pending `.changeset/*.md` files, so run `pnpm changeset` first if you haven't:
 
 ```bash
-gh workflow run snapshot.yml --ref {branch_name} -f tag=beta
+gh workflow run release.yml --repo Webacy-Prod/sdk --ref {branch_name} -f snapshot=true -f tag=beta
 ```
 
-This runs `.github/workflows/snapshot.yml`, which builds the branch, versions changed packages as `x.y.z-beta-<hash>` in snapshot mode, and publishes them under the `beta` dist-tag (or whatever `tag` input you pass) via npm OIDC — no manual `npm version`/`pnpm publish` steps and nothing to revert.
+This runs the snapshot job inside `.github/workflows/release.yml` (there is no separate `snapshot.yml` workflow — snapshots live in the same file as the stable release flow because npm binds a package's OIDC trusted publisher to a single workflow filename). The job builds the branch, versions changed packages as `x.y.z-beta-<datetime>` in snapshot mode, and publishes them under the `beta` dist-tag (or whatever `tag` input you pass) via npm OIDC — no manual `npm version`/`pnpm publish` steps and nothing to revert.
 
 **Installing a snapshot:**
 
@@ -309,10 +309,10 @@ This runs `.github/workflows/snapshot.yml`, which builds the branch, versions ch
 npm install @webacy-xyz/sdk@beta
 
 # Install a specific snapshot version
-npm install @webacy-xyz/sdk@1.1.0-beta-a1b2c3d
+npm install @webacy-xyz/sdk@1.9.1-beta-20260717171903
 ```
 
-Stable installs (`npm install @webacy-xyz/sdk`) are unaffected. See `/beta` (`.claude/commands/beta.md`) for full details.
+Stable installs (`npm install @webacy-xyz/sdk`) are unaffected. Promotion to stable needs nothing special: merge the PR with its changeset to `main` as usual and the normal "Version Packages" flow publishes it under `latest`. See `/beta` (`.claude/commands/beta.md`) for full details.
 
 ---
 
