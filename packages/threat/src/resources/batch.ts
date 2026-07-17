@@ -55,10 +55,7 @@ export class BatchResource extends BaseResource {
     const response: HttpResponse<BatchContractsResponse> = await this.httpClient.post(
       '/query/contracts',
       request,
-      {
-        timeout: options.timeout,
-        signal: options.signal,
-      }
+      this.requestOptions(options)
     );
 
     return response.data;
@@ -80,10 +77,7 @@ export class BatchResource extends BaseResource {
     const response: HttpResponse<BatchAddressesResponse> = await this.httpClient.post(
       '/query/addresses',
       request,
-      {
-        timeout: options.timeout,
-        signal: options.signal,
-      }
+      this.requestOptions(options)
     );
 
     return response.data;
@@ -105,10 +99,7 @@ export class BatchResource extends BaseResource {
     const response: HttpResponse<BatchTransactionsResponse> = await this.httpClient.post(
       '/batch/transactions',
       request,
-      {
-        timeout: options.timeout,
-        signal: options.signal,
-      }
+      this.requestOptions(options)
     );
 
     return response.data;

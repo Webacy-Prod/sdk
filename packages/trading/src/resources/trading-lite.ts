@@ -83,15 +83,11 @@ export class TradingLiteResource extends BaseResource {
       );
     }
 
-    const queryParams = new URLSearchParams();
-    queryParams.append('chain', chain);
+    const path = this.buildPath(`/trading-lite/${encodeURIComponent(address)}`, { chain });
 
     const response: HttpResponse<TradingLiteAnalysis> = await this.httpClient.get(
-      `/trading-lite/${encodeURIComponent(address)}?${queryParams.toString()}`,
-      {
-        timeout: options.timeout,
-        signal: options.signal,
-      }
+      path,
+      this.requestOptions(options)
     );
 
     return response.data;

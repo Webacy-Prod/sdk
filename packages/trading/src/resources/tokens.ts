@@ -1,4 +1,4 @@
-import { HttpResponse, BaseResource, ValidationError, Chain } from '@webacy-xyz/sdk-core';
+import { HttpResponse, BaseResource, ValidationError } from '@webacy-xyz/sdk-core';
 import {
   PoolsResponse,
   TrendingTokensResponse,
@@ -70,15 +70,11 @@ export class TokensResource extends BaseResource {
     const chain = this.resolveChain(options);
     this.validateAddress(address, chain);
 
-    const queryParams = new URLSearchParams();
-    queryParams.append('chain', chain);
+    const path = this.buildPath(`/tokens/${encodeURIComponent(address)}/pools`, { chain });
 
     const response: HttpResponse<PoolsResponse> = await this.httpClient.get(
-      `/tokens/${encodeURIComponent(address)}/pools?${queryParams.toString()}`,
-      {
-        timeout: options.timeout,
-        signal: options.signal,
-      }
+      path,
+      this.requestOptions(options)
     );
 
     return response.data;
@@ -111,23 +107,17 @@ export class TokensResource extends BaseResource {
    * ```
    */
   async getTrending(options: TrendingOptions = {}): Promise<TrendingTokensResponse> {
-    const queryParams = new URLSearchParams();
     const chain = options.chain ?? this.defaultChain;
 
-    if (chain) {
-      queryParams.append('chain', chain);
-    }
-    if (options.limit !== undefined) {
-      queryParams.append('limit', String(options.limit));
-    }
-
-    const queryString = queryParams.toString();
-    const path = queryString ? `/tokens/trending?${queryString}` : '/tokens/trending';
-
-    const response: HttpResponse<TrendingTokensResponse> = await this.httpClient.get(path, {
-      timeout: options.timeout,
-      signal: options.signal,
+    const path = this.buildPath('/tokens/trending', {
+      chain,
+      limit: options.limit,
     });
+
+    const response: HttpResponse<TrendingTokensResponse> = await this.httpClient.get(
+      path,
+      this.requestOptions(options)
+    );
 
     return response.data;
   }
@@ -156,23 +146,17 @@ export class TokensResource extends BaseResource {
    * ```
    */
   async getTrendingPools(options: TrendingOptions = {}): Promise<TrendingPoolsResponse> {
-    const queryParams = new URLSearchParams();
     const chain = options.chain ?? this.defaultChain;
 
-    if (chain) {
-      queryParams.append('chain', chain);
-    }
-    if (options.limit !== undefined) {
-      queryParams.append('limit', String(options.limit));
-    }
-
-    const queryString = queryParams.toString();
-    const path = queryString ? `/tokens/pools/trending?${queryString}` : '/tokens/pools/trending';
-
-    const response: HttpResponse<TrendingPoolsResponse> = await this.httpClient.get(path, {
-      timeout: options.timeout,
-      signal: options.signal,
+    const path = this.buildPath('/tokens/pools/trending', {
+      chain,
+      limit: options.limit,
     });
+
+    const response: HttpResponse<TrendingPoolsResponse> = await this.httpClient.get(
+      path,
+      this.requestOptions(options)
+    );
 
     return response.data;
   }
@@ -202,21 +186,19 @@ export class TokensResource extends BaseResource {
    * ```
    */
   async getToken(address: string, options: TokenEconomicsOptions): Promise<TokenEconomicsResponse> {
-    const { chain, metricsDate } = options;
-    this.validateTokenEconomicsChain(chain);
+    const chain = this.resolveChain(options, SUPPORTED_TOKEN_ECONOMICS_CHAINS, 'token economics');
+    const { metricsDate } = options;
     this.validateAddress(address, chain);
     this.validateMetricsDate(metricsDate);
 
-    const queryParams = new URLSearchParams();
-    queryParams.append('chain', chain);
-    queryParams.append('metrics-date', metricsDate);
+    const path = this.buildPath(`/tokens/${encodeURIComponent(address)}`, {
+      chain,
+      'metrics-date': metricsDate,
+    });
 
     const response: HttpResponse<TokenEconomicsResponse> = await this.httpClient.get(
-      `/tokens/${encodeURIComponent(address)}?${queryParams.toString()}`,
-      {
-        timeout: options.timeout,
-        signal: options.signal,
-      }
+      path,
+      this.requestOptions(options)
     );
 
     return response.data;
@@ -258,42 +240,24 @@ export class TokensResource extends BaseResource {
    * ```
    */
   async getPoolOhlcv(poolAddress: string, options: PoolOhlcvOptions): Promise<PoolOhlcvResponse> {
-    const { chain, timeFrame } = options;
-    this.validateTokenEconomicsChain(chain);
+    const chain = this.resolveChain(options, SUPPORTED_TOKEN_ECONOMICS_CHAINS, 'token economics');
+    const { timeFrame } = options;
     this.validateAddress(poolAddress, chain);
     this.validateTimeFrame(timeFrame);
 
-    const queryParams = new URLSearchParams();
-    queryParams.append('chain', chain);
-    queryParams.append('timeFrame', timeFrame);
-
-    if (options.beforeTimestamp !== undefined) {
-      queryParams.append('beforeTimestamp', String(options.beforeTimestamp));
-    }
-    if (options.limit !== undefined) {
-      queryParams.append('limit', String(options.limit));
-    }
+    const path = this.buildPath(`/tokens/pools/${encodeURIComponent(poolAddress)}`, {
+      chain,
+      timeFrame,
+      beforeTimestamp: options.beforeTimestamp,
+      limit: options.limit,
+    });
 
     const response: HttpResponse<PoolOhlcvResponse> = await this.httpClient.get(
-      `/tokens/pools/${encodeURIComponent(poolAddress)}?${queryParams.toString()}`,
-      {
-        timeout: options.timeout,
-        signal: options.signal,
-      }
+      path,
+      this.requestOptions(options)
     );
 
     return response.data;
-  }
-
-  /**
-   * Validate chain is supported for token economics
-   */
-  private validateTokenEconomicsChain(chain: Chain): void {
-    if (!SUPPORTED_TOKEN_ECONOMICS_CHAINS.includes(chain)) {
-      throw new ValidationError(
-        `Chain "${chain}" is not supported for token economics. Supported chains: ${SUPPORTED_TOKEN_ECONOMICS_CHAINS.join(', ')}`
-      );
-    }
   }
 
   /**

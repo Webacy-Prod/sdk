@@ -81,31 +81,17 @@ export class ContractsResource extends BaseResource {
     const chain = this.resolveChain(options);
     this.validateAddress(address, chain);
 
-    const queryParams = new URLSearchParams();
-    queryParams.append('chain', chain);
-
-    if (options.deployerRisk !== undefined) {
-      queryParams.append('deployer_risk', String(options.deployerRisk));
-    }
-
-    if (options.fromBytecode !== undefined) {
-      queryParams.append('fromBytecode', String(options.fromBytecode));
-    }
-
-    if (options.refreshCache !== undefined) {
-      queryParams.append('refreshCache', String(options.refreshCache));
-    }
-
-    if (options.disableChecksum !== undefined) {
-      queryParams.append('disableChecksum', String(options.disableChecksum));
-    }
+    const path = this.buildPath(`/contracts/${encodeURIComponent(address)}`, {
+      chain,
+      deployer_risk: options.deployerRisk,
+      fromBytecode: options.fromBytecode,
+      refreshCache: options.refreshCache,
+      disableChecksum: options.disableChecksum,
+    });
 
     const response: HttpResponse<ContractRiskResponse> = await this.httpClient.get(
-      `/contracts/${encodeURIComponent(address)}?${queryParams.toString()}`,
-      {
-        timeout: options.timeout,
-        signal: options.signal,
-      }
+      path,
+      this.requestOptions(options)
     );
 
     return response.data;
@@ -144,15 +130,13 @@ export class ContractsResource extends BaseResource {
     const chain = this.resolveChain(options);
     this.validateAddress(address, chain);
 
-    const queryParams = new URLSearchParams();
-    queryParams.append('chain', chain);
+    const path = this.buildPath(`/contracts/${encodeURIComponent(address)}/source-code`, {
+      chain,
+    });
 
     const response: HttpResponse<ContractSourceCodeResponse> = await this.httpClient.get(
-      `/contracts/${encodeURIComponent(address)}/source-code?${queryParams.toString()}`,
-      {
-        timeout: options.timeout,
-        signal: options.signal,
-      }
+      path,
+      this.requestOptions(options)
     );
 
     return response.data;
@@ -186,15 +170,11 @@ export class ContractsResource extends BaseResource {
     const chain = this.resolveChain(options);
     this.validateAddress(address, chain);
 
-    const queryParams = new URLSearchParams();
-    queryParams.append('chain', chain);
+    const path = this.buildPath(`/contracts/taxes/${encodeURIComponent(address)}`, { chain });
 
     const response: HttpResponse<TokenTaxResponse> = await this.httpClient.get(
-      `/contracts/taxes/${encodeURIComponent(address)}?${queryParams.toString()}`,
-      {
-        timeout: options.timeout,
-        signal: options.signal,
-      }
+      path,
+      this.requestOptions(options)
     );
 
     return response.data;
@@ -236,10 +216,7 @@ export class ContractsResource extends BaseResource {
     const response: HttpResponse<SolidityAnalysisResponse> = await this.httpClient.post(
       '/contracts/solidity-detector',
       request,
-      {
-        timeout: options?.timeout,
-        signal: options?.signal,
-      }
+      this.requestOptions(options)
     );
 
     return response.data;
@@ -287,19 +264,14 @@ export class ContractsResource extends BaseResource {
     const chain = this.resolveChain(options);
     this.validateAddress(address, chain);
 
-    const queryParams = new URLSearchParams();
-    queryParams.append('chain', chain);
-
-    if (options.refreshCache !== undefined) {
-      queryParams.append('refreshCache', String(options.refreshCache));
-    }
+    const path = this.buildPath(`/contracts/${encodeURIComponent(address)}/code-analysis`, {
+      chain,
+      refreshCache: options.refreshCache,
+    });
 
     const response: HttpResponse<CodeAnalysisResponse> = await this.httpClient.get(
-      `/contracts/${encodeURIComponent(address)}/code-analysis?${queryParams.toString()}`,
-      {
-        timeout: options.timeout,
-        signal: options.signal,
-      }
+      path,
+      this.requestOptions(options)
     );
 
     return response.data;
@@ -323,15 +295,11 @@ export class ContractsResource extends BaseResource {
     const chain = this.resolveChain(options);
     this.validateAddress(address, chain);
 
-    const queryParams = new URLSearchParams();
-    queryParams.append('chain', chain);
+    const path = this.buildPath(`/audits/${encodeURIComponent(address)}`, { chain });
 
     const response: HttpResponse<AuditResponse> = await this.httpClient.get(
-      `/audits/${encodeURIComponent(address)}?${queryParams.toString()}`,
-      {
-        timeout: options.timeout,
-        signal: options.signal,
-      }
+      path,
+      this.requestOptions(options)
     );
 
     return response.data;
@@ -361,10 +329,7 @@ export class ContractsResource extends BaseResource {
 
     const response: HttpResponse<SymbolLookupResponse> = await this.httpClient.get(
       `/contracts/symbol/${encodeURIComponent(symbol)}`,
-      {
-        timeout: options.timeout,
-        signal: options.signal,
-      }
+      this.requestOptions(options)
     );
 
     return response.data;
