@@ -74,10 +74,7 @@ export class LedgerResource extends BaseResource {
     const response: HttpResponse<LedgerScanResponse> = await this.httpClient.post(
       `/ledger/${family}/scan/tx`,
       request,
-      {
-        timeout: options?.timeout,
-        signal: options?.signal,
-      }
+      this.requestOptions(options)
     );
 
     return response.data;
@@ -136,10 +133,7 @@ export class LedgerResource extends BaseResource {
     const response: HttpResponse<LedgerScanResponse> = await this.httpClient.post(
       `/ledger/${family}/scan/eip-712`,
       request,
-      {
-        timeout: options?.timeout,
-        signal: options?.signal,
-      }
+      this.requestOptions(options)
     );
 
     return response.data;

@@ -75,19 +75,16 @@ export class VaultsResource extends BaseResource {
    * ```
    */
   async list(options: VaultListOptions = {}): Promise<VaultListResponse> {
-    const queryParams = new URLSearchParams();
-    this.appendSharedListParams(queryParams, options);
-
-    if (options.page !== undefined) queryParams.append('page', String(options.page));
-    if (options.pageSize !== undefined) queryParams.append('pageSize', String(options.pageSize));
-
-    const qs = queryParams.toString();
-    const path = qs ? `/vaults?${qs}` : '/vaults';
-
-    const response: HttpResponse<VaultListResponse> = await this.httpClient.get(path, {
-      timeout: options.timeout,
-      signal: options.signal,
+    const path = this.buildPath('/vaults', {
+      ...this.sharedListParams(options),
+      page: options.page,
+      pageSize: options.pageSize,
     });
+
+    const response: HttpResponse<VaultListResponse> = await this.httpClient.get(
+      path,
+      this.requestOptions(options)
+    );
 
     return response.data;
   }
@@ -121,18 +118,16 @@ export class VaultsResource extends BaseResource {
    * ```
    */
   async listCursor(options: VaultCursorListOptions): Promise<VaultCursorListResponse> {
-    const queryParams = new URLSearchParams();
-    this.appendSharedListParams(queryParams, options);
-
-    queryParams.append('cursor', options.cursor);
-    if (options.limit !== undefined) queryParams.append('limit', String(options.limit));
-
-    const path = `/vaults?${queryParams.toString()}`;
-
-    const response: HttpResponse<VaultCursorListResponse> = await this.httpClient.get(path, {
-      timeout: options.timeout,
-      signal: options.signal,
+    const path = this.buildPath('/vaults', {
+      ...this.sharedListParams(options),
+      cursor: options.cursor,
+      limit: options.limit,
     });
+
+    const response: HttpResponse<VaultCursorListResponse> = await this.httpClient.get(
+      path,
+      this.requestOptions(options)
+    );
 
     return response.data;
   }
@@ -162,17 +157,15 @@ export class VaultsResource extends BaseResource {
    * ```
    */
   async listEvents(options: VaultEventsOptions = {}): Promise<VaultEventsResponse> {
-    const queryParams = new URLSearchParams();
-    if (options.category !== undefined) queryParams.append('category', options.category);
-    if (options.mechanism !== undefined) queryParams.append('mechanism', options.mechanism);
-
-    const qs = queryParams.toString();
-    const path = qs ? `/vaults/events?${qs}` : '/vaults/events';
-
-    const response: HttpResponse<Partial<VaultEventsResponse>> = await this.httpClient.get(path, {
-      timeout: options.timeout,
-      signal: options.signal,
+    const path = this.buildPath('/vaults/events', {
+      category: options.category,
+      mechanism: options.mechanism,
     });
+
+    const response: HttpResponse<Partial<VaultEventsResponse>> = await this.httpClient.get(
+      path,
+      this.requestOptions(options)
+    );
 
     return this.normalizeEventsResponse(response.data);
   }
@@ -209,17 +202,15 @@ export class VaultsResource extends BaseResource {
     const chain = options.chain;
     this.validateAddress(address, chain);
 
-    const queryParams = new URLSearchParams();
-    queryParams.append('chain', chain);
-    if (options.category !== undefined) queryParams.append('category', options.category);
-    if (options.mechanism !== undefined) queryParams.append('mechanism', options.mechanism);
+    const path = this.buildPath(`/vaults/${encodeURIComponent(address)}/events`, {
+      chain,
+      category: options.category,
+      mechanism: options.mechanism,
+    });
 
     const response: HttpResponse<Partial<VaultEventsResponse>> = await this.httpClient.get(
-      `/vaults/${encodeURIComponent(address)}/events?${queryParams.toString()}`,
-      {
-        timeout: options.timeout,
-        signal: options.signal,
-      }
+      path,
+      this.requestOptions(options)
     );
 
     return this.normalizeEventsResponse(response.data);
@@ -273,15 +264,11 @@ export class VaultsResource extends BaseResource {
     const chain = options.chain;
     this.validateAddress(address, chain);
 
-    const queryParams = new URLSearchParams();
-    queryParams.append('chain', chain);
+    const path = this.buildPath(`/vaults/${encodeURIComponent(address)}`, { chain });
 
     const response: HttpResponse<VaultDetailResponse> = await this.httpClient.get(
-      `/vaults/${encodeURIComponent(address)}?${queryParams.toString()}`,
-      {
-        timeout: options.timeout,
-        signal: options.signal,
-      }
+      path,
+      this.requestOptions(options)
     );
 
     return response.data;
@@ -335,17 +322,15 @@ export class VaultsResource extends BaseResource {
     const chain = options.chain;
     this.validateAddress(address, chain);
 
-    const queryParams = new URLSearchParams();
-    queryParams.append('chain', chain);
-    if (options.range !== undefined) queryParams.append('range', options.range);
-    if (options.includeFlagged === true) queryParams.append('includeFlagged', 'true');
+    const path = this.buildPath(`/vaults/${encodeURIComponent(address)}/tvl-history`, {
+      chain,
+      range: options.range,
+      includeFlagged: options.includeFlagged === true ? true : undefined,
+    });
 
     const response: HttpResponse<VaultTvlHistoryResponse> = await this.httpClient.get(
-      `/vaults/${encodeURIComponent(address)}/tvl-history?${queryParams.toString()}`,
-      {
-        timeout: options.timeout,
-        signal: options.signal,
-      }
+      path,
+      this.requestOptions(options)
     );
 
     return response.data;
@@ -401,44 +386,41 @@ export class VaultsResource extends BaseResource {
     const chain = options.chain;
     this.validateAddress(address, chain);
 
-    const queryParams = new URLSearchParams();
-    queryParams.append('chain', chain);
-    if (options.range !== undefined) queryParams.append('range', options.range);
-    if (options.includeFlagged === true) queryParams.append('includeFlagged', 'true');
+    const path = this.buildPath(`/vaults/${encodeURIComponent(address)}/share-price-history`, {
+      chain,
+      range: options.range,
+      includeFlagged: options.includeFlagged === true ? true : undefined,
+    });
 
     const response: HttpResponse<VaultSharePriceHistoryResponse> = await this.httpClient.get(
-      `/vaults/${encodeURIComponent(address)}/share-price-history?${queryParams.toString()}`,
-      {
-        timeout: options.timeout,
-        signal: options.signal,
-      }
+      path,
+      this.requestOptions(options)
     );
 
     return response.data;
   }
 
-  /** Append filter params shared between offset and cursor list methods */
-  private appendSharedListParams(queryParams: URLSearchParams, options: VaultListOptions): void {
-    if (options.chain) queryParams.append('chain', options.chain);
-    if (options.tier !== undefined) queryParams.append('tier', options.tier);
-    if (options.underlying !== undefined) queryParams.append('underlying', options.underlying);
-    if (options.protocol !== undefined) queryParams.append('protocol', options.protocol);
-    if (options.version !== undefined) queryParams.append('version', options.version);
-    if (options.minTvl !== undefined) queryParams.append('minTvl', String(options.minTvl));
-    if (options.underlyingRisk !== undefined)
-      queryParams.append('underlyingRisk', options.underlyingRisk);
-    if (options.withdrawalRisk !== undefined)
-      queryParams.append('withdrawalRisk', options.withdrawalRisk);
-    if (options.minScore !== undefined) queryParams.append('minScore', String(options.minScore));
-    if (options.maxScore !== undefined) queryParams.append('maxScore', String(options.maxScore));
-    if (options.contractType !== undefined)
-      queryParams.append('contractType', options.contractType);
-    if (options.attentionNeeded !== undefined)
-      queryParams.append('attentionNeeded', String(options.attentionNeeded));
-    if (options.riskFlags !== undefined) queryParams.append('riskFlags', options.riskFlags);
-    if (options.riskFlagsMode !== undefined)
-      queryParams.append('riskFlagsMode', options.riskFlagsMode);
-    if (options.q !== undefined) queryParams.append('q', options.q);
-    if (options.sort !== undefined) queryParams.append('sort', options.sort);
+  /** Filter params shared between offset and cursor list methods */
+  private sharedListParams(
+    options: VaultListOptions
+  ): Record<string, string | number | boolean | undefined> {
+    return {
+      chain: options.chain || undefined,
+      tier: options.tier,
+      underlying: options.underlying,
+      protocol: options.protocol,
+      version: options.version,
+      minTvl: options.minTvl,
+      underlyingRisk: options.underlyingRisk,
+      withdrawalRisk: options.withdrawalRisk,
+      minScore: options.minScore,
+      maxScore: options.maxScore,
+      contractType: options.contractType,
+      attentionNeeded: options.attentionNeeded,
+      riskFlags: options.riskFlags,
+      riskFlagsMode: options.riskFlagsMode,
+      q: options.q,
+      sort: options.sort,
+    };
   }
 }

@@ -65,25 +65,16 @@ export class HolderAnalysisResource extends BaseResource {
     const chain = this.resolveChain(options);
     this.validateAddress(address, chain);
 
-    const queryParams = new URLSearchParams();
-    queryParams.append('chain', chain);
-
-    if (options.disableRefetch !== undefined) {
-      queryParams.append('disableRefetch', String(options.disableRefetch));
-    }
-    if (options.useCache !== undefined) {
-      queryParams.append('useCache', String(options.useCache));
-    }
-    if (options.maxHolders !== undefined) {
-      queryParams.append('maxHolders', String(options.maxHolders));
-    }
+    const path = this.buildPath(`/holder-analysis/${encodeURIComponent(address)}`, {
+      chain,
+      disableRefetch: options.disableRefetch,
+      useCache: options.useCache,
+      maxHolders: options.maxHolders,
+    });
 
     const response: HttpResponse<HolderAnalysisResult> = await this.httpClient.get(
-      `/holder-analysis/${encodeURIComponent(address)}?${queryParams.toString()}`,
-      {
-        timeout: options.timeout,
-        signal: options.signal,
-      }
+      path,
+      this.requestOptions(options)
     );
 
     return response.data;
