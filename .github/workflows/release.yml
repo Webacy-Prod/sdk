@@ -112,7 +112,11 @@ jobs:
         run: pnpm build
 
       - name: Version snapshot
+        # GITHUB_TOKEN is needed by the @changesets/changelog-github generator
+        # that runs during `changeset version` (fetches PR/author info).
         run: pnpm changeset version --snapshot ${{ inputs.tag }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish snapshot
         run: pnpm changeset publish --tag ${{ inputs.tag }} --no-git-tag
