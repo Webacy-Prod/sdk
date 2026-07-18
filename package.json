@@ -26,7 +26,7 @@
     "lint:fix": "turbo run lint:fix",
     "format": "prettier --write \"packages/*/src/**/*.ts\"",
     "format:check": "prettier --check \"packages/*/src/**/*.ts\"",
-    "lint:md": "markdownlint-cli2 \"**/*.md\" \"#**/node_modules\" \"#docs-site/.docusaurus\" \"#docs-site/build\"",
+    "lint:md": "markdownlint-cli2 \"**/*.md\" \"#**/node_modules\" \"#docs-site/.docusaurus\" \"#docs-site/build\" \"#.context\"",
     "clean": "turbo run clean && rm -rf node_modules",
     "typecheck": "turbo run typecheck",
     "docs": "cd docs-site && pnpm start",
