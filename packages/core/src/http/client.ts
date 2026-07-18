@@ -371,10 +371,23 @@ export class HttpClient {
       let data: T;
 
       if (contentType?.includes('application/json')) {
-        data = (await response.json()) as T;
+        try {
+          data = (await response.json()) as T;
+        } catch (parseError) {
+          // A malformed body on a successful response is not a transient
+          // network problem, so surface it as a non-retryable error rather than
+          // letting it fall through to the retryable NetworkError handler below.
+          throw new WebacyError('Failed to parse response body as JSON', {
+            status: response.status,
+            code: 'PARSE_ERROR',
+            requestId,
+            endpoint: url,
+            cause: parseError instanceof Error ? parseError : undefined,
+          });
+        }
       } else {
         // Non-JSON response — cast text to generic return type
-        data = (await response.text()) as T & string;
+        data = (await response.text()) as unknown as T;
       }
 
       return {
@@ -446,7 +459,7 @@ export class HttpClient {
         const resetAt = response.headers.get('x-ratelimit-reset');
         return new RateLimitError(message, {
           retryAfter: this.parseRetryAfter(retryAfter),
-          resetAt: this.parseRetryAfter(resetAt),
+          resetAt: this.parseResetAt(resetAt),
           requestId,
           endpoint,
         });
@@ -517,11 +530,43 @@ export class HttpClient {
   }
 
   /**
-   * Combine multiple abort signals
+   * Parse the rate-limit reset header (`x-ratelimit-reset`).
+   *
+   * Unlike Retry-After, this is an absolute Unix timestamp (seconds), not a
+   * delay, so it must NOT be capped at 5 minutes — capping would corrupt the
+   * value. Only NaN/negative values are rejected.
+   *
+   * @param value - Raw header value
+   * @returns The reset time as a Unix timestamp in seconds, or undefined if invalid
+   */
+  private parseResetAt(value: string | null): number | undefined {
+    if (!value) return undefined;
+
+    const parsed = parseInt(value, 10);
+
+    if (Number.isNaN(parsed) || parsed < 0) {
+      return undefined;
+    }
+
+    return parsed;
+  }
+
+  /**
+   * Combine multiple abort signals into one.
+   *
+   * Prefers the native `AbortSignal.any` (Node >= 18.17 / 20.3), which manages
+   * listener cleanup internally. The previous manual `addEventListener('abort',
+   * ..., { once: true })` approach leaked a listener on any caller-supplied
+   * signal that was reused across requests but never aborted (the `once`
+   * listener is only removed after it fires), and re-attached on every retry.
    */
   private combineAbortSignals(...signals: AbortSignal[]): AbortSignal {
-    const controller = new AbortController();
+    if (typeof AbortSignal.any === 'function') {
+      return AbortSignal.any(signals);
+    }
 
+    // Fallback for runtimes without AbortSignal.any.
+    const controller = new AbortController();
     for (const signal of signals) {
       if (signal.aborted) {
         controller.abort(signal.reason);
@@ -529,7 +574,6 @@ export class HttpClient {
       }
       signal.addEventListener('abort', () => controller.abort(signal.reason), { once: true });
     }
-
     return controller.signal;
   }
 }

@@ -78,6 +78,11 @@ export type {
   WalletApprovalsResponse,
   WalletTransactionsOptions,
   WalletApprovalsOptions,
+  // Transaction risk types
+  TransactionRiskResponse,
+  TransactionOptions,
+  TxRiskDetails,
+  TrustFlag,
   // Ledger types
   LedgerFamily,
   LedgerTransactionData,
