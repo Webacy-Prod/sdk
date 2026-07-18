@@ -35,15 +35,15 @@ jobs:
       pull-requests: write # open/update the "Version Packages" PR
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: '22.14.0'
           cache: 'pnpm'
@@ -61,7 +61,7 @@ jobs:
         run: pnpm build
 
       - name: Create Release PR or Publish
-        uses: changesets/action@v1
+        uses: changesets/action@v1.9.0
         with:
           version: pnpm ci:version
           publish: pnpm ci:publish
@@ -88,15 +88,15 @@ jobs:
       contents: read
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: '22.14.0'
           cache: 'pnpm'
