@@ -67,33 +67,28 @@ export class RwaResource extends BaseResource {
    * ```
    */
   async list(options: RwaListOptions = {}): Promise<RwaTokenListResponse> {
-    const queryParams = new URLSearchParams();
-
-    if (options.chain) queryParams.append('chain', options.chain);
-    if (options.denomination !== undefined)
-      queryParams.append('denomination', options.denomination);
-    if (options.tier !== undefined) queryParams.append('tier', options.tier);
-    if (options.tags && options.tags.length > 0) queryParams.append('tags', options.tags.join(','));
-    if (options.minScore !== undefined) queryParams.append('minScore', String(options.minScore));
-    if (options.maxScore !== undefined) queryParams.append('maxScore', String(options.maxScore));
-    if (options.minMcap !== undefined) queryParams.append('minMcap', String(options.minMcap));
-    if (options.liquidity !== undefined) queryParams.append('liquidity', options.liquidity);
-    if (options.q !== undefined) queryParams.append('q', options.q);
-    if (options.sort !== undefined) queryParams.append('sort', options.sort);
-    if (options.order !== undefined) queryParams.append('order', options.order);
-    if (options.showAll !== undefined) queryParams.append('showAll', String(options.showAll));
-    if (options.collapsedOnly !== undefined)
-      queryParams.append('collapsedOnly', String(options.collapsedOnly));
-    if (options.page !== undefined) queryParams.append('page', String(options.page));
-    if (options.pageSize !== undefined) queryParams.append('pageSize', String(options.pageSize));
-
-    const qs = queryParams.toString();
-    const path = qs ? `/rwa?${qs}` : '/rwa';
-
-    const response: HttpResponse<RwaTokenListResponse> = await this.httpClient.get(path, {
-      timeout: options.timeout,
-      signal: options.signal,
+    const path = this.buildPath('/rwa', {
+      chain: options.chain || undefined,
+      denomination: options.denomination,
+      tier: options.tier,
+      tags: options.tags && options.tags.length > 0 ? options.tags.join(',') : undefined,
+      minScore: options.minScore,
+      maxScore: options.maxScore,
+      minMcap: options.minMcap,
+      liquidity: options.liquidity,
+      q: options.q,
+      sort: options.sort,
+      order: options.order,
+      showAll: options.showAll,
+      collapsedOnly: options.collapsedOnly,
+      page: options.page,
+      pageSize: options.pageSize,
     });
+
+    const response: HttpResponse<RwaTokenListResponse> = await this.httpClient.get(
+      path,
+      this.requestOptions(options)
+    );
 
     return response.data;
   }
@@ -126,20 +121,15 @@ export class RwaResource extends BaseResource {
    * ```
    */
   async get(address: string, options: RwaDetailOptions = {}): Promise<RwaTokenDetailResponse> {
-    const queryParams = new URLSearchParams();
-
-    if (options.chain) queryParams.append('chain', options.chain);
-    if (options.hours !== undefined) queryParams.append('hours', String(options.hours));
-
-    const qs = queryParams.toString();
-    const path = qs
-      ? `/rwa/${encodeURIComponent(address)}?${qs}`
-      : `/rwa/${encodeURIComponent(address)}`;
-
-    const response: HttpResponse<RwaTokenDetailResponse> = await this.httpClient.get(path, {
-      timeout: options.timeout,
-      signal: options.signal,
+    const path = this.buildPath(`/rwa/${encodeURIComponent(address)}`, {
+      chain: options.chain || undefined,
+      hours: options.hours,
     });
+
+    const response: HttpResponse<RwaTokenDetailResponse> = await this.httpClient.get(
+      path,
+      this.requestOptions(options)
+    );
 
     return response.data;
   }

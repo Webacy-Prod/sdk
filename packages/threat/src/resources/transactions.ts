@@ -1,4 +1,4 @@
-import { BaseResource, HttpResponse, ValidationError, Chain } from '@webacy-xyz/sdk-core';
+import { BaseResource, HttpResponse, ValidationError } from '@webacy-xyz/sdk-core';
 import { TransactionRiskResponse, TransactionOptions } from '../types/transaction';
 import { SUPPORTED_TX_CHAINS } from '../constants';
 
@@ -56,37 +56,20 @@ export class TransactionsResource extends BaseResource {
     txHash: string,
     options: TransactionOptions = {}
   ): Promise<TransactionRiskResponse> {
-    const chain = this.resolveChain(options);
-    this.validateChain(chain);
+    const chain = this.resolveChain(options, SUPPORTED_TX_CHAINS, 'transaction analysis');
     this.validateTxHash(txHash);
 
-    const queryParams = new URLSearchParams();
-    queryParams.append('chain', chain);
-
-    if (options.hideTrustFlags !== undefined) {
-      queryParams.append('hide_trust_flags', String(options.hideTrustFlags));
-    }
+    const path = this.buildPath(`/transactions/${encodeURIComponent(txHash)}`, {
+      chain,
+      hide_trust_flags: options.hideTrustFlags,
+    });
 
     const response: HttpResponse<TransactionRiskResponse> = await this.httpClient.get(
-      `/transactions/${encodeURIComponent(txHash)}?${queryParams.toString()}`,
-      {
-        timeout: options.timeout,
-        signal: options.signal,
-      }
+      path,
+      this.requestOptions(options)
     );
 
     return response.data;
-  }
-
-  /**
-   * Validate that the chain is supported for transaction analysis
-   */
-  private validateChain(chain: Chain): void {
-    if (!SUPPORTED_TX_CHAINS.includes(chain)) {
-      throw new ValidationError(
-        `Chain "${chain}" is not supported for transaction analysis. Supported chains: ${SUPPORTED_TX_CHAINS.join(', ')}`
-      );
-    }
   }
 
   /**

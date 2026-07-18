@@ -68,22 +68,15 @@ export class WalletsResource extends BaseResource {
     const chain = this.resolveChain(options);
     this.validateAddress(address, chain);
 
-    const queryParams = new URLSearchParams();
-    queryParams.append('chain', chain);
-
-    if (options.limit !== undefined) {
-      queryParams.append('limit', String(options.limit));
-    }
-    if (options.offset !== undefined) {
-      queryParams.append('offset', String(options.offset));
-    }
+    const path = this.buildPath(`/wallets/${encodeURIComponent(address)}/transactions`, {
+      chain,
+      limit: options.limit,
+      offset: options.offset,
+    });
 
     const response: HttpResponse<WalletTransactionsResponse> = await this.httpClient.get(
-      `/wallets/${encodeURIComponent(address)}/transactions?${queryParams.toString()}`,
-      {
-        timeout: options.timeout,
-        signal: options.signal,
-      }
+      path,
+      this.requestOptions(options)
     );
 
     return response.data;
@@ -128,15 +121,11 @@ export class WalletsResource extends BaseResource {
     const chain = this.resolveChain(options);
     this.validateAddress(address, chain);
 
-    const queryParams = new URLSearchParams();
-    queryParams.append('chain', chain);
+    const path = this.buildPath(`/wallets/${encodeURIComponent(address)}/approvals`, { chain });
 
     const response: HttpResponse<WalletApprovalsResponse> = await this.httpClient.get(
-      `/wallets/${encodeURIComponent(address)}/approvals?${queryParams.toString()}`,
-      {
-        timeout: options.timeout,
-        signal: options.signal,
-      }
+      path,
+      this.requestOptions(options)
     );
 
     return response.data;

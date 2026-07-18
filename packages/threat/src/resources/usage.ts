@@ -54,22 +54,15 @@ export class UsageResource extends BaseResource {
    * ```
    */
   async getUsage(options?: UsageOptions): Promise<UsageData> {
-    const queryParams = new URLSearchParams();
-
-    if (options?.start_date) {
-      queryParams.append('start_date', options.start_date);
-    }
-    if (options?.end_date) {
-      queryParams.append('end_date', options.end_date);
-    }
-
-    const queryString = queryParams.toString();
-    const path = queryString ? `/usage?${queryString}` : '/usage';
-
-    const response: HttpResponse<UsageData> = await this.httpClient.get(path, {
-      timeout: options?.timeout,
-      signal: options?.signal,
+    const path = this.buildPath('/usage', {
+      start_date: options?.start_date || undefined,
+      end_date: options?.end_date || undefined,
     });
+
+    const response: HttpResponse<UsageData> = await this.httpClient.get(
+      path,
+      this.requestOptions(options)
+    );
 
     return response.data;
   }
@@ -103,10 +96,7 @@ export class UsageResource extends BaseResource {
   }): Promise<CurrentUsageResponse> {
     const response: HttpResponse<CurrentUsageResponse> = await this.httpClient.get(
       '/usage/current',
-      {
-        timeout: options?.timeout,
-        signal: options?.signal,
-      }
+      this.requestOptions(options)
     );
 
     return response.data;
@@ -140,10 +130,7 @@ export class UsageResource extends BaseResource {
   }): Promise<UsagePlansResponse> {
     const response: HttpResponse<UsagePlansResponse> = await this.httpClient.get(
       '/usage/usagePlans',
-      {
-        timeout: options?.timeout,
-        signal: options?.signal,
-      }
+      this.requestOptions(options)
     );
 
     return response.data;
@@ -191,17 +178,15 @@ export class UsageResource extends BaseResource {
       throw new ValidationError('From timestamp must be less than to timestamp.');
     }
 
-    const queryParams = new URLSearchParams();
-    queryParams.append('organization', options.organization);
-    queryParams.append('from', String(options.from));
-    queryParams.append('to', String(options.to));
+    const path = this.buildPath('/usage/max-rps', {
+      organization: options.organization,
+      from: options.from,
+      to: options.to,
+    });
 
     const response: HttpResponse<number | null> = await this.httpClient.get(
-      `/usage/max-rps?${queryParams.toString()}`,
-      {
-        timeout: options.timeout,
-        signal: options.signal,
-      }
+      path,
+      this.requestOptions(options)
     );
 
     return response.data;

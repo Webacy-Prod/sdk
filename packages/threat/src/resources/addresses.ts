@@ -1,4 +1,4 @@
-import { HttpResponse, BaseResource, ValidationError, Chain } from '@webacy-xyz/sdk-core';
+import { HttpResponse, BaseResource } from '@webacy-xyz/sdk-core';
 import {
   AddressRiskResponse,
   SanctionedResponse,
@@ -82,29 +82,16 @@ export class AddressesResource extends BaseResource {
     const chain = this.resolveChain(options);
     this.validateAddress(address, chain);
 
-    const queryParams = new URLSearchParams();
-    queryParams.append('chain', chain);
-
-    if (options.modules && options.modules.length > 0) {
-      for (const module of options.modules) {
-        queryParams.append('modules', module);
-      }
-    }
-
-    if (options.detailed !== undefined) {
-      queryParams.append('detailed', String(options.detailed));
-    }
-
-    if (options.deployerRisk !== undefined) {
-      queryParams.append('deployer_risk', String(options.deployerRisk));
-    }
+    const path = this.buildPath(`/addresses/${encodeURIComponent(address)}`, {
+      chain,
+      modules: options.modules?.length ? options.modules : undefined,
+      detailed: options.detailed,
+      deployer_risk: options.deployerRisk,
+    });
 
     const response: HttpResponse<AddressRiskResponse> = await this.httpClient.get(
-      `/addresses/${encodeURIComponent(address)}?${queryParams.toString()}`,
-      {
-        timeout: options.timeout,
-        signal: options.signal,
-      }
+      path,
+      this.requestOptions(options)
     );
 
     return response.data;
@@ -141,15 +128,13 @@ export class AddressesResource extends BaseResource {
     const chain = this.resolveChain(options);
     this.validateAddress(address, chain);
 
-    const queryParams = new URLSearchParams();
-    queryParams.append('chain', chain);
+    const path = this.buildPath(`/addresses/sanctioned/${encodeURIComponent(address)}`, {
+      chain,
+    });
 
     const response: HttpResponse<SanctionedResponse> = await this.httpClient.get(
-      `/addresses/sanctioned/${encodeURIComponent(address)}?${queryParams.toString()}`,
-      {
-        timeout: options.timeout,
-        signal: options.signal,
-      }
+      path,
+      this.requestOptions(options)
     );
 
     return response.data;
@@ -187,15 +172,13 @@ export class AddressesResource extends BaseResource {
     const chain = this.resolveChain(options);
     this.validateAddress(address, chain);
 
-    const queryParams = new URLSearchParams();
-    queryParams.append('chain', chain);
+    const path = this.buildPath(`/addresses/${encodeURIComponent(address)}/poisoning`, {
+      chain,
+    });
 
     const response: HttpResponse<PoisoningResponse> = await this.httpClient.get(
-      `/addresses/${encodeURIComponent(address)}/poisoning?${queryParams.toString()}`,
-      {
-        timeout: options.timeout,
-        signal: options.signal,
-      }
+      path,
+      this.requestOptions(options)
     );
 
     return response.data;
@@ -242,34 +225,20 @@ export class AddressesResource extends BaseResource {
     address: string,
     options: QuickProfileOptions = {}
   ): Promise<QuickProfileResponse> {
-    const chain = this.resolveQuickProfileChain(options);
+    const chain = this.resolveChain(options, SUPPORTED_QUICK_PROFILE_CHAINS, 'quick profile');
     this.validateAddress(address, chain);
 
-    const queryParams = new URLSearchParams();
-    queryParams.append('chain', chain);
-
-    if (options.withApprovals !== undefined) {
-      queryParams.append('withApprovals', String(options.withApprovals));
-    }
-
-    if (options.withNewApprovals !== undefined) {
-      queryParams.append('withNewApprovals', String(options.withNewApprovals));
-    }
-
-    if (options.refreshCache !== undefined) {
-      queryParams.append('refreshCache', String(options.refreshCache));
-    }
-
-    if (options.hideTrustFlags !== undefined) {
-      queryParams.append('hide_trust_flags', String(options.hideTrustFlags));
-    }
+    const path = this.buildPath(`/quick-profile/${encodeURIComponent(address)}`, {
+      chain,
+      withApprovals: options.withApprovals,
+      withNewApprovals: options.withNewApprovals,
+      refreshCache: options.refreshCache,
+      hide_trust_flags: options.hideTrustFlags,
+    });
 
     const response: HttpResponse<QuickProfileResponse> = await this.httpClient.get(
-      `/quick-profile/${encodeURIComponent(address)}?${queryParams.toString()}`,
-      {
-        timeout: options.timeout,
-        signal: options.signal,
-      }
+      path,
+      this.requestOptions(options)
     );
 
     return response.data;
@@ -296,39 +265,16 @@ export class AddressesResource extends BaseResource {
     const chain = this.resolveChain(options);
     this.validateAddress(address, chain);
 
-    const queryParams = new URLSearchParams();
-    queryParams.append('chain', chain);
-
-    if (options.page !== undefined) {
-      queryParams.append('page', String(options.page));
-    }
+    const path = this.buildPath(`/summary/${encodeURIComponent(address)}`, {
+      chain,
+      page: options.page,
+    });
 
     const response: HttpResponse<AddressSummaryResponse> = await this.httpClient.get(
-      `/summary/${encodeURIComponent(address)}?${queryParams.toString()}`,
-      {
-        timeout: options.timeout,
-        signal: options.signal,
-      }
+      path,
+      this.requestOptions(options)
     );
 
     return response.data;
-  }
-
-  /**
-   * Resolve the chain for quick profile requests
-   */
-  private resolveQuickProfileChain(options?: { chain?: Chain }): Chain {
-    const chain = options?.chain ?? this.defaultChain;
-    if (!chain) {
-      throw new ValidationError(
-        'Chain is required. Either specify chain in options or set defaultChain in client configuration.'
-      );
-    }
-    if (!SUPPORTED_QUICK_PROFILE_CHAINS.includes(chain)) {
-      throw new ValidationError(
-        `Chain "${chain}" is not supported for quick profile. Supported chains: ${SUPPORTED_QUICK_PROFILE_CHAINS.join(', ')}`
-      );
-    }
-    return chain;
   }
 }
