@@ -9,6 +9,7 @@ OFAC and global sanctions compliance checking.
 ## Overview
 
 The Sanctions endpoint provides real-time screening against:
+
 - OFAC (U.S. Treasury) sanctions list
 - International sanctions databases
 - Known sanctioned entities and their associated wallets
@@ -29,6 +30,10 @@ const result = await client.addresses.checkSanctioned(
 
 if (result.is_sanctioned) {
   console.log('Address is SANCTIONED - do not interact!');
+} else if (result.sanctions_status === 'unknown') {
+  console.log('Screening could not be completed - do not treat as clean.');
+} else {
+  console.log('Address completed screening with no sanctions match.');
 }
 ```
 
@@ -37,16 +42,14 @@ if (result.is_sanctioned) {
 ```typescript
 interface SanctionedCheckResponse {
   address: string;
-  chain: string;
   is_sanctioned: boolean;
-  sanction_details?: {
-    list: string;           // e.g., "OFAC SDN"
-    date_added: string;     // ISO date
-    entity_name?: string;   // If known
-    program?: string;       // e.g., "CYBER2"
-  };
+  sanctions_status: 'sanctioned' | 'clean' | 'unknown';
 }
 ```
+
+Only `clean` confirms that screening completed without a sanctions match.
+`unknown` means authoritative screening was unavailable and must not be treated
+as a negative result.
 
 ## Compliance Flow
 
@@ -59,12 +62,12 @@ async function checkCompliance(address: string): Promise<void> {
   });
 
   if (result.is_sanctioned) {
-    // Log for compliance records
     console.error(`Blocked sanctioned address: ${address}`);
-    console.error(`List: ${result.sanction_details?.list}`);
-    console.error(`Added: ${result.sanction_details?.date_added}`);
-
     throw new Error('Transaction blocked: sanctioned address');
+  }
+
+  if (result.sanctions_status === 'unknown') {
+    throw new Error('Transaction blocked: sanctions screening unavailable');
   }
 }
 ```
@@ -75,9 +78,11 @@ async function checkCompliance(address: string): Promise<void> {
 async function screenAddresses(addresses: string[]): Promise<{
   clean: string[];
   sanctioned: string[];
+  unknown: string[];
 }> {
   const clean: string[] = [];
   const sanctioned: string[] = [];
+  const unknown: string[] = [];
 
   for (const address of addresses) {
     const result = await client.addresses.checkSanctioned(address, {
@@ -86,12 +91,14 @@ async function screenAddresses(addresses: string[]): Promise<{
 
     if (result.is_sanctioned) {
       sanctioned.push(address);
-    } else {
+    } else if (result.sanctions_status === 'clean') {
       clean.push(address);
+    } else {
+      unknown.push(address);
     }
   }
 
-  return { clean, sanctioned };
+  return { clean, sanctioned, unknown };
 }
 ```
 
@@ -106,6 +113,7 @@ Interacting with sanctioned addresses may violate laws in many jurisdictions. Al
 ### False Positives
 
 Not all flagged addresses are directly sanctioned. Some may be:
+
 - Associated with sanctioned entities
 - One hop away from sanctioned addresses
 - Flagged by third-party databases
@@ -115,6 +123,7 @@ Always verify with official OFAC lists for legal certainty.
 ### Caching
 
 Sanctions data is updated in real-time from source databases. Results are cached for 24 hours unless:
+
 - New sanctions are added
 - Sanctions are removed
 - Address status changes
@@ -122,6 +131,7 @@ Sanctions data is updated in real-time from source databases. Results are cached
 ## Known Sanctioned Entities
 
 Some commonly blocked addresses:
+
 - Tornado Cash contracts
 - Lazarus Group wallets
 - Various ransomware operators
@@ -139,7 +149,7 @@ async function fullComplianceCheck(address: string): Promise<boolean> {
     chain: 'eth',
   });
 
-  if (sanctions.is_sanctioned) {
+  if (sanctions.sanctions_status !== 'clean') {
     return false;
   }
 

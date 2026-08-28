@@ -181,8 +181,13 @@ describe('AddressesResource', () => {
 
     it('should make API call with valid address', async () => {
       const validAddress = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e';
+      const response = {
+        address: validAddress,
+        is_sanctioned: false,
+        sanctions_status: 'clean' as const,
+      };
       mockHttpClient.get.mockResolvedValueOnce({
-        data: { is_sanctioned: false },
+        data: response,
         status: 200,
         headers: new Headers(),
       });
@@ -193,7 +198,7 @@ describe('AddressesResource', () => {
         `/addresses/sanctioned/${encodeURIComponent(validAddress)}?chain=eth`,
         expect.any(Object)
       );
-      expect(result.is_sanctioned).toBe(false);
+      expect(result).toEqual(response);
     });
   });
 
