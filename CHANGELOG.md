@@ -31,6 +31,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Sanctions screening contract** (WEB-4964): `SanctionedResponse` now matches
+  the API's exact `address`, `is_sanctioned`, and `sanctions_status` response.
+  SDK examples require `sanctions_status === 'clean'` before clearing an address
+  and explicitly handle `unknown` as an incomplete screen.
+
 ### Added
 
 - **Vault history quality filtering** (`@webacy-xyz/sdk-threat`, follow-up to [WEB-3510](https://linear.app/webacy/issue/WEB-3510)):

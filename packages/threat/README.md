@@ -71,8 +71,10 @@ const result = await client.addresses.checkSanctioned('0x...', {
 
 if (result.is_sanctioned) {
   console.log('Address is sanctioned!');
-  console.log(`Source: ${result.sanction_details?.source}`);
-  console.log(`List: ${result.sanction_details?.list_name}`);
+} else if (result.sanctions_status === 'unknown') {
+  console.log('Address could not be screened; do not treat it as clean.');
+} else {
+  console.log('Address completed screening with no sanctions match.');
 }
 ```
 
@@ -219,25 +221,25 @@ const client = new ThreatClient({
 
 ### Resources
 
-| Resource | Method | Description |
-|----------|--------|-------------|
-| `addresses` | `analyze(address, options)` | Analyze address risk |
-| `addresses` | `checkSanctioned(address, options)` | Check sanctions status |
-| `addresses` | `checkPoisoning(address, options)` | Check for poisoning |
-| `contracts` | `analyze(address, options)` | Analyze contract risk |
-| `contracts` | `getSourceCode(address, options)` | Get contract source |
-| `contracts` | `getTaxes(address, options)` | Get token taxes |
-| `contracts` | `analyzeSolidity(body)` | Analyze Solidity code |
-| `url` | `check(url)` | Check URL safety |
-| `url` | `add(url)` | Report malicious URL |
-| `wallets` | `getTransactions(address, options)` | Get wallet transactions |
-| `wallets` | `getApprovals(address, options)` | Get token approvals |
-| `ledger` | `scanTransaction(family, body)` | Scan Ledger transaction |
-| `ledger` | `scanEip712(family, body)` | Scan EIP-712 message |
-| `accountTrace` | `trace(address, options)` | Trace fund flows |
-| `usage` | `getUsage(options)` | Get usage history |
-| `usage` | `getCurrent()` | Get current usage |
-| `usage` | `getPlans()` | Get available plans |
+| Resource       | Method                              | Description             |
+| -------------- | ----------------------------------- | ----------------------- |
+| `addresses`    | `analyze(address, options)`         | Analyze address risk    |
+| `addresses`    | `checkSanctioned(address, options)` | Check sanctions status  |
+| `addresses`    | `checkPoisoning(address, options)`  | Check for poisoning     |
+| `contracts`    | `analyze(address, options)`         | Analyze contract risk   |
+| `contracts`    | `getSourceCode(address, options)`   | Get contract source     |
+| `contracts`    | `getTaxes(address, options)`        | Get token taxes         |
+| `contracts`    | `analyzeSolidity(body)`             | Analyze Solidity code   |
+| `url`          | `check(url)`                        | Check URL safety        |
+| `url`          | `add(url)`                          | Report malicious URL    |
+| `wallets`      | `getTransactions(address, options)` | Get wallet transactions |
+| `wallets`      | `getApprovals(address, options)`    | Get token approvals     |
+| `ledger`       | `scanTransaction(family, body)`     | Scan Ledger transaction |
+| `ledger`       | `scanEip712(family, body)`          | Scan EIP-712 message    |
+| `accountTrace` | `trace(address, options)`           | Trace fund flows        |
+| `usage`        | `getUsage(options)`                 | Get usage history       |
+| `usage`        | `getCurrent()`                      | Get current usage       |
+| `usage`        | `getPlans()`                        | Get available plans     |
 
 ## Risk Modules
 

@@ -218,18 +218,15 @@ export interface AddressRiskResponse {
 /**
  * Sanctions check response
  */
+export type SanctionsStatus = 'sanctioned' | 'clean' | 'unknown';
+
 export interface SanctionedResponse {
+  /** Address that was screened */
+  address: string;
   /** Whether address is sanctioned */
   is_sanctioned: boolean;
-  /** Sanction details if sanctioned */
-  sanction_details?: {
-    /** Source of sanction */
-    source?: string;
-    /** Sanction list name */
-    list_name?: string;
-    /** Date added to list */
-    date_added?: string;
-  };
+  /** Explicit screening verdict; only `clean` confirms a completed negative screen */
+  sanctions_status: SanctionsStatus;
 }
 
 /**
