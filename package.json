@@ -1,6 +1,6 @@
 {
   "name": "webacy-sdk-monorepo",
-  "version": "1.8.1",
+  "version": "1.9.0",
   "private": true,
   "description": "Webacy SDK Monorepo - TypeScript SDKs for the Webacy Risk Score API",
   "author": "Webacy",
@@ -16,18 +16,17 @@
   "engines": {
     "node": ">=18.0.0"
   },
-  "packageManager": "pnpm@9.0.0",
+  "packageManager": "pnpm@11.13.0",
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
     "test": "turbo run test",
     "test:watch": "turbo run test:watch",
-    "test:integration:api": "node test-real-api.js",
     "lint": "turbo run lint",
     "lint:fix": "turbo run lint:fix",
     "format": "prettier --write \"packages/*/src/**/*.ts\"",
     "format:check": "prettier --check \"packages/*/src/**/*.ts\"",
-    "lint:md": "markdownlint-cli2 \"**/*.md\" \"#**/node_modules\" \"#docs-site/.docusaurus\" \"#docs-site/build\"",
+    "lint:md": "markdownlint-cli2 \"**/*.md\" \"#**/node_modules\" \"#docs-site/.docusaurus\" \"#docs-site/build\" \"#.context\"",
     "clean": "turbo run clean && rm -rf node_modules",
     "typecheck": "turbo run typecheck",
     "docs": "cd docs-site && pnpm start",
@@ -35,13 +34,14 @@
     "docs:serve": "cd docs-site && pnpm serve",
     "prepublishOnly": "pnpm build && pnpm test",
     "publish:dry-run": "pnpm build && pnpm -r publish --dry-run --access public",
-    "publish:all": "pnpm build && pnpm -r publish --access public",
-    "version:patch": "pnpm -r exec npm version patch --no-git-tag-version",
-    "version:minor": "pnpm -r exec npm version minor --no-git-tag-version",
-    "version:major": "pnpm -r exec npm version major --no-git-tag-version",
+    "changeset": "changeset",
+    "ci:version": "changeset version && pnpm install --lockfile-only",
+    "ci:publish": "changeset publish",
     "prepare": "husky"
   },
   "devDependencies": {
+    "@changesets/changelog-github": "^0.7.0",
+    "@changesets/cli": "^2.31.0",
     "@types/node": "^22.0.0",
     "markdownlint-cli2": "^0.14.0",
     "@typescript-eslint/eslint-plugin": "^7.0.0",

@@ -17,9 +17,7 @@ import { Chain } from './types';
  */
 export abstract class BaseClient {
   protected readonly httpClient: HttpClient;
-  protected readonly config: Required<
-    Pick<WebacyClientConfig, 'baseUrl' | 'apiVersion' | 'timeout'>
-  > &
+  protected readonly config: Required<Pick<WebacyClientConfig, 'baseUrl' | 'timeout'>> &
     WebacyClientConfig;
 
   /**
@@ -35,7 +33,6 @@ export abstract class BaseClient {
     this.config = {
       ...config,
       baseUrl: config.baseUrl ?? DEFAULT_CONFIG.baseUrl,
-      apiVersion: config.apiVersion ?? DEFAULT_CONFIG.apiVersion,
       timeout: config.timeout ?? DEFAULT_CONFIG.timeout,
     };
 

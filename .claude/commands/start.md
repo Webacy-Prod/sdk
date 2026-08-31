@@ -33,8 +33,8 @@ Examples:
 Run the following commands:
 
 ```bash
-git checkout staging
-git pull origin staging
+git checkout main
+git pull origin main
 git checkout -b {branch_name}
 ```
 
@@ -61,13 +61,15 @@ Created branch: {branch_name}
 
 Next steps:
 1. Make your code changes
-2. Run `/commit` to stage and commit your changes
-3. Run `/finish` to create the pull request
+2. If you changed a published @webacy-xyz/* package, run `pnpm changeset` and commit the generated file under .changeset/
+3. Run `/commit` to stage and commit your changes
+4. Run `/finish` to create the pull request
 ```
 
 ## Important Notes
 
 - If the branch already exists, ask the user if they want to switch to it or create a new one
 - If `.claude/.pr-context.json` already exists, confirm whether to overwrite it
-- Always pull latest staging before creating the branch
+- Always pull latest `main` before creating the branch
 - Use conventional commit type prefixes for branch names
+- Every PR that changes a published `@webacy-xyz/*` package needs a changeset (`pnpm changeset`); docs/CI/chore-only PRs can run `pnpm changeset --empty` instead

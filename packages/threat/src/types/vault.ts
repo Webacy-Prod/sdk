@@ -93,6 +93,18 @@ export interface VaultListMetadata {
   chain: string;
   name: string;
   symbol: string;
+  /** Centrifuge token_id grouping key; null for non-RWA (single-deployment) vaults */
+  share_class_id: string | null;
+  /** All distinct chains for the fund, deduped, highest-risk chain first */
+  chains: string[];
+  /**
+   * Per (chain x deposit-asset) breakdown; a single entry for non-RWA vaults.
+   *
+   * The top-level `chain`/`address`/`tvl_usd`/etc. reflect the representative
+   * (highest-risk) deployment only — `deployments` is the authoritative
+   * multi-chain view.
+   */
+  deployments: VaultDeployment[];
   protocol: VaultProtocol | null;
   /** Protocol generation, when known (e.g. Morpho 'v1' | 'v2'). Null for
    *  unversioned protocols. */
@@ -180,6 +192,33 @@ export interface VaultTokenRisk {
     symbol: string;
     name: string;
   };
+}
+
+// ─── Deployments ────────────────────────────────────────────────────────────
+
+/**
+ * One (chain x deposit-asset) deployment of a share-class-grouped fund.
+ *
+ * A single entry represents an ordinary non-RWA vault; grouped RWA funds
+ * (Centrifuge) carry one entry per chain/deposit-asset.
+ */
+export interface VaultDeployment {
+  chain: string;
+  address: string;
+  /**
+   * Deposit-asset symbol. NOTE: currently mislabeled upstream (reports the
+   * share-token symbol, e.g. "JAAA", not the deposit asset). Still a valid
+   * `string | null`, but do not rely on it as a discriminator — use
+   * `deposit_asset_address`. A producer-side fix is in flight.
+   */
+  deposit_asset_symbol: string | null;
+  /** Reliable discriminator between same-chain deployments */
+  deposit_asset_address: string | null;
+  tvl_usd: number | null;
+  vault_score: number | null;
+  tier: VaultTier;
+  tokens: VaultTokenRisk[];
+  token_enrichment_failed: boolean;
 }
 
 // ─── Vault sub-structures ───────────────────────────────────────────────────

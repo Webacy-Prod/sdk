@@ -17,6 +17,7 @@ import {
   WalletsResource,
   LedgerResource,
   AccountTraceResource,
+  TransactionsResource,
   UsageResource,
   ScanResource,
   BatchResource,
@@ -52,6 +53,8 @@ export interface ThreatNamespace {
   ledger: LedgerResource;
   /** Account trace resource */
   accountTrace: AccountTraceResource;
+  /** Transactions resource - transaction risk analysis */
+  transactions: TransactionsResource;
   /** Usage resource */
   usage: UsageResource;
   /** Scan resource */
@@ -121,7 +124,12 @@ export class WebacyClient extends BaseClient {
    * - `wallets` - Wallet transaction and approval analysis
    * - `ledger` - Hardware wallet transaction scanning
    * - `accountTrace` - Fund flow tracing
+   * - `transactions` - Transaction risk analysis
    * - `usage` - API usage management
+   * - `scan` - Real-time address/URL scanning
+   * - `batch` - Batch address analysis
+   * - `rwa` - Real World Asset (pegged-token) depeg risk
+   * - `vaults` - ERC-4626 DeFi vault risk analysis
    */
   public readonly threat: ThreatNamespace;
 
@@ -175,6 +183,7 @@ export class WebacyClient extends BaseClient {
       wallets: new WalletsResource(this.httpClient, this.defaultChain),
       ledger: new LedgerResource(this.httpClient), // Chain-agnostic
       accountTrace: new AccountTraceResource(this.httpClient, this.defaultChain),
+      transactions: new TransactionsResource(this.httpClient, this.defaultChain),
       usage: new UsageResource(this.httpClient), // Chain-agnostic
       scan: new ScanResource(this.httpClient, this.defaultChain),
       batch: new BatchResource(this.httpClient, this.defaultChain),

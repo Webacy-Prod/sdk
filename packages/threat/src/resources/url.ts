@@ -68,10 +68,7 @@ export class UrlResource extends BaseResource {
     const response: HttpResponse<UrlRiskResponse> = await this.httpClient.post(
       '/url',
       { url },
-      {
-        timeout: options?.timeout,
-        signal: options?.signal,
-      }
+      this.requestOptions(options)
     );
 
     return response.data;
@@ -103,10 +100,7 @@ export class UrlResource extends BaseResource {
     const response: HttpResponse<UrlAddResponse> = await this.httpClient.post(
       '/url/add',
       { url },
-      {
-        timeout: options?.timeout,
-        signal: options?.signal,
-      }
+      this.requestOptions(options)
     );
 
     return response.data;

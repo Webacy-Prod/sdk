@@ -59,19 +59,14 @@ export class AccountTraceResource extends BaseResource {
     const chain = this.resolveChain(options);
     this.validateAddress(address, chain);
 
-    const queryParams = new URLSearchParams();
-    queryParams.append('chain', chain);
-
-    if (options.depth !== undefined) {
-      queryParams.append('depth', String(options.depth));
-    }
+    const path = this.buildPath(`/account-trace/${encodeURIComponent(address)}`, {
+      chain,
+      depth: options.depth,
+    });
 
     const response: HttpResponse<AccountTraceResponse> = await this.httpClient.get(
-      `/account-trace/${encodeURIComponent(address)}?${queryParams.toString()}`,
-      {
-        timeout: options.timeout,
-        signal: options.signal,
-      }
+      path,
+      this.requestOptions(options)
     );
 
     return response.data;

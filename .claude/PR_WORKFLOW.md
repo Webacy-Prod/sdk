@@ -230,158 +230,100 @@ This file is automatically cleaned up after `/finish` completes.
 
 ## Quick Reference - Release Commands
 
-For publishing to npm, use these automated release commands:
+Releases are managed by [Changesets](https://github.com/changesets/changesets) and npm OIDC trusted publishing, driven entirely through GitHub Actions on `main`:
 
-### `/beta` - Publish Beta Version
-
-Publishes a beta version for testing without affecting the stable release
-
-### `/release` - Create Release and Publish
-
-Creates release, bumps version, and publishes to npm
-
-### `/release-notes` - Create GitHub Release
-
-Creates GitHub release with detailed notes
+- Add a changeset in your feature PR (`pnpm changeset`)
+- Merge to `main` → the release workflow opens/updates a **"Version Packages" PR**
+- Merge the "Version Packages" PR → packages are published to npm automatically
+- For on-demand testing builds, trigger the **snapshot job** manually (`/beta`)
 
 ---
 
-## Beta Testing Workflow
+## Adding a Changeset
 
-### `/beta` - Publish Beta Version
-
-**What it does:**
-
-- Runs from any branch (feature branches, main)
-- Runs tests and builds
-- Publishes with `--tag beta` (doesn't affect `latest`)
-- Auto-increments beta number (1.0.0-beta.0, beta.1, etc.)
-- Reverts package.json after publish
-
-**Usage:**
+Every PR that changes a published `@webacy-xyz/*` package (`core`, `threat`, `trading`, `sdk`) must include a changeset:
 
 ```bash
-# From any branch
-/beta
+pnpm changeset
 ```
 
-**Example Flow:**
+You'll be prompted to:
 
-```text
-Current stable version: 1.0.0
-Publishing: 1.0.0-beta.0
+1. Select which packages changed
+2. Choose a bump type per package (patch/minor/major)
+3. Write a short summary of the change (this becomes the changelog entry)
 
-Running tests...
-Building packages...
-Publishing to npm with --tag beta...
+This creates a markdown file under `.changeset/` — commit it as part of your PR.
 
-Published (as beta):
-- @webacy-xyz/sdk@1.0.0-beta.0
-
-To install: npm install @webacy-xyz/sdk@beta
-Stable version unchanged: npm install @webacy-xyz/sdk
-```
-
-**Installing Beta Versions:**
+Docs/CI/chore PRs that don't touch a published package don't need a changeset. If you want to explicitly record that (e.g. to satisfy a CI check), run:
 
 ```bash
-# Install latest beta
+pnpm changeset --empty
+```
+
+To see what changesets are pending and what they'll bump:
+
+```bash
+pnpm changeset status
+```
+
+---
+
+## Automatic Release Flow
+
+### 1. Merge to `main`
+
+Once your PR (with its changeset) is merged to `main`, `.github/workflows/release.yml` runs `changesets/action@v1`, which:
+
+- Consumes all pending changesets on `main`
+- Opens or updates a single **"Version Packages" PR** that bumps versions, updates each package's `CHANGELOG.md`, and removes the consumed changeset files
+
+### 2. Merge the "Version Packages" PR
+
+Merging this PR triggers the same workflow to run `pnpm ci:publish` (`changeset publish`), which:
+
+- Publishes each changed package to npm under the `latest` tag
+- Authenticates via **npm OIDC trusted publishing** — no `NPM_TOKEN` secret, and provenance is attached automatically
+- Creates git tags and GitHub Releases for each published package
+
+Because Changesets versions packages independently, `@webacy-xyz/sdk-core` can be at a different version than `@webacy-xyz/sdk-trading`, etc. — there's no more "bump everything together."
+
+---
+
+## Snapshot (Beta) Releases
+
+### `/beta` - Publish a Snapshot
+
+Snapshots are on-demand test builds, triggered manually rather than automatically. **They require a changeset already on the branch being built** — `changeset version --snapshot` no-ops if there are no pending `.changeset/*.md` files, so run `pnpm changeset` first if you haven't:
+
+```bash
+gh workflow run release.yml --repo Webacy-Prod/sdk --ref {branch_name} -f snapshot=true -f tag=beta
+```
+
+This runs the snapshot job inside `.github/workflows/release.yml` (there is no separate `snapshot.yml` workflow — snapshots live in the same file as the stable release flow because npm binds a package's OIDC trusted publisher to a single workflow filename). The job builds the branch, versions changed packages as `x.y.z-beta-<datetime>` in snapshot mode, and publishes them under the `beta` dist-tag (or whatever `tag` input you pass) via npm OIDC — no manual `npm version`/`pnpm publish` steps and nothing to revert.
+
+**Installing a snapshot:**
+
+```bash
+# Install latest snapshot
 npm install @webacy-xyz/sdk@beta
 
-# Install specific beta
-npm install @webacy-xyz/sdk@1.0.0-beta.3
-
-# Install stable (default, unaffected)
-npm install @webacy-xyz/sdk
+# Install a specific snapshot version
+npm install @webacy-xyz/sdk@1.9.1-beta-20260717171903
 ```
 
----
-
-## Complete Release Workflow
-
-### 1. `/release` - Create Release and Publish
-
-**What it does:**
-
-- Verifies you're on main branch and up-to-date
-- Asks for version bump type (major/minor/patch)
-- Runs full test suite
-- Builds all packages
-- Bumps version in all packages
-- Publishes to npm
-- Creates git tag
-
-**Usage:**
-
-```bash
-# From main branch
-/release
-```
-
-**Prompts:**
-
-- **Version type**: patch (bug fixes), minor (new features), or major (breaking changes)
-
-**Example Flow:**
-
-```text
-Current version: 1.0.0
-New version will be: 1.1.0
-
-Running tests...
-Building packages...
-Publishing to npm...
-
-Published packages:
-- @webacy-xyz/sdk@1.1.0
-- @webacy-xyz/sdk-core@1.1.0
-- @webacy-xyz/sdk-threat@1.1.0
-- @webacy-xyz/sdk-trading@1.1.0
-
-Tag v1.1.0 created and pushed
-```
-
----
-
-### 2. `/release-notes` - Create GitHub Release
-
-**What it does:**
-
-- Gets version from package.json
-- Extracts changes since last release
-- Creates GitHub release with detailed notes
-
-**Usage:**
-
-```bash
-# From main branch (after release)
-/release-notes
-```
-
-**Example Output:**
-
-```text
-GitHub release v1.1.0 created
-Release URL: https://github.com/Webacy-Prod/sdk/releases/tag/v1.1.0
-```
-
----
-
-## Version Bump Types
-
-When running `/release`, you'll choose:
-
-- **patch** (1.0.0 -> 1.0.1): Bug fixes, no new features
-- **minor** (1.0.0 -> 1.1.0): New features, backward-compatible
-- **major** (1.0.0 -> 2.0.0): Breaking changes
+Stable installs (`npm install @webacy-xyz/sdk`) are unaffected. Promotion to stable needs nothing special: merge the PR with its changeset to `main` as usual and the normal "Version Packages" flow publishes it under `latest`. See `/beta` (`.claude/commands/beta.md`) for full details.
 
 ---
 
 ## Release Checklist
 
-Before releasing:
+Before merging a feature PR that changes a published package:
+- [ ] Changeset added (`pnpm changeset`)
 - [ ] All tests pass (`pnpm test`)
 - [ ] Build succeeds (`pnpm build`)
 - [ ] Documentation updated
-- [ ] CHANGELOG.md updated
-- [ ] No uncommitted changes
+
+Before merging the "Version Packages" PR:
+- [ ] CI passes
+- [ ] CHANGELOG.md entries look correct for each bumped package

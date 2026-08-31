@@ -14,16 +14,17 @@ Keep commit messages and PR descriptions clean and professional without any AI-g
 
 ## Project Overview
 
-Webacy SDK is a TypeScript SDK for the Webacy API, providing blockchain security and risk analysis capabilities. The SDK is organized as a monorepo with 4 packages:
+Webacy SDK is a TypeScript SDK for the Webacy API, providing blockchain security and risk analysis capabilities. The SDK is organized as a monorepo with 5 packages:
 
 - **@webacy-xyz/sdk** - Unified SDK that re-exports all packages
 - **@webacy-xyz/sdk-core** - Core utilities: HTTP client, errors, Chain enum, retry logic
 - **@webacy-xyz/sdk-threat** - Threat analysis: addresses, contracts, sanctions, URL safety
 - **@webacy-xyz/sdk-trading** - Trading analysis: holder analysis, sniper detection, trading-lite
+- **@webacy-xyz/cli** - Command-line interface for the Webacy SDK
 
 ### Key Features
 
-- Multi-chain support: ETH, SOL, BTC, ARB, POL, OPT, BASE, BSC, TON, SUI, STELLAR, SEI
+- Multi-chain support: ETH, SEP, SOL, BTC, ARB, POL, OPT, BASE, BSC, TON, SUI, STELLAR, SEI, HEDERA
 - Type-safe Chain enum for all API calls
 - ESM and CommonJS dual build support
 - Debug/logging mode with granular control
@@ -41,7 +42,7 @@ pnpm install
 # Build all packages
 pnpm build
 
-# Run all tests (87 tests)
+# Run all tests
 pnpm test
 
 # Type check all packages
@@ -77,21 +78,28 @@ packages/
 │   │   ├── errors/         # Error classes (WebacyError, ValidationError, etc.)
 │   │   ├── types/          # Chain enum, common types
 │   │   └── utils/          # Address validation utilities
-│   └── __tests__/          # 65 tests
+│   └── __tests__/          # unit tests
 │
 ├── threat/         # @webacy-xyz/sdk-threat
 │   ├── src/
 │   │   ├── resources/      # AddressesResource, ContractsResource, etc.
 │   │   ├── types/          # Response types for threat endpoints
 │   │   └── client.ts       # ThreatClient
-│   └── __tests__/          # 10 tests
+│   └── __tests__/          # unit tests
 │
 ├── trading/        # @webacy-xyz/sdk-trading
 │   ├── src/
 │   │   ├── resources/      # HolderAnalysisResource, TradingLiteResource
 │   │   ├── types/          # Response types for trading endpoints
 │   │   └── client.ts       # TradingClient
-│   └── __tests__/          # 12 tests
+│   └── __tests__/          # unit tests
+│
+├── cli/            # @webacy-xyz/cli
+│   ├── src/
+│   │   ├── commands/       # CLI command implementations
+│   │   ├── cli.ts          # CLI entrypoint
+│   │   └── runner.ts       # Command runner
+│   └── __tests__/          # unit tests
 │
 ├── sdk/            # @webacy-xyz/sdk (unified)
 │   └── src/
@@ -121,7 +129,14 @@ WebacyClientBase (core)
 │   ├── contracts     # ContractsResource
 │   ├── url           # UrlResource
 │   ├── wallets       # WalletsResource
-│   └── usage         # UsageResource
+│   ├── ledger        # LedgerResource
+│   ├── accountTrace  # AccountTraceResource
+│   ├── transactions  # TransactionsResource
+│   ├── usage         # UsageResource
+│   ├── scan          # ScanResource
+│   ├── batch         # BatchResource
+│   ├── rwa           # RwaResource
+│   └── vaults        # VaultsResource
 │
 └── TradingClient
     ├── holderAnalysis  # HolderAnalysisResource
@@ -200,7 +215,7 @@ Each package builds to both ESM (`dist/esm/`) and CJS (`dist/cjs/`) with separat
 ## Testing
 
 - **Framework**: vitest with globals enabled
-- **Total Tests**: 87 (65 core + 12 trading + 10 threat)
+- Comprehensive unit tests across all packages (core, threat, trading, cli) — run `pnpm test`.
 - **Location**: `src/__tests__/*.test.ts` within each package
 
 ## PR Workflow
@@ -217,44 +232,40 @@ See `.claude/PR_WORKFLOW.md` for detailed documentation.
 
 ## Publishing Workflow
 
-### Beta Releases (Testing)
+Releases are managed by [Changesets](https://github.com/changesets/changesets) with npm OIDC trusted publishing (no `NPM_TOKEN`, automatic provenance). All development happens on feature branches PR'd to `main` — there is no `staging` branch.
+
+### Adding a Changeset
+
+Any PR that changes a published `@webacy-xyz/*` package must include a changeset:
+
+```bash
+pnpm changeset
+# Select packages + bump type (patch/minor/major), commit the file under .changeset/
+```
+
+Docs/CI/chore PRs that don't touch a published package can skip this, or run `pnpm changeset --empty`.
+
+### Stable Releases (Automatic)
+
+```bash
+# On merge to main, .github/workflows/release.yml opens/updates a
+# "Version Packages" PR that bumps versions and updates CHANGELOG.md.
+# Merging that PR publishes changed packages to npm ('latest' tag) and
+# creates git tags + GitHub Releases automatically.
+```
+
+### Snapshot Releases (On-Demand Beta)
 
 ```bash
 /beta
-# Publishes @webacy-xyz/sdk@1.0.0-beta.0 with --tag beta
-# Doesn't affect 'latest' tag
-# Can run from any branch
+# Triggers the snapshot job inside .github/workflows/release.yml via
+# workflow_dispatch (snapshot=true, tag=beta). Requires a changeset already
+# on the branch being built, or the job no-ops.
+# Publishes x.y.z-beta-<datetime> under the 'beta' dist-tag
 ```
 
 Install beta: `npm install @webacy-xyz/sdk@beta`
 
-### Stable Releases
-
-```bash
-/release
-# Bumps version in all packages
-# Publishes to npm with 'latest' tag
-# Creates git tag
-```
-
-### GitHub Release Notes
-
-```bash
-/release-notes
-# Creates GitHub release with detailed notes
-# Run after /release
-```
-
-### Manual Publishing
-
-```bash
-# Publish in dependency order
-pnpm --filter @webacy-xyz/sdk-core publish --access public
-pnpm --filter @webacy-xyz/sdk-threat publish --access public
-pnpm --filter @webacy-xyz/sdk-trading publish --access public
-pnpm --filter @webacy-xyz/sdk publish --access public
-```
-
 ## Supported Chains
 
-Chain codes: `eth`, `sol`, `base`, `bsc`, `pol`, `arb`, `opt`, `ton`, `sui`, `stellar`, `btc`, `sei`
+Chain codes: `eth`, `sep`, `arb`, `pol`, `sol`, `opt`, `base`, `bsc`, `ton`, `sei`, `btc`, `sui`, `stellar`, `hedera`

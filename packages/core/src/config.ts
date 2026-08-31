@@ -42,12 +42,6 @@ export interface WebacyClientConfig {
   baseUrl?: string;
 
   /**
-   * API version to use
-   * @default 'v2'
-   */
-  apiVersion?: string;
-
-  /**
    * Default request timeout in milliseconds
    * @default 30000
    */
@@ -132,7 +126,6 @@ export interface WebacyClientConfig {
  */
 export const DEFAULT_CONFIG = {
   baseUrl: 'https://api.webacy.com',
-  apiVersion: 'v2',
   timeout: 30000,
 } as const;
 

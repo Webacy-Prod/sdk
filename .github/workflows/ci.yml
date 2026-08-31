@@ -2,10 +2,13 @@ name: CI
 
 on:
   push:
-    branches: [main, staging]
+    branches: [main]
   pull_request:
-    branches: [main, staging]
+    branches: [main]
   workflow_call:
+
+permissions:
+  contents: read
 
 jobs:
   validate:
@@ -13,15 +16,15 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
-          node-version: '20'
+          node-version: '22.14.0'
           cache: 'pnpm'
 
       - name: Install dependencies
@@ -44,3 +47,30 @@ jobs:
 
       - name: Test
         run: pnpm test
+
+  changeset-status:
+    # Advisory gate: fails when a PR touches publishable packages but adds no
+    # changeset. Docs/CI/chore PRs can bypass with `pnpm changeset --empty`.
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '22.14.0'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Changeset status
+        run: pnpm changeset status --since=origin/main

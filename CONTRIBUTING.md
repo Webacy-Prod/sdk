@@ -138,18 +138,49 @@ When making changes, ensure you don't introduce circular dependencies.
 
 ## Releasing
 
-Releases are managed by maintainers. Version bumps follow semver:
+Releases are managed with [Changesets](https://github.com/changesets/changesets) and version bumps follow semver, applied independently per package.
+
+As a contributor, add a changeset describing your change as part of your PR:
 
 ```bash
-# Patch release (bug fixes)
-pnpm version:patch
-
-# Minor release (new features)
-pnpm version:minor
-
-# Major release (breaking changes)
-pnpm version:major
+pnpm changeset
+# Select the affected package(s), choose a bump type (patch/minor/major),
+# and write a short summary. Commit the generated file under .changeset/.
 ```
+
+Docs/CI/chore PRs that don't touch a published package don't need one (`pnpm changeset --empty` if you want to record that explicitly).
+
+Maintainers publish releases by merging the auto-generated **"Version Packages" PR** (opened/updated on every merge to `main` by GitHub Actions), which bumps versions, updates each package's `CHANGELOG.md`, and publishes the changed packages to npm.
+
+### Beta / snapshot releases
+
+Need to hand someone a build before merging to `main`? Publish an on-demand snapshot (beta) release instead of waiting for a stable version.
+
+A snapshot requires a changeset on the branch being built — `changeset version --snapshot` reads pending `.changeset/*.md` files, and with none it no-ops and nothing gets published. Add one first if you haven't already:
+
+```bash
+pnpm changeset
+```
+
+Trigger the snapshot job, which lives inside `.github/workflows/release.yml` (triggered via `workflow_dispatch`, not a separate workflow file):
+
+- **GitHub UI**: Actions → "Release" workflow → "Run workflow" → pick your feature branch → keep `snapshot=true`, `tag=beta`.
+- **CLI**:
+  ```bash
+  gh workflow run release.yml --repo Webacy-Prod/sdk --ref <your-branch> -f snapshot=true -f tag=beta
+  ```
+
+Always dispatch from the feature branch itself (the `--ref`), so its changesets are the ones built.
+
+This publishes each changed package as `x.y.z-beta-<datetime>` (e.g. `@webacy-xyz/sdk@1.9.1-beta-20260717171903`) under the `beta` npm dist-tag, without touching `latest`. Install it with:
+
+```bash
+npm install @webacy-xyz/sdk@beta
+```
+
+Snapshots are ephemeral — nothing is committed back to the branch. To ship the change for real, just merge the PR with its changeset to `main` as usual; the normal "Version Packages" flow publishes the real version to `latest`. Snapshots never become the stable version.
+
+For a sustained beta ramp toward a specific version instead of one-off builds, Changesets also supports **pre-release mode** (`changeset pre enter beta`, accumulate changesets, versions like `1.10.0-beta.0`/`.1`, then `changeset pre exit`). Snapshot releases are the default for quick on-demand betas; pre-release mode is for a more formal beta cycle, and the two shouldn't be run on the same branch at once.
 
 ## Getting Help
 

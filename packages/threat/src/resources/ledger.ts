@@ -1,4 +1,4 @@
-import { BaseResource, HttpResponse, Chain } from '@webacy-xyz/sdk-core';
+import { BaseResource, HttpResponse } from '@webacy-xyz/sdk-core';
 import {
   LedgerFamily,
   LedgerScanRequest,
@@ -29,12 +29,9 @@ import {
  * }
  * ```
  */
+// Note: Ledger uses numeric chain IDs in the request body rather than the
+// Chain enum; the base constructor's optional defaultChain is unused here.
 export class LedgerResource extends BaseResource {
-  // Note: Ledger uses numeric chain IDs in request body, defaultChain is accepted for consistency
-  constructor(httpClient: import('@webacy-xyz/sdk-core').HttpClient, _defaultChain?: Chain) {
-    super(httpClient, _defaultChain);
-  }
-
   /**
    * Scan a transaction before signing
    *
@@ -77,10 +74,7 @@ export class LedgerResource extends BaseResource {
     const response: HttpResponse<LedgerScanResponse> = await this.httpClient.post(
       `/ledger/${family}/scan/tx`,
       request,
-      {
-        timeout: options?.timeout,
-        signal: options?.signal,
-      }
+      this.requestOptions(options)
     );
 
     return response.data;
@@ -139,10 +133,7 @@ export class LedgerResource extends BaseResource {
     const response: HttpResponse<LedgerScanResponse> = await this.httpClient.post(
       `/ledger/${family}/scan/eip-712`,
       request,
-      {
-        timeout: options?.timeout,
-        signal: options?.signal,
-      }
+      this.requestOptions(options)
     );
 
     return response.data;

@@ -44,6 +44,7 @@ export type {
   AddressDetails,
   DeployerRisk,
   AddressRiskResponse,
+  SanctionsStatus,
   SanctionedResponse,
   PoisoningResponse,
   AddressAnalysisOptions,
@@ -78,6 +79,11 @@ export type {
   WalletApprovalsResponse,
   WalletTransactionsOptions,
   WalletApprovalsOptions,
+  // Transaction risk types
+  TransactionRiskResponse,
+  TransactionOptions,
+  TxRiskDetails,
+  TrustFlag,
   // Ledger types
   LedgerFamily,
   LedgerTransactionData,
@@ -148,6 +154,7 @@ export type {
   VaultRiskIssue,
   VaultRiskResponse,
   VaultTokenRisk,
+  VaultDeployment,
   VaultLoopingMarket,
   VaultCompositionItem,
   VaultLstCollateralMarket,

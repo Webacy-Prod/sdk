@@ -1,3 +1,9 @@
 packages:
   - 'packages/*'
   - 'examples/*'
+
+# pnpm >= 11 asks for an explicit decision on each dependency install script.
+# esbuild (a vitest dependency) ships its binary via a platform
+# optional-dependency, so its own install script is unnecessary — decline it.
+allowBuilds:
+  esbuild: false

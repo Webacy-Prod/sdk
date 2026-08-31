@@ -94,18 +94,15 @@ export class ScanResource extends BaseResource {
     this.validateTransactionRequest(request);
     this.validateSignerAddressMatch(fromAddress, request.tx.from, 'tx.from');
 
-    const queryParams = new URLSearchParams();
-    if (options.refreshCache !== undefined) {
-      queryParams.append('refreshCache', String(options.refreshCache));
-    }
-
-    const queryString = queryParams.toString();
-    const path = `/scan/${encodeURIComponent(fromAddress)}/transactions${queryString ? `?${queryString}` : ''}`;
-
-    const response: HttpResponse<ScanResponse> = await this.httpClient.post(path, request, {
-      timeout: options.timeout,
-      signal: options.signal,
+    const path = this.buildPath(`/scan/${encodeURIComponent(fromAddress)}/transactions`, {
+      refreshCache: options.refreshCache,
     });
+
+    const response: HttpResponse<ScanResponse> = await this.httpClient.post(
+      path,
+      request,
+      this.requestOptions(options)
+    );
 
     return response.data;
   }
@@ -181,18 +178,15 @@ export class ScanResource extends BaseResource {
     this.validateEip712Request(request);
     this.validateSignerAddressMatch(fromAddress, request.msg.from, 'msg.from');
 
-    const queryParams = new URLSearchParams();
-    if (options.refreshCache !== undefined) {
-      queryParams.append('refreshCache', String(options.refreshCache));
-    }
-
-    const queryString = queryParams.toString();
-    const path = `/scan/${encodeURIComponent(fromAddress)}/eip712${queryString ? `?${queryString}` : ''}`;
-
-    const response: HttpResponse<ScanEIP712Response> = await this.httpClient.post(path, request, {
-      timeout: options.timeout,
-      signal: options.signal,
+    const path = this.buildPath(`/scan/${encodeURIComponent(fromAddress)}/eip712`, {
+      refreshCache: options.refreshCache,
     });
+
+    const response: HttpResponse<ScanEIP712Response> = await this.httpClient.post(
+      path,
+      request,
+      this.requestOptions(options)
+    );
 
     return response.data;
   }
@@ -220,16 +214,12 @@ export class ScanResource extends BaseResource {
     const chain = this.resolveChain(options);
     this.validateAddress(address, chain);
 
-    const queryParams = new URLSearchParams();
-    queryParams.append('chain', chain);
+    const path = this.buildPath(`/scan/${encodeURIComponent(address)}`, { chain });
 
     const response: HttpResponse<RiskScanResponse> = await this.httpClient.post(
-      `/scan/${encodeURIComponent(address)}?${queryParams.toString()}`,
+      path,
       undefined,
-      {
-        timeout: options.timeout,
-        signal: options.signal,
-      }
+      this.requestOptions(options)
     );
 
     return response.data;
@@ -260,15 +250,11 @@ export class ScanResource extends BaseResource {
     const chain = this.resolveChain(options);
     this.validateAddress(address, chain);
 
-    const queryParams = new URLSearchParams();
-    queryParams.append('chain', chain);
+    const path = this.buildPath(`/status/${encodeURIComponent(address)}`, { chain });
 
     const response: HttpResponse<RiskScanStatusResponse> = await this.httpClient.get(
-      `/status/${encodeURIComponent(address)}?${queryParams.toString()}`,
-      {
-        timeout: options.timeout,
-        signal: options.signal,
-      }
+      path,
+      this.requestOptions(options)
     );
 
     return response.data;
