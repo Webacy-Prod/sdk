@@ -28,7 +28,7 @@ const result = await client.addresses.checkSanctioned(
   { chain: 'eth' }
 );
 
-if (result.is_sanctioned) {
+if (result.sanctions_status === 'sanctioned') {
   console.log('Address is SANCTIONED - do not interact!');
 } else if (result.sanctions_status === 'unknown') {
   console.log('Screening could not be completed - do not treat as clean.');
@@ -61,7 +61,7 @@ async function checkCompliance(address: string): Promise<void> {
     chain: 'eth',
   });
 
-  if (result.is_sanctioned) {
+  if (result.sanctions_status === 'sanctioned') {
     console.error(`Blocked sanctioned address: ${address}`);
     throw new Error('Transaction blocked: sanctioned address');
   }
@@ -89,7 +89,7 @@ async function screenAddresses(addresses: string[]): Promise<{
       chain: 'eth',
     });
 
-    if (result.is_sanctioned) {
+    if (result.sanctions_status === 'sanctioned') {
       sanctioned.push(address);
     } else if (result.sanctions_status === 'clean') {
       clean.push(address);

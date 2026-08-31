@@ -29,7 +29,7 @@ async function main() {
         chain: 'eth',
       });
 
-      if (result.is_sanctioned) {
+      if (result.sanctions_status === 'sanctioned') {
         console.log('  ⛔ SANCTIONED');
       } else if (result.sanctions_status === 'unknown') {
         console.log('  ⚠️  SCREENING UNAVAILABLE - do not treat as clean');

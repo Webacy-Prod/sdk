@@ -69,7 +69,7 @@ const result = await client.addresses.checkSanctioned('0x...', {
   chain: 'eth',
 });
 
-if (result.is_sanctioned) {
+if (result.sanctions_status === 'sanctioned') {
   console.log('Address is sanctioned!');
 } else if (result.sanctions_status === 'unknown') {
   console.log('Address could not be screened; do not treat it as clean.');
