@@ -115,9 +115,12 @@ export class AddressesResource extends BaseResource {
    * // With default chain configured
    * const result = await client.addresses.checkSanctioned('0x...');
    *
-   * if (result.is_sanctioned) {
+   * if (result.sanctions_status === 'sanctioned') {
    *   console.error('Address is sanctioned!');
-   *   console.log('Details:', result.sanction_details);
+   * } else if (result.sanctions_status === 'unknown') {
+   *   console.error('Address could not be screened; do not treat it as clean.');
+   * } else {
+   *   console.log('Address completed screening with no sanctions match.');
    * }
    * ```
    */

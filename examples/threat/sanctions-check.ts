@@ -29,15 +29,12 @@ async function main() {
         chain: 'eth',
       });
 
-      if (result.is_sanctioned) {
+      if (result.sanctions_status === 'sanctioned') {
         console.log('  ⛔ SANCTIONED');
-        if (result.sanction_details) {
-          console.log(`     Source: ${result.sanction_details.source}`);
-          console.log(`     List: ${result.sanction_details.list_name}`);
-          console.log(`     Date Added: ${result.sanction_details.date_added}`);
-        }
+      } else if (result.sanctions_status === 'unknown') {
+        console.log('  ⚠️  SCREENING UNAVAILABLE - do not treat as clean');
       } else {
-        console.log('  ✅ Not sanctioned');
+        console.log('  ✅ Clean sanctions screen');
       }
     } catch (error) {
       console.log(`  ❌ Error: ${error instanceof Error ? error.message : 'Unknown error'}`);

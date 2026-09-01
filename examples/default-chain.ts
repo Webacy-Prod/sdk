@@ -17,9 +17,7 @@ async function main() {
   });
 
   // No need to specify chain - uses ETH by default
-  const ethRisk = await ethClient.addresses.analyze(
-    '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0'
-  );
+  const ethRisk = await ethClient.addresses.analyze('0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0');
   console.log('ETH address risk:', ethRisk.overallRisk);
 
   // Example 2: Override default when needed
@@ -62,7 +60,7 @@ async function main() {
     return {
       chain,
       risk: risk.overallRisk,
-      sanctioned: sanctioned.is_sanctioned,
+      sanctionsStatus: sanctioned.sanctions_status,
     };
   }
 
@@ -106,7 +104,7 @@ async function main() {
   console.log('Address risk:', addressRisk.overallRisk);
 
   const sanctionCheck = await fullClient.addresses.checkSanctioned(address);
-  console.log('Sanctioned:', sanctionCheck.is_sanctioned);
+  console.log('Sanctions status:', sanctionCheck.sanctions_status);
 
   // Contract methods
   const contractRisk = await fullClient.contracts.analyze(address);

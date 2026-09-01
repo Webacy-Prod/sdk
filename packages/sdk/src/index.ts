@@ -44,6 +44,7 @@ export type {
   AddressDetails,
   DeployerRisk,
   AddressRiskResponse,
+  SanctionsStatus,
   SanctionedResponse,
   PoisoningResponse,
   AddressAnalysisOptions,

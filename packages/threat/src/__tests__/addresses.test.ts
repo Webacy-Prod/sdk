@@ -181,8 +181,13 @@ describe('AddressesResource', () => {
 
     it('should make API call with valid address', async () => {
       const validAddress = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e';
+      const response = {
+        address: validAddress,
+        is_sanctioned: false,
+        sanctions_status: 'clean' as const,
+      };
       mockHttpClient.get.mockResolvedValueOnce({
-        data: { is_sanctioned: false },
+        data: response,
         status: 200,
         headers: new Headers(),
       });
@@ -193,7 +198,47 @@ describe('AddressesResource', () => {
         `/addresses/sanctioned/${encodeURIComponent(validAddress)}?chain=eth`,
         expect.any(Object)
       );
-      expect(result.is_sanctioned).toBe(false);
+      expect(result).toEqual(response);
+    });
+
+    it('should pass through a sanctioned verdict unchanged', async () => {
+      const validAddress = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e';
+      const response = {
+        address: validAddress,
+        is_sanctioned: true,
+        sanctions_status: 'sanctioned' as const,
+      };
+      mockHttpClient.get.mockResolvedValueOnce({
+        data: response,
+        status: 200,
+        headers: new Headers(),
+      });
+
+      const result = await addresses.checkSanctioned(validAddress, { chain: Chain.ETH });
+
+      expect(result).toEqual(response);
+      expect(result.is_sanctioned).toBe(true);
+      expect(result.sanctions_status).toBe('sanctioned');
+    });
+
+    it('should pass through an unknown status without coercing it to clean', async () => {
+      const validAddress = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e';
+      const response = {
+        address: validAddress,
+        is_sanctioned: false,
+        sanctions_status: 'unknown' as const,
+      };
+      mockHttpClient.get.mockResolvedValueOnce({
+        data: response,
+        status: 200,
+        headers: new Headers(),
+      });
+
+      const result = await addresses.checkSanctioned(validAddress, { chain: Chain.ETH });
+
+      // An unavailable screen must surface as `unknown`, never silently as `clean`.
+      expect(result).toEqual(response);
+      expect(result.sanctions_status).toBe('unknown');
     });
   });
 
