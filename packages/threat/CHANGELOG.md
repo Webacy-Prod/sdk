@@ -1,5 +1,18 @@
 # @webacy-xyz/sdk-threat
 
+## 2.0.0
+
+### Major Changes
+
+- [#52](https://github.com/Webacy-Prod/sdk/pull/52) [`d0208f4`](https://github.com/Webacy-Prod/sdk/commit/d0208f48bd7155bbf7528b127150babc2809efcb) Thanks [@rlajous](https://github.com/rlajous)! - Expose the exact sanctions screening status so callers can distinguish clean results from unavailable screening without relying on provider telemetry.
+
+  **Breaking (`SanctionedResponse`):** the previously-declared optional `sanction_details` fields (source, list name, date) have been removed — they were never populated by the runtime API — and `sanctions_status` is now required. If your code reads `result.sanction_details`, remove it and branch on `sanctions_status` instead: `clean` = screening completed with no match, `sanctioned` = blocked, `unknown` = screening was unavailable (do not treat as clean).
+
+### Patch Changes
+
+- Updated dependencies [[`d0208f4`](https://github.com/Webacy-Prod/sdk/commit/d0208f48bd7155bbf7528b127150babc2809efcb)]:
+  - @webacy-xyz/sdk-core@1.9.2
+
 ## 1.9.1
 
 ### Patch Changes

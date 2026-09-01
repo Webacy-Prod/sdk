@@ -1,5 +1,12 @@
 # @webacy-xyz/sdk-trading
 
+## 1.9.2
+
+### Patch Changes
+
+- Updated dependencies [[`d0208f4`](https://github.com/Webacy-Prod/sdk/commit/d0208f48bd7155bbf7528b127150babc2809efcb)]:
+  - @webacy-xyz/sdk-core@1.9.2
+
 ## 1.9.1
 
 ### Patch Changes
