@@ -13,6 +13,11 @@ import { WebacyError } from './base';
  * } catch (error) {
  *   if (error instanceof NetworkError) {
  *     console.error('Network error:', error.message);
+ *     // For retryable HTTP responses (e.g. a 503 fail-closed sanctions screen)
+ *     // `status` is populated, so callers can distinguish it from a transport error.
+ *     if (error.status === 503) {
+ *       console.error('Service unavailable; screening could not complete.');
+ *     }
  *     if (error.cause) {
  *       console.error('Cause:', error.cause.message);
  *     }
@@ -23,13 +28,14 @@ import { WebacyError } from './base';
 export class NetworkError extends WebacyError {
   constructor(
     message = 'Network request failed',
-    options: { cause?: Error; endpoint?: string; requestId?: string } = {}
+    options: { cause?: Error; endpoint?: string; requestId?: string; status?: number } = {}
   ) {
     super(message, {
       code: 'NETWORK_ERROR',
       cause: options.cause,
       endpoint: options.endpoint,
       requestId: options.requestId,
+      status: options.status,
     });
     this.name = 'NetworkError';
   }

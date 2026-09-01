@@ -31,12 +31,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Breaking Changes
+
+- **Sanctions screening contract** (`@webacy-xyz/sdk-threat`, WEB-4964):
+  `SanctionedResponse` dropped the previously-declared optional `sanction_details`
+  fields (source, list name, date) — they were never populated by the runtime API —
+  and `sanctions_status` is now required. **Migration:** if your code reads
+  `result.sanction_details`, remove it and branch on `sanctions_status` instead
+  (`clean` = screening completed with no match, `sanctioned` = blocked, `unknown` =
+  screening unavailable, do not treat as clean).
+
 ### Changed
 
 - **Sanctions screening contract** (WEB-4964): `SanctionedResponse` now matches
   the API's exact `address`, `is_sanctioned`, and `sanctions_status` response.
   SDK examples require `sanctions_status === 'clean'` before clearing an address
   and explicitly handle `unknown` as an incomplete screen.
+- **`NetworkError` now carries `status`** (`@webacy-xyz/sdk-core`): retryable HTTP
+  responses (e.g. a `503` fail-closed sanctions screen) populate `error.status`, so
+  callers can distinguish an unavailable screen from a transport-level failure
+  without string-matching the error message.
 
 ### Added
 

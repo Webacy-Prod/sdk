@@ -60,7 +60,6 @@ async function main() {
     return {
       chain,
       risk: risk.overallRisk,
-      sanctioned: sanctioned.is_sanctioned,
       sanctionsStatus: sanctioned.sanctions_status,
     };
   }

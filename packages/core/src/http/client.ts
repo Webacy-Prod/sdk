@@ -478,6 +478,7 @@ export class HttpClient {
             cause: new Error(`HTTP ${response.status}`),
             endpoint,
             requestId,
+            status: response.status,
           });
         }
         return new WebacyError(message, {

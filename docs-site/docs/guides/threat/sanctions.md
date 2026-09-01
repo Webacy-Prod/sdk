@@ -51,6 +51,13 @@ Only `clean` confirms that screening completed without a sanctions match.
 `unknown` means authoritative screening was unavailable and must not be treated
 as a negative result.
 
+:::note Fail-closed deployments
+On a fail-closed deployment the "screening unavailable" condition is returned as an
+HTTP `503` rather than a `200` with `sanctions_status: 'unknown'`. The SDK surfaces
+it as a retryable `NetworkError` with `error.status === 503`. Treat that the same way
+as `unknown` — the screen did not complete, so do not clear the address.
+:::
+
 ## Compliance Flow
 
 ### Pre-Transaction Check
