@@ -1,5 +1,11 @@
 # @webacy-xyz/sdk-core
 
+## 1.10.0
+
+### Minor Changes
+
+- [#54](https://github.com/Webacy-Prod/sdk/pull/54) [`c49fc97`](https://github.com/Webacy-Prod/sdk/commit/c49fc97819392601a0e2137a752810a4b9ef7b34) Thanks [@rlajous](https://github.com/rlajous)! - Add Robinhood Chain (`Chain.ROBINHOOD` = `robinhood`, chain id 4663) as an EVM chain. Quick-profile intentionally excludes Robinhood (no backend coverage).
+
 ## 1.9.2
 
 ### Patch Changes
