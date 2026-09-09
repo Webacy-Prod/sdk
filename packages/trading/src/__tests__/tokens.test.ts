@@ -40,6 +40,13 @@ describe('TokensResource', () => {
       ).rejects.toThrow('not supported for token economics');
     });
 
+    it('should reject robinhood (token economics not supported)', async () => {
+      const validAddress = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e';
+      await expect(
+        tokens.getToken(validAddress, { chain: 'robinhood' as 'eth', metricsDate: '15-01-2024' })
+      ).rejects.toThrow('not supported for token economics');
+    });
+
     it('should throw ValidationError for invalid date format', async () => {
       const validAddress = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e';
       await expect(

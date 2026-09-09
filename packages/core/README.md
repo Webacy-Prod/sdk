@@ -85,11 +85,14 @@ isValidSolanaAddress('EPjFWdd5Aufq...'); // true
 | Polygon | `pol` | Yes |
 | Arbitrum | `arb` | Yes |
 | Optimism | `opt` | Yes |
+| Robinhood Chain | `robinhood` | Yes |
 | Solana | `sol` | No |
 | TON | `ton` | No |
 | Sui | `sui` | No |
 | Stellar | `stellar` | No |
 | Bitcoin | `btc` | No |
+| Sei | `sei` | No |
+| Hedera | `hedera` | No |
 
 ## License
 
