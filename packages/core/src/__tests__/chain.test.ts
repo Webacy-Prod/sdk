@@ -24,6 +24,7 @@ describe('Chain enum', () => {
     expect(Chain.SEI).toBe('sei');
     expect(Chain.SEP).toBe('sep');
     expect(Chain.HEDERA).toBe('hedera');
+    expect(Chain.ROBINHOOD).toBe('robinhood');
   });
 });
 
@@ -47,6 +48,7 @@ describe('getChainCompatibility', () => {
     expect(getChainCompatibility(Chain.ARB)).toBe(ChainCompatibility.EVM);
     expect(getChainCompatibility(Chain.OPT)).toBe(ChainCompatibility.EVM);
     expect(getChainCompatibility(Chain.SEP)).toBe(ChainCompatibility.EVM);
+    expect(getChainCompatibility(Chain.ROBINHOOD)).toBe(ChainCompatibility.EVM);
   });
 
   it('should return SOLANA for Solana', () => {
@@ -72,6 +74,7 @@ describe('isEvmChain', () => {
     expect(isEvmChain(Chain.ARB)).toBe(true);
     expect(isEvmChain(Chain.OPT)).toBe(true);
     expect(isEvmChain(Chain.SEP)).toBe(true);
+    expect(isEvmChain(Chain.ROBINHOOD)).toBe(true);
   });
 
   it('should return false for non-EVM chains', () => {
@@ -106,6 +109,7 @@ describe('CHAIN_NAMES', () => {
     expect(CHAIN_NAMES[Chain.BTC]).toBe('Bitcoin');
     expect(CHAIN_NAMES[Chain.SEI]).toBe('Sei');
     expect(CHAIN_NAMES[Chain.HEDERA]).toBe('Hedera');
+    expect(CHAIN_NAMES[Chain.ROBINHOOD]).toBe('Robinhood Chain');
   });
 });
 
@@ -118,6 +122,7 @@ describe('CHAIN_IDS', () => {
     expect(CHAIN_IDS[Chain.ARB]).toBe(42161);
     expect(CHAIN_IDS[Chain.OPT]).toBe(10);
     expect(CHAIN_IDS[Chain.SEP]).toBe(11155111);
+    expect(CHAIN_IDS[Chain.ROBINHOOD]).toBe(4663);
   });
 
   it('should not have chain IDs for non-EVM chains', () => {

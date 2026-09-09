@@ -30,6 +30,8 @@ export enum Chain {
   STELLAR = 'stellar',
   /** Hedera */
   HEDERA = 'hedera',
+  /** Robinhood Chain */
+  ROBINHOOD = 'robinhood',
 }
 
 /**
@@ -62,6 +64,7 @@ export function getChainCompatibility(chain: Chain): ChainCompatibility {
     case Chain.OPT:
     case Chain.BASE:
     case Chain.BSC:
+    case Chain.ROBINHOOD:
       return ChainCompatibility.EVM;
     case Chain.SOL:
       return ChainCompatibility.SOLANA;
@@ -107,6 +110,7 @@ export const CHAIN_IDS: Partial<Record<Chain, number>> = {
   [Chain.OPT]: 10,
   [Chain.ARB]: 42161,
   [Chain.BASE]: 8453,
+  [Chain.ROBINHOOD]: 4663,
 };
 
 /**
@@ -127,4 +131,5 @@ export const CHAIN_NAMES: Record<Chain, string> = {
   [Chain.SUI]: 'Sui',
   [Chain.STELLAR]: 'Stellar',
   [Chain.HEDERA]: 'Hedera',
+  [Chain.ROBINHOOD]: 'Robinhood Chain',
 };
