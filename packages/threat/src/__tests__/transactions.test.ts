@@ -39,6 +39,12 @@ describe('TransactionsResource', () => {
       );
     });
 
+    it('should reject robinhood (transaction analysis not supported)', async () => {
+      await expect(
+        transactions.analyze('0xabc123', { chain: 'robinhood' as Chain })
+      ).rejects.toThrow('not supported for transaction analysis');
+    });
+
     it('should throw ValidationError for empty txHash', async () => {
       await expect(transactions.analyze('', { chain: Chain.ETH })).rejects.toThrow(ValidationError);
       await expect(transactions.analyze('   ', { chain: Chain.ETH })).rejects.toThrow(

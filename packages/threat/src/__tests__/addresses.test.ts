@@ -284,6 +284,13 @@ describe('AddressesResource', () => {
       ).rejects.toThrow('not supported for quick profile');
     });
 
+    it('should reject robinhood (quick profile not supported)', async () => {
+      const validAddress = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e';
+      await expect(
+        addresses.getQuickProfile(validAddress, { chain: 'robinhood' as 'eth' })
+      ).rejects.toThrow('not supported for quick profile');
+    });
+
     it('should throw ValidationError when chain is not provided and no default is set', async () => {
       const validAddress = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e';
       await expect(addresses.getQuickProfile(validAddress)).rejects.toThrow(ValidationError);
