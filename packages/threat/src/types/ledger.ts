@@ -8,12 +8,16 @@ import type {
 /**
  * Supported ledger device families
  *
- * The API currently serves `ethereum` only.
+ * The API serves `ethereum` only; the route parameter is not validated
+ * server-side, so any other value would silently run an Ethereum scan.
  */
-export type LedgerFamily = 'ethereum' | 'solana' | 'bitcoin';
+export type LedgerFamily = 'ethereum';
 
 /**
  * Transaction data for ledger scanning
+ *
+ * Only `from` and `raw` reach the API (its Ledger DTO strips every other key),
+ * so the transaction's `to` / `value` / `data` must be inside `raw`.
  */
 export interface LedgerTransactionData {
   /** From address */
@@ -23,12 +27,6 @@ export interface LedgerTransactionData {
    * to simulate before signing, or a 66-character hash of a mined transaction.
    */
   raw: string;
-  /** To address (optional) */
-  to?: string;
-  /** Value in wei (optional) */
-  value?: string;
-  /** Transaction data (optional) */
-  data?: string;
 }
 
 /**
@@ -46,12 +44,17 @@ export interface LedgerScanRequest {
 }
 
 /**
- * EIP-712 typed data for signing
+ * EIP-712 typed data for signing (same shape as the scan resource's)
  */
 export type EIP712TypedData = ScanEIP712TypedData;
 
 /**
  * Ledger EIP-712 scan request — same envelope as `POST /scan/{fromAddress}/eip712`
+ *
+ * The Ledger route validates the domain more strictly than the scan route
+ * (every domain field as a non-empty string, `chainId` included);
+ * `LedgerResource.scanEip712` normalises the domain before posting, so the
+ * same `EIP712TypedData` value works on both.
  */
 export interface LedgerEIP712Request {
   /** Message data */

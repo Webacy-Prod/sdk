@@ -4,7 +4,7 @@ import { ValidationError } from '@webacy-xyz/sdk-core';
 import { run } from '../../runner';
 import { parseJsonInput } from '../../output';
 
-const FAMILIES = ['ethereum', 'solana', 'bitcoin'] as const satisfies readonly LedgerFamily[];
+const FAMILIES = ['ethereum'] as const satisfies readonly LedgerFamily[];
 const CHAIN_IN_BODY_NOTE =
   ' (numeric chain ID lives in the JSON body; the global --chain flag is not used)';
 

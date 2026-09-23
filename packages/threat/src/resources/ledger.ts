@@ -94,8 +94,8 @@ export class LedgerResource extends BaseResource {
    * Analyzes EIP-712 structured data for security risks
    * before signing on a hardware wallet.
    *
-   * @param family - Ledger device family
-   * @param request - EIP-712 scan request
+   * @param family - Ledger device family (`ethereum`)
+   * @param request - EIP-712 scan request (the domain is normalised for the Ledger route, see `LedgerEIP712Request`)
    * @param options - Request options
    * @returns Security analysis result
    *
@@ -145,10 +145,35 @@ export class LedgerResource extends BaseResource {
     });
     const response: HttpResponse<LedgerEIP712ScanResponse> = await this.httpClient.post(
       path,
-      request,
+      normalizeLedgerEip712Request(request),
       this.requestOptions(options)
     );
 
     return response.data;
   }
+}
+
+/**
+ * The Ledger EIP-712 route validates every domain field as a non-empty string
+ * (`chainId` included) and does not coerce, unlike `POST /scan/{from}/eip712`.
+ * Send the domain the way that route expects — the same normalisation the API
+ * applies on the scan route — so one `EIP712TypedData` works on both.
+ */
+function normalizeLedgerEip712Request(request: LedgerEIP712Request): LedgerEIP712Request {
+  const domain = request.msg.data.domain;
+  return {
+    ...request,
+    msg: {
+      ...request.msg,
+      data: {
+        ...request.msg.data,
+        domain: {
+          name: domain.name ?? '',
+          version: domain.version ?? '',
+          chainId: String(domain.chainId) as unknown as number,
+          verifyingContract: domain.verifyingContract ?? '',
+        },
+      },
+    },
+  };
 }

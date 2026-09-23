@@ -145,16 +145,43 @@ export interface ScanAddressRisk {
   analyzed_at?: string;
   /** Provider details (address info, token info, taxes, …) */
   details?: Record<string, unknown>;
+  /** Cache expiry of the profile (epoch ms), when served from cache */
+  expiresAt?: number;
   /** Additional fields */
   [key: string]: unknown;
 }
 
 /**
+ * Risk profile of the token contract of an asset movement — `address` is
+ * `null` for the native asset (a plain ETH transfer), so guard before using it
+ */
+export type ScanAssetRisk = Omit<ScanAddressRisk, 'address'> & { address: string | null };
+
+/**
+ * Which provider produced a simulated asset change
+ *
+ * - `tenderly` / `debug_trace` — a pending-transaction simulation
+ * - `receipt` — decoded from the receipt of a mined transaction (hash input)
+ * - `calldata` — derived from the transaction's calldata / value when the
+ *   simulation produced nothing to score (an `APPROVE`, a reverting call, …)
+ */
+export type ScanAssetChangeSource = 'tenderly' | 'debug_trace' | 'receipt' | 'calldata';
+
+/**
  * One simulated asset movement (or approval) of a transaction
+ *
+ * A mined transaction (`tx.raw` = hash) whose receipt carries no decodable
+ * transfer yields one placeholder item with no `changeType` / `assetType`
+ * and an empty `counterpartyAddress` (`source: 'receipt'`).
  */
 export interface ScanAssetChange {
-  /** `TRANSFER` for an asset movement, `APPROVE` for an allowance grant */
-  changeType: 'TRANSFER' | 'APPROVE';
+  /**
+   * `TRANSFER` for an asset movement, `APPROVE` for an allowance grant,
+   * `CALL` when nothing decodable moves and the target contract itself is
+   * scored (zero-value call, `source: 'calldata'`). Absent on the receipt
+   * placeholder item described above.
+   */
+  changeType?: 'TRANSFER' | 'APPROVE' | 'CALL';
   /** Asset standard (`NATIVE`, `ERC20`, `ERC721`, `ERC1155`); absent on standard-agnostic entries */
   assetType?: string;
   /** Raw amount in the asset's smallest unit (absent for approvals) */
@@ -171,12 +198,13 @@ export interface ScanAssetChange {
   counterpartyAddress: string;
   /** Token contract, or `null` for the native asset */
   assetAddress: string | null;
-  /** Which provider produced the change (`tenderly`, `debug_trace`, `receipt`, `calldata`) */
-  source?: string;
+  /** Which provider produced the change */
+  source?: ScanAssetChangeSource;
   /**
-   * True when the simulation reverted and the change was derived from the
-   * calldata instead: the transaction cannot move assets as simulated, but
-   * the recipient / spender it names is still scored.
+   * Present on every `source: 'calldata'` item (absent on provider-derived
+   * ones): `true` when the simulation reverted — the transaction cannot move
+   * assets as simulated, but the recipient / spender / target it names is
+   * still scored — `false` when the call simply moved no assets.
    */
   simulationReverted?: boolean;
 }
@@ -191,8 +219,8 @@ export interface ScanFunctionRisk {
   functionName: string;
   /** Full function signature */
   signature?: string;
-  /** Risk level (`low` | `medium` | `high`) */
-  riskLevel: string;
+  /** Risk level of the function */
+  riskLevel: 'low' | 'medium' | 'high' | 'suspicious';
   /** Risk category */
   category?: string;
   /** What the function can do */
@@ -229,7 +257,7 @@ export interface ScanSimulationItem {
   /** Risk profile of the recipient / spender — the primary pre-sign signal */
   counterpartyRisk: ScanAddressRisk;
   /** Risk profile of the token contract (`address` is `null` for the native asset) */
-  assetRisk: ScanAddressRisk & { address: string | null };
+  assetRisk: ScanAssetRisk;
   /** The simulated movement itself */
   txData: ScanAssetChange;
   /** Present when the calldata calls a known-risky function */
@@ -248,8 +276,8 @@ export interface ScanResponseBase {
   public_key_id: string;
   /** Signed TLV descriptor (hardware-wallet integrations) */
   descriptor: string;
-  /** Block number for a mined transaction; `null` / absent for a pending one */
-  block?: number | null;
+  /** Block number for a mined transaction; `null` for a pending one */
+  block: number | null;
   /** Timestamp of the scan (ISO 8601) */
   timestamp: string;
 }
@@ -257,13 +285,21 @@ export interface ScanResponseBase {
 /**
  * Transaction scan response
  *
- * `simulation` holds one item per simulated asset movement / approval. An
- * empty array means the transaction moved no assets in simulation and named
- * no recipient in its calldata.
+ * `simulation` holds one item per simulated asset movement / approval. When
+ * the simulation produced nothing to score (a reverting call, a call that
+ * moves no assets) the API scores what the calldata names instead — the
+ * recipient, the native `value`, or the target contract as a `CALL` item —
+ * so an empty array only occurs for a contract creation.
  */
 export interface ScanResponse extends ScanResponseBase {
   /** One entry per simulated asset movement or approval */
   simulation: ScanSimulationItem[];
+  /**
+   * Risk of the dApp `domain` passed in the request, when one was. Informational
+   * on this route (it does not change the descriptor); the EIP-712 route carries
+   * it as `simulation.domainRisk`.
+   */
+  domainRisk?: ScanDomainRisk;
   /** Chain slug (e.g. `eth`) */
   chain: string;
 }
@@ -280,6 +316,12 @@ export interface ScanEIP712Simulation {
   counterpartyRisk?: ScanAddressRisk & { allAddressesChecked?: string[] };
   /** Present when the typed data embeds calldata for a known-risky function */
   functionRisk?: ScanFunctionRisk;
+  /**
+   * ML classifier score for a Safe transaction, on cached responses only: when
+   * the classification finishes after the first answer it is written back
+   * here (or into `functionRisk.safeMlScore` when a `functionRisk` exists).
+   */
+  safeMlScore?: number | null;
 }
 
 /**

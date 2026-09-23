@@ -15,52 +15,11 @@ const createMockHttpClient = () => ({
   addErrorInterceptor: vi.fn(),
 });
 
-// Shape of the API response (same envelope as /scan/{from}/transactions)
-const txScanResponse = {
-  public_key_id: 'f707d252-4475-4afd-8b8d-6c4893624aa7',
-  descriptor: '0x0101090201',
-  block: null,
-  timestamp: '2026-09-23T14:08:50.775Z',
-  simulation: [
-    {
-      partyRisk: { address: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e', high: 0, medium: 0 },
-      counterpartyRisk: {
-        address: '0xe7D13137923142A0424771E1778865b88752B3c7',
-        overallRisk: 100,
-        high: 1,
-        medium: 0,
-        issues: [{ score: 100, tags: [{ key: 'HACK', name: 'Hack Related', severity: 10 }] }],
-      },
-      assetRisk: { address: null },
-      txData: {
-        changeType: 'TRANSFER',
-        assetType: 'NATIVE',
-        rawAmount: '10000000000000000',
-        partyAddress: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
-        counterpartyAddress: '0xe7D13137923142A0424771E1778865b88752B3c7',
-        assetAddress: null,
-        source: 'debug_trace',
-      },
-    },
-  ],
-};
-
-const eip712ScanResponse = {
-  public_key_id: 'f707d252-4475-4afd-8b8d-6c4893624aa7',
-  descriptor: '0x0101090201',
-  block: null,
-  timestamp: '2026-09-23T14:09:30.085Z',
-  simulation: {
-    counterpartyRisk: {
-      address: '0x84672cc56b6dad30cfa5f9751d9ccae6c39e29cd',
-      overallRisk: 100,
-      high: 1,
-      medium: 1,
-      allAddressesChecked: ['0x84672cc56b6dad30cfa5f9751d9ccae6c39e29cd'],
-    },
-    domainRisk: { riskLevel: 'unknown', description: 'Inconclusive.' },
-  },
-};
+import {
+  ledgerEip712ScanResponse as eip712ScanResponse,
+  ledgerTxScanResponse as txScanResponse,
+  receiptPlaceholderItem,
+} from './fixtures/scan';
 
 describe('LedgerResource', () => {
   let mockHttpClient: ReturnType<typeof createMockHttpClient>;
@@ -148,29 +107,27 @@ describe('LedgerResource', () => {
       );
     });
 
-    it('should build the path using the provided device family', async () => {
+    it('types the receipt placeholder item of a mined transaction that moved nothing', async () => {
       const request: LedgerScanRequest = {
         tx: {
-          from: 'BTCAddressPlaceholder',
-          raw: '0xdeadbeef',
+          from: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
+          raw: '0x' + 'a'.repeat(64),
         },
-        chain: 0,
+        chain: 1,
       };
 
       mockHttpClient.post.mockResolvedValueOnce({
-        data: { ...txScanResponse, simulation: [] },
+        data: { ...txScanResponse, block: 26041504, simulation: [receiptPlaceholderItem] },
         status: 200,
         headers: new Headers(),
       });
 
-      const result = await ledger.scanTransaction('bitcoin', request);
+      const result = await ledger.scanTransaction('ethereum', request);
 
-      expect(mockHttpClient.post).toHaveBeenCalledWith(
-        '/ledger/bitcoin/scan/tx',
-        request,
-        expect.any(Object)
-      );
-      expect(result.simulation).toEqual([]);
+      expect(result.block).toBe(26041504);
+      expect(result.simulation[0].txData.changeType).toBeUndefined();
+      expect(result.simulation[0].txData.source).toBe('receipt');
+      expect(result.simulation[0].assetRisk.address).toBeNull();
     });
   });
 
@@ -205,13 +162,52 @@ describe('LedgerResource', () => {
 
       const result = await ledger.scanEip712('ethereum', request);
 
+      // The Ledger route validates every domain field as a non-empty string
+      // (chainId included) and does not coerce — the SDK posts it that way.
       expect(mockHttpClient.post).toHaveBeenCalledWith(
         '/ledger/ethereum/scan/eip-712',
-        request,
+        {
+          ...request,
+          msg: {
+            ...request.msg,
+            data: {
+              ...request.msg.data,
+              domain: {
+                name: 'MyDApp',
+                version: '1',
+                chainId: '1',
+                verifyingContract: '0x0000000000000000000000000000000000000000',
+              },
+            },
+          },
+        },
         expect.any(Object)
       );
       expect(result.simulation.counterpartyRisk?.high).toBe(1);
       expect(result.simulation.domainRisk?.riskLevel).toBe('unknown');
+    });
+
+    it('fills the optional domain fields the Ledger route requires', async () => {
+      mockHttpClient.post.mockResolvedValueOnce({
+        data: eip712ScanResponse,
+        status: 200,
+        headers: new Headers(),
+      });
+
+      await ledger.scanEip712('ethereum', {
+        msg: {
+          from: request.msg.from,
+          data: { ...request.msg.data, domain: { chainId: 1 } },
+        },
+      });
+
+      const [, body] = mockHttpClient.post.mock.calls[0];
+      expect(body.msg.data.domain).toEqual({
+        name: '',
+        version: '',
+        chainId: '1',
+        verifyingContract: '',
+      });
     });
 
     it('should pass timeout and signal options through', async () => {
@@ -228,10 +224,14 @@ describe('LedgerResource', () => {
         signal: controller.signal,
       });
 
-      expect(mockHttpClient.post).toHaveBeenCalledWith('/ledger/ethereum/scan/eip-712', request, {
-        timeout: 3000,
-        signal: controller.signal,
-      });
+      expect(mockHttpClient.post).toHaveBeenCalledWith(
+        '/ledger/ethereum/scan/eip-712',
+        expect.objectContaining({ domain: 'app.mydapp.com' }),
+        {
+          timeout: 3000,
+          signal: controller.signal,
+        }
+      );
     });
   });
 });
