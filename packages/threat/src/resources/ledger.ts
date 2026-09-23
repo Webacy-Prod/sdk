@@ -4,6 +4,7 @@ import {
   LedgerScanRequest,
   LedgerEIP712Request,
   LedgerScanResponse,
+  LedgerEIP712ScanResponse,
   LedgerScanOptions,
 } from '../types';
 
@@ -11,7 +12,9 @@ import {
  * Resource for hardware wallet transaction scanning
  *
  * Provides security analysis for transactions before signing on
- * hardware wallets (Ledger devices).
+ * hardware wallets (Ledger devices). The responses carry the same
+ * `simulation` payload as the `scan` resource plus the signed TLV
+ * `descriptor` the device verifies.
  *
  * Note: This resource uses numeric chain IDs in the request body
  * rather than the Chain enum, as required by the underlying API.
@@ -24,7 +27,7 @@ import {
  *   chain: 1,
  * });
  *
- * if (!result.is_safe) {
+ * if (result.simulation.some((item) => (item.counterpartyRisk.high ?? 0) > 0)) {
  *   console.error('Transaction may be risky!');
  * }
  * ```
@@ -38,7 +41,7 @@ export class LedgerResource extends BaseResource {
    * Analyzes a transaction for security risks before signing
    * on a hardware wallet.
    *
-   * @param family - Ledger device family (ethereum, solana, bitcoin)
+   * @param family - Ledger device family (the API currently serves `ethereum`)
    * @param request - Transaction scan request
    * @param options - Request options
    * @returns Security analysis result
@@ -53,17 +56,19 @@ export class LedgerResource extends BaseResource {
    *   chain: 1, // Ethereum mainnet
    * });
    *
-   * if (!result.is_safe) {
-   *   console.error(`Risk level: ${result.risk_level}`);
-   *   for (const risk of result.risks) {
-   *     console.warn(`${risk.level}: ${risk.description}`);
+   * for (const item of result.simulation) {
+   *   const { txData, counterpartyRisk } = item;
+   *   console.log(`${txData.changeType} → ${txData.counterpartyAddress}`);
+   *   if ((counterpartyRisk.high ?? 0) > 0) {
+   *     console.warn('Flagged recipient:', counterpartyRisk.issues?.flatMap((i) => i.tags.map((t) => t.name)));
+   *   }
+   *   if (item.functionRisk) {
+   *     console.log(`Risky function: ${item.functionRisk.functionName}`);
    *   }
    * }
    *
-   * // Check decoded data
-   * if (result.decoded?.function_name) {
-   *   console.log(`Function: ${result.decoded.function_name}`);
-   * }
+   * // The signed descriptor for the device
+   * console.log(result.descriptor);
    * ```
    */
   async scanTransaction(
@@ -71,8 +76,11 @@ export class LedgerResource extends BaseResource {
     request: LedgerScanRequest,
     options?: LedgerScanOptions
   ): Promise<LedgerScanResponse> {
+    const path = this.buildPath(`/ledger/${family}/scan/tx`, {
+      refreshCache: options?.refreshCache,
+    });
     const response: HttpResponse<LedgerScanResponse> = await this.httpClient.post(
-      `/ledger/${family}/scan/tx`,
+      path,
       request,
       this.requestOptions(options)
     );
@@ -94,33 +102,35 @@ export class LedgerResource extends BaseResource {
    * @example
    * ```typescript
    * const result = await client.ledger.scanEip712('ethereum', {
-   *   signer: '0xYourWallet...',
-   *   typedData: {
-   *     domain: {
-   *       name: 'MyDApp',
-   *       version: '1',
-   *       chainId: 1,
-   *       verifyingContract: '0x...',
-   *     },
-   *     message: {
-   *       // Message content
-   *     },
-   *     primaryType: 'Order',
-   *     types: {
-   *       EIP712Domain: [
-   *         { name: 'name', type: 'string' },
-   *         // ...
-   *       ],
-   *       Order: [
-   *         { name: 'maker', type: 'address' },
-   *         // ...
-   *       ],
+   *   msg: {
+   *     from: '0xYourWallet...',
+   *     data: {
+   *       domain: {
+   *         name: 'MyDApp',
+   *         version: '1',
+   *         chainId: 1,
+   *         verifyingContract: '0x...',
+   *       },
+   *       message: {
+   *         // Message content
+   *       },
+   *       primaryType: 'Order',
+   *       types: {
+   *         EIP712Domain: [
+   *           { name: 'name', type: 'string' },
+   *           // ...
+   *         ],
+   *         Order: [
+   *           { name: 'maker', type: 'address' },
+   *           // ...
+   *         ],
+   *       },
    *     },
    *   },
-   *   chain: 1,
+   *   domain: 'app.mydapp.com',
    * });
    *
-   * if (!result.is_safe) {
+   * if ((result.simulation.counterpartyRisk?.high ?? 0) > 0) {
    *   console.error('EIP-712 data may be risky!');
    * }
    * ```
@@ -129,9 +139,12 @@ export class LedgerResource extends BaseResource {
     family: LedgerFamily,
     request: LedgerEIP712Request,
     options?: LedgerScanOptions
-  ): Promise<LedgerScanResponse> {
-    const response: HttpResponse<LedgerScanResponse> = await this.httpClient.post(
-      `/ledger/${family}/scan/eip-712`,
+  ): Promise<LedgerEIP712ScanResponse> {
+    const path = this.buildPath(`/ledger/${family}/scan/eip-712`, {
+      refreshCache: options?.refreshCache,
+    });
+    const response: HttpResponse<LedgerEIP712ScanResponse> = await this.httpClient.post(
+      path,
       request,
       this.requestOptions(options)
     );

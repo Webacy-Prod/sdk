@@ -48,11 +48,12 @@ export class ScanResource extends BaseResource {
   /**
    * Scan a transaction for security risks before signing
    *
-   * Analyzes raw transaction data and returns:
-   * - Risk assessment and warnings
-   * - Simulated asset changes
-   * - Contract interaction details
-   * - Domain reputation (if provided)
+   * Simulates the serialized unsigned transaction (`tx.raw`, e.g. ethers
+   * `Transaction.from({...}).unsignedSerialized`) and returns one `simulation`
+   * item per asset movement / approval, each with the risk profile of the
+   * signer (`partyRisk`), the recipient or spender (`counterpartyRisk`) and
+   * the token (`assetRisk`), plus a `functionRisk` when the calldata calls a
+   * known-risky function and the signed TLV `descriptor`.
    *
    * @param fromAddress - The signer address
    * @param request - Transaction scan request
@@ -70,17 +71,11 @@ export class ScanResource extends BaseResource {
    *   domain: 'uniswap.org',
    * });
    *
-   * if (result.riskLevel === 'high' || result.riskLevel === 'critical') {
-   *   console.warn('High risk transaction!');
-   *   for (const warning of result.warnings) {
-   *     console.warn(`${warning.severity}: ${warning.description}`);
-   *   }
-   * }
-   *
-   * // Check simulated asset changes
-   * if (result.assetChanges) {
-   *   for (const change of result.assetChanges) {
-   *     console.log(`${change.type}: ${change.amount} ${change.symbol}`);
+   * for (const item of result.simulation) {
+   *   const { txData, counterpartyRisk, assetRisk } = item;
+   *   console.log(`${txData.changeType} ${txData.rawAmount ?? ''} ${txData.symbol ?? txData.assetType} → ${txData.counterpartyAddress}`);
+   *   if ((counterpartyRisk.high ?? 0) > 0 || (assetRisk.high ?? 0) > 0) {
+   *     console.warn('High risk transaction!', counterpartyRisk.issues?.flatMap((i) => i.tags.map((t) => t.name)));
    *   }
    * }
    * ```
@@ -110,11 +105,12 @@ export class ScanResource extends BaseResource {
   /**
    * Scan an EIP-712 typed message for security risks before signing
    *
-   * Analyzes EIP-712 typed data and returns:
-   * - Risk assessment and warnings
-   * - Message type analysis (permit, order, etc.)
-   * - Spender analysis for approvals
-   * - Domain reputation (if provided)
+   * Analyzes EIP-712 typed data and returns `simulation` with the risk profile
+   * of the spender / recipient named in the message (`counterpartyRisk`), of
+   * the contract(s) involved (`partyRisk`), the dApp `domainRisk` when a
+   * `domain` was passed, and a `functionRisk` when the typed data embeds
+   * calldata for a known-risky function. Only Ethereum mainnet (`domain.chainId: 1`)
+   * is supported.
    *
    * @param fromAddress - The signer address
    * @param request - EIP-712 scan request
@@ -161,11 +157,9 @@ export class ScanResource extends BaseResource {
    *   domain: 'app.uniswap.org',
    * });
    *
-   * if (result.messageType?.isPermit) {
-   *   console.log('This is a permit/approval signature');
-   *   if (result.spenderAnalysis?.riskLevel === 'high') {
-   *     console.warn('High risk spender!');
-   *   }
+   * const spender = result.simulation.counterpartyRisk;
+   * if ((spender?.high ?? 0) > 0 || result.simulation.domainRisk?.riskLevel === 'high') {
+   *   console.warn('High risk spender!', spender?.issues?.flatMap((i) => i.tags.map((t) => t.name)));
    * }
    * ```
    */

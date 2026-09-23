@@ -91,7 +91,14 @@ describe('ScanResource', () => {
 
     it('should make API call with valid request', async () => {
       mockHttpClient.post.mockResolvedValueOnce({
-        data: { riskLevel: 'low', warnings: [] },
+        data: {
+          public_key_id: 'k',
+          descriptor: '0x01',
+          block: null,
+          simulation: [],
+          timestamp: 't',
+          chain: 'eth',
+        },
         status: 200,
         headers: new Headers(),
       });
@@ -103,12 +110,20 @@ describe('ScanResource', () => {
         validRequest,
         expect.any(Object)
       );
-      expect(result.riskLevel).toBe('low');
+      expect(result.chain).toBe('eth');
+      expect(result.simulation).toEqual([]);
     });
 
     it('should include refreshCache when provided', async () => {
       mockHttpClient.post.mockResolvedValueOnce({
-        data: { riskLevel: 'low', warnings: [] },
+        data: {
+          public_key_id: 'k',
+          descriptor: '0x01',
+          block: null,
+          simulation: [],
+          timestamp: 't',
+          chain: 'eth',
+        },
         status: 200,
         headers: new Headers(),
       });
@@ -127,7 +142,14 @@ describe('ScanResource', () => {
 
       for (const chainId of validChainIds) {
         mockHttpClient.post.mockResolvedValueOnce({
-          data: { riskLevel: 'low', warnings: [] },
+          data: {
+            public_key_id: 'k',
+            descriptor: '0x01',
+            block: null,
+            simulation: [],
+            timestamp: 't',
+            chain: 'eth',
+          },
           status: 200,
           headers: new Headers(),
         });
@@ -281,7 +303,14 @@ describe('ScanResource', () => {
 
     it('should make API call with valid request', async () => {
       mockHttpClient.post.mockResolvedValueOnce({
-        data: { riskLevel: 'low', warnings: [] },
+        data: {
+          public_key_id: 'k',
+          descriptor: '0x01',
+          block: null,
+          simulation: {},
+          timestamp: 't',
+          chain: 'eth',
+        },
         status: 200,
         headers: new Headers(),
       });
@@ -293,12 +322,20 @@ describe('ScanResource', () => {
         validRequest,
         expect.any(Object)
       );
-      expect(result.riskLevel).toBe('low');
+      expect(result.chain).toBe('eth');
+      expect(result.simulation).toEqual({});
     });
 
     it('should include refreshCache when provided', async () => {
       mockHttpClient.post.mockResolvedValueOnce({
-        data: { riskLevel: 'low', warnings: [] },
+        data: {
+          public_key_id: 'k',
+          descriptor: '0x01',
+          block: null,
+          simulation: {},
+          timestamp: 't',
+          chain: 'eth',
+        },
         status: 200,
         headers: new Headers(),
       });

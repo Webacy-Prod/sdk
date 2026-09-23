@@ -1,5 +1,14 @@
+import type {
+  ScanEIP712Simulation,
+  ScanEIP712TypedData,
+  ScanResponseBase,
+  ScanSimulationItem,
+} from './scan';
+
 /**
  * Supported ledger device families
+ *
+ * The API currently serves `ethereum` only.
  */
 export type LedgerFamily = 'ethereum' | 'solana' | 'bitcoin';
 
@@ -9,7 +18,10 @@ export type LedgerFamily = 'ethereum' | 'solana' | 'bitcoin';
 export interface LedgerTransactionData {
   /** From address */
   from: string;
-  /** Raw transaction data */
+  /**
+   * Serialized transaction bytes (0x-prefixed hex): the unsigned transaction
+   * to simulate before signing, or a 66-character hash of a mined transaction.
+   */
   raw: string;
   /** To address (optional) */
   to?: string;
@@ -27,81 +39,60 @@ export interface LedgerScanRequest {
   tx: LedgerTransactionData;
   /** Chain ID */
   chain: number;
+  /** Block number for simulation (optional) */
+  block?: number;
+  /** Domain (origin) of the dApp (optional) */
+  domain?: string;
 }
 
 /**
  * EIP-712 typed data for signing
  */
-export interface EIP712TypedData {
-  /** Domain data */
-  domain: {
-    name?: string;
-    version?: string;
-    chainId?: number;
-    verifyingContract?: string;
-    salt?: string;
-  };
-  /** Message data */
-  message: Record<string, unknown>;
-  /** Primary type */
-  primaryType: string;
-  /** Type definitions */
-  types: Record<string, Array<{ name: string; type: string }>>;
-}
+export type EIP712TypedData = ScanEIP712TypedData;
 
 /**
- * Ledger EIP-712 scan request
+ * Ledger EIP-712 scan request — same envelope as `POST /scan/{fromAddress}/eip712`
  */
 export interface LedgerEIP712Request {
-  /** Signer address */
-  signer: string;
-  /** Typed data to sign */
-  typedData: EIP712TypedData;
-  /** Chain ID */
-  chain: number;
-}
-
-/**
- * Risk detected in ledger scan
- */
-export interface LedgerRisk {
-  /** Risk type */
-  type: string;
-  /** Risk level */
-  level: 'low' | 'medium' | 'high' | 'critical';
-  /** Risk description */
-  description: string;
-  /** Recommendation */
-  recommendation?: string;
-}
-
-/**
- * Ledger scan response
- */
-export interface LedgerScanResponse {
-  /** Whether transaction is safe */
-  is_safe: boolean;
-  /** Overall risk level */
-  risk_level: 'safe' | 'low' | 'medium' | 'high' | 'critical';
-  /** Risks detected */
-  risks: LedgerRisk[];
-  /** Decoded transaction data */
-  decoded?: {
-    /** Function name if contract call */
-    function_name?: string;
-    /** Function signature */
-    function_signature?: string;
-    /** Decoded parameters */
-    parameters?: Record<string, unknown>;
+  /** Message data */
+  msg: {
+    /** Signer address */
+    from: string;
+    /** Typed data to sign (`domain.chainId` selects the chain; only `1` is supported) */
+    data: EIP712TypedData;
   };
-  /** Recommendations */
-  recommendations?: string[];
+  /** Domain (origin) of the dApp — when set the response carries `simulation.domainRisk` */
+  domain?: string;
+  /** Block number for simulation (optional) */
+  block?: number;
+}
+
+/**
+ * Ledger transaction scan response
+ *
+ * Same payload as `POST /scan/{fromAddress}/transactions` minus the `chain`
+ * echo: one `simulation` item per asset movement / approval, plus the signed
+ * TLV `descriptor` the device verifies.
+ */
+export interface LedgerScanResponse extends ScanResponseBase {
+  /** One entry per simulated asset movement or approval */
+  simulation: ScanSimulationItem[];
+}
+
+/**
+ * Ledger EIP-712 scan response
+ */
+export interface LedgerEIP712ScanResponse extends ScanResponseBase {
+  /** Analysis of the typed data */
+  simulation: ScanEIP712Simulation;
 }
 
 /**
  * Options for ledger scan requests
  */
 export interface LedgerScanOptions {
+  /** Force refresh cache */
+  refreshCache?: boolean;
   /** Request timeout in milliseconds */
   timeout?: number;
   /** Abort signal */
