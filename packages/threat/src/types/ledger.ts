@@ -44,17 +44,36 @@ export interface LedgerScanRequest {
 }
 
 /**
- * EIP-712 typed data for signing (same shape as the scan resource's)
+ * EIP-712 domain for the Ledger route
+ *
+ * Unlike `POST /scan/{fromAddress}/eip712`, the Ledger route requires every
+ * domain field as a non-empty string — `name`, `version` and
+ * `verifyingContract` are not optional here. `chainId` may be given as a
+ * number; `LedgerResource.scanEip712` sends it as the string the route
+ * validates.
  */
-export type EIP712TypedData = ScanEIP712TypedData;
+export interface LedgerEIP712Domain {
+  /** Domain name (required by the Ledger route) */
+  name: string;
+  /** Domain version (required by the Ledger route) */
+  version: string;
+  /** Chain ID — only `1` (Ethereum mainnet) is supported */
+  chainId: number | string;
+  /** Verifying contract address (required by the Ledger route) */
+  verifyingContract: string;
+}
+
+/**
+ * EIP-712 typed data for the Ledger route: the scan resource's shape with the
+ * stricter `LedgerEIP712Domain`
+ */
+export type EIP712TypedData = Omit<ScanEIP712TypedData, 'domain'> & {
+  /** Domain data (all four fields required, see `LedgerEIP712Domain`) */
+  domain: LedgerEIP712Domain;
+};
 
 /**
  * Ledger EIP-712 scan request — same envelope as `POST /scan/{fromAddress}/eip712`
- *
- * The Ledger route validates the domain more strictly than the scan route
- * (every domain field as a non-empty string, `chainId` included);
- * `LedgerResource.scanEip712` normalises the domain before posting, so the
- * same `EIP712TypedData` value works on both.
  */
 export interface LedgerEIP712Request {
   /** Message data */

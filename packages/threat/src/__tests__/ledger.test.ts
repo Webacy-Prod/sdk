@@ -187,7 +187,7 @@ describe('LedgerResource', () => {
       expect(result.simulation.domainRisk?.riskLevel).toBe('unknown');
     });
 
-    it('fills the optional domain fields the Ledger route requires', async () => {
+    it('sends a numeric chainId as the string the Ledger route validates, leaving the rest as given', async () => {
       mockHttpClient.post.mockResolvedValueOnce({
         data: eip712ScanResponse,
         status: 200,
@@ -197,16 +197,16 @@ describe('LedgerResource', () => {
       await ledger.scanEip712('ethereum', {
         msg: {
           from: request.msg.from,
-          data: { ...request.msg.data, domain: { chainId: 1 } },
+          data: { ...request.msg.data, domain: { ...request.msg.data.domain, chainId: 1 } },
         },
       });
 
       const [, body] = mockHttpClient.post.mock.calls[0];
       expect(body.msg.data.domain).toEqual({
-        name: '',
-        version: '',
+        name: 'MyDApp',
+        version: '1',
         chainId: '1',
-        verifyingContract: '',
+        verifyingContract: '0x0000000000000000000000000000000000000000',
       });
     });
 

@@ -88,6 +88,7 @@ export type {
   LedgerFamily,
   LedgerTransactionData,
   LedgerScanRequest,
+  LedgerEIP712Domain,
   EIP712TypedData,
   LedgerEIP712Request,
   LedgerScanResponse,
