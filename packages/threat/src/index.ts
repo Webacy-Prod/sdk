@@ -76,11 +76,10 @@ export type {
   LedgerFamily,
   LedgerTransactionData,
   LedgerScanRequest,
-  LedgerEIP712Domain,
   EIP712TypedData,
   LedgerEIP712Request,
+  LedgerRisk,
   LedgerScanResponse,
-  LedgerEIP712ScanResponse,
   LedgerScanOptions,
   // Account trace types
   AccountTraceResponse,

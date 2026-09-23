@@ -171,23 +171,17 @@ Scan hardware wallet transactions for security.
 ```typescript
 const scan = await client.ledger.scanTransaction('ethereum', {
   tx: {
-    from: '0xYourWallet...',
-    // Serialized unsigned transaction (ethers `Transaction.from({...}).unsignedSerialized`)
-    raw: '0x02f0...',
+    from: '0x...',
+    to: '0x...',
+    data: '0x...',
   },
-  chain: 1, // numeric chain ID in the body
+  chain: 1,
 });
 
-for (const item of scan.simulation) {
-  const { txData, counterpartyRisk } = item;
-  console.log(`${txData.changeType ?? 'CALL'} → ${txData.counterpartyAddress}`);
-  if ((counterpartyRisk.high ?? 0) > 0) {
-    console.warn('Flagged recipient:', counterpartyRisk.issues?.flatMap((i) => i.tags.map((t) => t.name)));
-  }
+console.log(`Risk Level: ${scan.risk_level}`);
+for (const warning of scan.warnings || []) {
+  console.log(`Warning: ${warning}`);
 }
-
-// The signed TLV descriptor the device verifies
-console.log(scan.descriptor);
 ```
 
 ### Account Trace

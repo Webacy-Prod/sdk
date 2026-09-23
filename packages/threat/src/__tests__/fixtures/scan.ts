@@ -1,14 +1,7 @@
-import type {
-  LedgerEIP712ScanResponse,
-  LedgerScanResponse,
-  ScanEIP712Response,
-  ScanResponse,
-  ScanSimulationItem,
-} from '../../types';
+import type { ScanEIP712Response, ScanResponse, ScanSimulationItem } from '../../types';
 
 /**
- * Real payloads (trimmed) from risk-score-api-v2 with WEB-5360 / WEB-5370,
- * captured in `pr-evidence-web5360/local-after*` and `local-5370`. Typed, so
+ * Real transaction-simulation payloads (trimmed) from the API. Typed, so
  * `tsc` fails whenever payload and type disagree.
  */
 
@@ -68,21 +61,17 @@ export const receiptPlaceholderItem: ScanSimulationItem = {
   },
 };
 
-export const ledgerTxScanResponse: LedgerScanResponse = {
+export const txScanResponse: ScanResponse = {
   public_key_id: 'f707d252-4475-4afd-8b8d-6c4893624aa7',
   descriptor: '0x0101090201',
   block: null,
   timestamp: '2026-09-23T14:08:50.775Z',
   simulation: [nativeTransferItem],
-};
-
-export const txScanResponse: ScanResponse = {
-  ...ledgerTxScanResponse,
   domainRisk: { riskLevel: 'unknown', description: 'Inconclusive.' },
   chain: 'eth',
 };
 
-export const ledgerEip712ScanResponse: LedgerEIP712ScanResponse = {
+export const eip712ScanResponse: ScanEIP712Response = {
   public_key_id: 'f707d252-4475-4afd-8b8d-6c4893624aa7',
   descriptor: '0x0101090201',
   block: null,
@@ -97,9 +86,5 @@ export const ledgerEip712ScanResponse: LedgerEIP712ScanResponse = {
     },
     domainRisk: { riskLevel: 'unknown', description: 'Inconclusive.' },
   },
-};
-
-export const eip712ScanResponse: ScanEIP712Response = {
-  ...ledgerEip712ScanResponse,
   chain: 'eth',
 };

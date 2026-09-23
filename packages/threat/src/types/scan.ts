@@ -274,7 +274,7 @@ export interface ScanSimulationItem {
 export interface ScanResponseBase {
   /** Identifier of the key that signed `descriptor` */
   public_key_id: string;
-  /** Signed TLV descriptor (hardware-wallet integrations) */
+  /** Signed TLV descriptor of the verdict (for integrations that verify it on-device) */
   descriptor: string;
   /** Block number for a mined transaction; `null` for a pending one */
   block: number | null;
