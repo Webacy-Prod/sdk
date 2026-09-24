@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ScanResource } from '../resources/scan';
 import { Chain, ValidationError, HttpClient } from '@webacy-xyz/sdk-core';
 import type { ScanTransactionRequest, ScanEIP712Request } from '../types';
+import { eip712ScanResponse, txScanResponse } from './fixtures/scan';
 
 // Mock HttpClient
 const createMockHttpClient = () => ({
@@ -91,7 +92,7 @@ describe('ScanResource', () => {
 
     it('should make API call with valid request', async () => {
       mockHttpClient.post.mockResolvedValueOnce({
-        data: { riskLevel: 'low', warnings: [] },
+        data: txScanResponse,
         status: 200,
         headers: new Headers(),
       });
@@ -103,12 +104,16 @@ describe('ScanResource', () => {
         validRequest,
         expect.any(Object)
       );
-      expect(result.riskLevel).toBe('low');
+      expect(result.chain).toBe('eth');
+      expect(result.simulation).toHaveLength(1);
+      expect(result.simulation[0].counterpartyRisk.high).toBe(1);
+      expect(result.simulation[0].assetRisk.address).toBeNull();
+      expect(result.domainRisk?.riskLevel).toBe('unknown');
     });
 
     it('should include refreshCache when provided', async () => {
       mockHttpClient.post.mockResolvedValueOnce({
-        data: { riskLevel: 'low', warnings: [] },
+        data: txScanResponse,
         status: 200,
         headers: new Headers(),
       });
@@ -127,7 +132,7 @@ describe('ScanResource', () => {
 
       for (const chainId of validChainIds) {
         mockHttpClient.post.mockResolvedValueOnce({
-          data: { riskLevel: 'low', warnings: [] },
+          data: txScanResponse,
           status: 200,
           headers: new Headers(),
         });
@@ -281,7 +286,7 @@ describe('ScanResource', () => {
 
     it('should make API call with valid request', async () => {
       mockHttpClient.post.mockResolvedValueOnce({
-        data: { riskLevel: 'low', warnings: [] },
+        data: eip712ScanResponse,
         status: 200,
         headers: new Headers(),
       });
@@ -293,12 +298,13 @@ describe('ScanResource', () => {
         validRequest,
         expect.any(Object)
       );
-      expect(result.riskLevel).toBe('low');
+      expect(result.chain).toBe('eth');
+      expect(result.simulation.counterpartyRisk?.high).toBe(1);
     });
 
     it('should include refreshCache when provided', async () => {
       mockHttpClient.post.mockResolvedValueOnce({
-        data: { riskLevel: 'low', warnings: [] },
+        data: eip712ScanResponse,
         status: 200,
         headers: new Headers(),
       });

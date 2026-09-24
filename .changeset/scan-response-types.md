@@ -1,0 +1,10 @@
+---
+'@webacy-xyz/sdk-threat': major
+'@webacy-xyz/sdk': major
+---
+
+Fix the transaction-simulation types (`scan` resource) to match what the API actually returns (WEB-5371).
+
+**Requires the API release that accepts the documented request envelopes (`{ tx: { from, raw }, chain }` / `{ msg: { from, data } }`) and scores the calldata recipient when a simulation reverts.** Against an older API those envelopes are rejected with `400 Chain parameter is required` / `Bad Request Exception`.
+
+**Breaking (`@webacy-xyz/sdk-threat`, re-exported by `@webacy-xyz/sdk`):** `ScanResponse` / `ScanEIP712Response` no longer declare `riskLevel`, `riskScore`, `warnings`, `assetChanges`, `contractDetails`, `messageType`, `spenderAnalysis` or `simulationSuccess` — none of those fields were ever returned, so every consumer read `undefined`. The real payload is now typed: `{ public_key_id, descriptor, block, timestamp, chain, simulation }` (`block` is `number | null`, always present), where a transaction scan's `simulation` is an array of `ScanSimulationItem` (`txData` asset movement / approval / call + `partyRisk`, `counterpartyRisk`, `assetRisk` address profiles + optional `functionRisk`; plus a top-level `domainRisk` when a `domain` was sent) and an EIP-712 scan's `simulation` is `ScanEIP712Simulation` (`counterpartyRisk`, `partyRisk`, `domainRisk`, `functionRisk`, `safeMlScore` on cached responses). `assetRisk` is `ScanAssetRisk` (`address: string | null` — `null` for the native asset). `txData.changeType` is optional (`'TRANSFER' | 'APPROVE' | 'CALL'`; absent on the receipt placeholder item of a mined transaction that moved nothing), `txData.source` is the closed `ScanAssetChangeSource` union, and `simulationReverted` is present on every `source: 'calldata'` item. Branch on `counterpartyRisk.high > 0` (known drainer / hacker / sanctioned) instead of `riskLevel`. The removed helper types `ScanRiskLevel`, `ScanWarning` and `AssetChange` are replaced by `ScanAddressRisk`, `ScanAssetRisk`, `ScanRiskIssue`, `ScanRiskTag`, `ScanAssetChange`, `ScanFunctionRisk` and `ScanDomainRisk`.
