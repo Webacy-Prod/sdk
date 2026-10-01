@@ -131,13 +131,13 @@ Check URLs for phishing and malware.
 ```typescript
 const result = await client.url.check('https://suspicious-site.com');
 
-if (result.is_malicious) {
-  console.log(`Risk Score: ${result.risk_score}/100`);
-  console.log(`Threats: ${result.threat_types?.join(', ')}`);
+// riskLevel: 'high' (known phishing / blocklisted), 'medium' (looks like a
+// known project's domain), 'low' (known project site), 'unknown' (no verdict)
+if (result.riskLevel === 'high') {
+  console.log(`Blocked: ${result.description}`);
+} else if (result.riskLevel === 'unknown') {
+  console.log('Unverified site: treat with caution');
 }
-
-// Report a malicious URL
-await client.url.add('https://phishing-site.xyz');
 ```
 
 ### Wallet Analysis

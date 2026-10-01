@@ -23,9 +23,32 @@ describe('UrlResource', () => {
   });
 
   describe('check', () => {
+    it('returns the API verdict (riskLevel / description / message)', async () => {
+      // Real prod response, POST /url {"url":"metamask-io.com"}, 2026-10-01
+      const body = {
+        riskLevel: 'high',
+        description: 'This URL has been blacklisted.',
+        message: 'Wrong response? Please report: https://forms.gle/4ievDbQDqRgrHcRV9',
+      };
+      mockHttpClient.post.mockResolvedValueOnce({
+        data: body,
+        status: 200,
+        headers: new Headers(),
+      });
+
+      const result = await url.check('metamask-io.com');
+
+      expect(result).toEqual(body);
+      expect(result.riskLevel).toBe('high');
+    });
+
     it('should accept bare domains and normalize them', async () => {
       mockHttpClient.post.mockResolvedValueOnce({
-        data: { prediction: 'benign', blacklist: 'false', whitelist: 'false' },
+        data: {
+          riskLevel: 'low',
+          description: 'This URL is known as a safe project address.',
+          message: 'Wrong response? Please report: https://forms.gle/4ievDbQDqRgrHcRV9',
+        },
         status: 200,
         headers: new Headers(),
       });
@@ -41,7 +64,11 @@ describe('UrlResource', () => {
 
     it('should accept full URLs unchanged', async () => {
       mockHttpClient.post.mockResolvedValueOnce({
-        data: { prediction: 'benign', blacklist: 'false', whitelist: 'false' },
+        data: {
+          riskLevel: 'low',
+          description: 'This URL is known as a safe project address.',
+          message: 'Wrong response? Please report: https://forms.gle/4ievDbQDqRgrHcRV9',
+        },
         status: 200,
         headers: new Headers(),
       });
@@ -57,7 +84,11 @@ describe('UrlResource', () => {
 
     it('should preserve http:// URLs without upgrading to https://', async () => {
       mockHttpClient.post.mockResolvedValueOnce({
-        data: { prediction: 'benign', blacklist: 'false', whitelist: 'false' },
+        data: {
+          riskLevel: 'low',
+          description: 'This URL is known as a safe project address.',
+          message: 'Wrong response? Please report: https://forms.gle/4ievDbQDqRgrHcRV9',
+        },
         status: 200,
         headers: new Headers(),
       });

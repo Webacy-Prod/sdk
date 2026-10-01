@@ -67,6 +67,7 @@ export type {
   SymbolLookupOptions,
   SymbolLookupResponse,
   // URL types
+  UrlRiskLevel,
   UrlRiskResponse,
   UrlAddResponse,
   UrlCheckOptions,

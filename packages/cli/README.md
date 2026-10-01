@@ -42,7 +42,7 @@ Errors go to stderr, responses to stdout, exit code `0` on success and `1` on an
 | ---------------- | ------------------------------------------------------------------------------------------------------------- | ---------------------------- | --------------------------- |
 | `addresses`      | `analyze`, `check-sanctioned`, `check-poisoning`, `quick-profile`¹, `summary`                                 | No (chain optional)          | —                           |
 | `contracts`      | `analyze`, `source-code`, `taxes`, `analyze-solidity`, `code-analysis`, `audits`, `by-symbol`                 | No (`by-symbol` ignores it)  | `analyze-solidity` (body)   |
-| `url`            | `check`, `add`                                                                                                | Ignored (chain-agnostic)     | —                           |
+| `url`            | `check`, `add` (deprecated)                                                                                               | Ignored (chain-agnostic)     | —                           |
 | `wallets`        | `transactions`, `approvals`                                                                                   | No (chain optional)          | —                           |
 | `ledger`         | `scan-transaction`, `scan-eip712`                                                                             | Ignored (chain in body)²     | Both (request body)         |
 | `account-trace`  | `trace`                                                                                                       | No (chain optional)          | —                           |

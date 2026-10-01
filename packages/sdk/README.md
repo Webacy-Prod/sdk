@@ -180,6 +180,7 @@ import type {
   SanctionedResponse,
   ContractRiskResponse,
   UrlRiskResponse,
+  UrlRiskLevel,
 
   // Common types
   Chain,

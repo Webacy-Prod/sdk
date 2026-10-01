@@ -29,30 +29,20 @@ async function main() {
     try {
       const result = await client.url.check(url);
 
-      if (result.is_malicious) {
-        console.log('  ⛔ MALICIOUS');
-        console.log(`     Risk Score: ${result.risk_score}/100`);
-        if (result.threat_types && result.threat_types.length > 0) {
-          console.log(`     Threats: ${result.threat_types.join(', ')}`);
-        }
-        if (result.category) {
-          console.log(`     Category: ${result.category}`);
-        }
-      } else {
-        console.log('  ✅ Safe');
-        console.log(`     Risk Score: ${result.risk_score}/100`);
+      switch (result.riskLevel) {
+        case 'high':
+          console.log('  ⛔ HIGH RISK (known phishing or blocklisted)');
+          break;
+        case 'medium':
+          console.log('  ⚠️  MEDIUM (similar to a known project, possible impersonation)');
+          break;
+        case 'low':
+          console.log('  ✅ Known project site');
+          break;
+        default:
+          console.log('  ❔ Unknown (no verdict, treat as unverified)');
       }
-
-      // Additional details
-      if (result.domain_info) {
-        console.log('  Domain Info:');
-        console.log(`     Age: ${result.domain_info.age_days || 'Unknown'} days`);
-        console.log(`     Registrar: ${result.domain_info.registrar || 'Unknown'}`);
-      }
-
-      if (result.ssl_info) {
-        console.log(`  SSL: ${result.ssl_info.is_valid ? 'Valid' : 'Invalid'}`);
-      }
+      console.log(`     ${result.description}`);
     } catch (error) {
       console.log(`  ❌ Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
@@ -60,24 +50,6 @@ async function main() {
     console.log('');
   }
 
-  // Report a malicious URL
-  console.log('\n=== Report Malicious URL ===\n');
-
-  const maliciousUrl = 'https://fake-metamask-wallet.xyz';
-  console.log(`Reporting: ${maliciousUrl}`);
-
-  try {
-    const reportResult = await client.url.add(maliciousUrl);
-
-    if (reportResult.success) {
-      console.log('  ✅ URL reported successfully');
-      console.log(`     Report ID: ${reportResult.report_id || 'N/A'}`);
-    } else {
-      console.log('  ⚠️  URL report may have failed');
-    }
-  } catch (error) {
-    console.log(`  ❌ Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
-  }
 }
 
 main().catch(console.error);
