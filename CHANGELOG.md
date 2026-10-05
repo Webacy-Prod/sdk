@@ -31,6 +31,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **URL safety response** ([WEB-5480](https://linear.app/webacy/issue/WEB-5480/url-endpoint-qa)):
+  `UrlRiskResponse` now matches what `POST /url` returns: `riskLevel`
+  (`'low' | 'medium' | 'high' | 'unknown'`, exported as `UrlRiskLevel`),
+  `description` and `message`. The old `blacklist` / `prediction` /
+  `whitelist` fields were never in the response, so checks like
+  `result.prediction === 'malicious'` never fired. README and example code
+  used a third shape (`is_malicious`, `risk_score`, ...), also corrected.
+- `url.add()` is marked `@deprecated`: `POST /url/add` is not exposed on the
+  public API and returns 403.
+
 ### Changed
 
 - **Sanctions screening contract** (WEB-4964): `SanctionedResponse` now matches
