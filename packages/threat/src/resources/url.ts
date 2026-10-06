@@ -19,8 +19,8 @@ import { UrlRiskResponse, UrlAddResponse, UrlCheckOptions } from '../types';
  * @example
  * ```typescript
  * const result = await client.url.check('https://suspicious-site.com');
- * if (result.prediction === 'malicious') {
- *   console.warn('URL is malicious!');
+ * if (result.riskLevel === 'high') {
+ *   console.warn(`Blocked: ${result.description}`);
  * }
  * ```
  */
@@ -43,19 +43,18 @@ export class UrlResource extends BaseResource {
    * ```typescript
    * const result = await client.url.check('https://example.com');
    *
-   * if (result.prediction === 'malicious') {
-   *   console.error('URL is potentially dangerous!');
-   *   console.log('Details:', result.details);
-   * } else if (result.prediction === 'benign') {
-   *   console.log('URL appears safe');
-   * }
-   *
-   * // Check blacklist/whitelist status
-   * if (result.blacklist === 'true') {
-   *   console.error('URL is blacklisted');
-   * }
-   * if (result.whitelist === 'true') {
-   *   console.log('URL is whitelisted');
+   * switch (result.riskLevel) {
+   *   case 'high': // known phishing / blocklisted
+   *     console.error(`Block: ${result.description}`);
+   *     break;
+   *   case 'medium': // looks like a known project's domain
+   *     console.warn(`Possible impersonation: ${result.description}`);
+   *     break;
+   *   case 'low': // a known project's site
+   *     console.log('Known project site');
+   *     break;
+   *   default: // 'unknown': no verdict, treat as unverified
+   *     console.log('Unverified site');
    * }
    * ```
    */
@@ -78,6 +77,10 @@ export class UrlResource extends BaseResource {
    * Add a URL to the database
    *
    * Report a URL to be analyzed and added to the threat database.
+   *
+   * @deprecated `POST /url/add` is not exposed on the public API
+   * (`api.webacy.com` answers 403 for it), so this call fails with an API key.
+   * Report a wrong verdict through the link in `UrlRiskResponse.message`.
    *
    * @param url - URL to add
    * @param options - Request options
