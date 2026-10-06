@@ -1,5 +1,26 @@
 # @webacy-xyz/sdk
 
+## 2.0.0
+
+### Major Changes
+
+- [#57](https://github.com/Webacy-Prod/sdk/pull/57) [`ae67ec5`](https://github.com/Webacy-Prod/sdk/commit/ae67ec5b04b31f8399a75459f1805287103bde80) Thanks [@Ignusmart](https://github.com/Ignusmart)! - Fix the transaction-simulation types (`scan` resource) to match what the API actually returns (WEB-5371).
+
+  **Requires the API release that accepts the documented request envelopes (`{ tx: { from, raw }, chain }` / `{ msg: { from, data } }`) and scores the calldata recipient when a simulation reverts.** Against an older API those envelopes are rejected with `400 Chain parameter is required` / `Bad Request Exception`.
+
+  **Breaking (`@webacy-xyz/sdk-threat`, re-exported by `@webacy-xyz/sdk`):** `ScanResponse` / `ScanEIP712Response` no longer declare `riskLevel`, `riskScore`, `warnings`, `assetChanges`, `contractDetails`, `messageType`, `spenderAnalysis` or `simulationSuccess` — none of those fields were ever returned, so every consumer read `undefined`. The real payload is now typed: `{ public_key_id, descriptor, block, timestamp, chain, simulation }` (`block` is `number | null`, always present), where a transaction scan's `simulation` is an array of `ScanSimulationItem` (`txData` asset movement / approval / call + `partyRisk`, `counterpartyRisk`, `assetRisk` address profiles + optional `functionRisk`; plus a top-level `domainRisk` when a `domain` was sent) and an EIP-712 scan's `simulation` is `ScanEIP712Simulation` (`counterpartyRisk`, `partyRisk`, `domainRisk`, `functionRisk`, `safeMlScore` on cached responses). `assetRisk` is `ScanAssetRisk` (`address: string | null` — `null` for the native asset). `txData.changeType` is optional (`'TRANSFER' | 'APPROVE' | 'CALL'`; absent on the receipt placeholder item of a mined transaction that moved nothing), `txData.source` is the closed `ScanAssetChangeSource` union, and `simulationReverted` is present on every `source: 'calldata'` item. Branch on `counterpartyRisk.high > 0` (known drainer / hacker / sanctioned) instead of `riskLevel`. The removed helper types `ScanRiskLevel`, `ScanWarning` and `AssetChange` are replaced by `ScanAddressRisk`, `ScanAssetRisk`, `ScanRiskIssue`, `ScanRiskTag`, `ScanAssetChange`, `ScanFunctionRisk` and `ScanDomainRisk`.
+
+- [#60](https://github.com/Webacy-Prod/sdk/pull/60) [`9263803`](https://github.com/Webacy-Prod/sdk/commit/92638034d4a4b70dc0b8e4fd048392f3254ac56a) Thanks [@Ignusmart](https://github.com/Ignusmart)! - Fix the URL-safety types (`url` resource) to match what `POST /url` actually returns (WEB-5480).
+
+  **Breaking (`@webacy-xyz/sdk-threat`, re-exported by `@webacy-xyz/sdk`):** `UrlRiskResponse` no longer declares `blacklist`, `prediction`, `whitelist` or `details`. None of those fields were ever returned, so checks such as `result.prediction === 'malicious'` never fired, even for known phishing sites. The real payload is now typed: `{ riskLevel, description, message }`, where `riskLevel` is the new exported `UrlRiskLevel` union (`'low' | 'medium' | 'high' | 'unknown'`). Branch on `riskLevel === 'high'` to block; treat `'unknown'` as unverified, never as safe.
+
+  `url.add()` is now `@deprecated`: `POST /url/add` is not exposed on the public API (`api.webacy.com` returns 403 for it), so it cannot succeed with an API key.
+
+### Patch Changes
+
+- Updated dependencies [[`ae67ec5`](https://github.com/Webacy-Prod/sdk/commit/ae67ec5b04b31f8399a75459f1805287103bde80), [`9263803`](https://github.com/Webacy-Prod/sdk/commit/92638034d4a4b70dc0b8e4fd048392f3254ac56a)]:
+  - @webacy-xyz/sdk-threat@3.0.0
+
 ## 1.11.1
 
 ### Patch Changes
