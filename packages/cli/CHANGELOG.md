@@ -1,5 +1,12 @@
 # @webacy-xyz/cli
 
+## 1.6.5
+
+### Patch Changes
+
+- Updated dependencies [[`bfbf413`](https://github.com/Webacy-Prod/sdk/commit/bfbf413ef48da56b1ef357094144a5c942aebbaf)]:
+  - @webacy-xyz/sdk-threat@3.1.0
+
 ## 1.6.4
 
 ### Patch Changes
