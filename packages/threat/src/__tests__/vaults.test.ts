@@ -1,7 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { VaultsResource } from '../resources/vaults';
 import { VaultEventCategory, VaultEventMechanism } from '../types/vault';
-import type { VaultDeployment, VaultListResponse } from '../types/vault';
+import type {
+  VaultDeployment,
+  VaultIncentives,
+  VaultListMetadata,
+  VaultListResponse,
+} from '../types/vault';
 import { Chain, ValidationError, HttpClient } from '@webacy-xyz/sdk-core';
 
 const createMockHttpClient = () => ({
@@ -116,6 +121,136 @@ describe('VaultsResource', () => {
       expect(calledUrl).not.toContain('hasIncentives');
       expect(calledUrl).not.toContain('incentiveEndingWithinDays');
       expect(calledUrl).not.toContain('durabilityTier');
+
+      // listCursor shares the same param builder.
+      await vaults.listCursor({ cursor: 'c1', hasIncentives: true, durabilityTier: 'high' });
+      calledUrl = mockHttpClient.get.mock.calls[3][0] as string;
+      expect(calledUrl).toContain('cursor=c1');
+      expect(calledUrl).toContain('hasIncentives=true');
+      expect(calledUrl).toContain('durabilityTier=high');
+    });
+
+    it('should reject incentiveEndingWithinDays outside 1..365 or non-integer client-side', async () => {
+      for (const bad of [0, 366, 7.5, -1, NaN]) {
+        await expect(vaults.list({ incentiveEndingWithinDays: bad })).rejects.toThrow(
+          ValidationError
+        );
+      }
+      expect(mockHttpClient.get).not.toHaveBeenCalled();
+      mockHttpClient.get.mockResolvedValueOnce({
+        data: { items: [], pagination: {}, aggregates: {}, filtered_tier_counts: {}, stale: false },
+        status: 200,
+        headers: new Headers(),
+      });
+      await vaults.list({ incentiveEndingWithinDays: 7 });
+      expect(mockHttpClient.get.mock.calls[0][0] as string).toContain(
+        'incentiveEndingWithinDays=7'
+      );
+    });
+
+    it('types a list item carrying metadata.incentives + yield_durability', async () => {
+      const incentives: VaultIncentives = {
+        incentive_source: 'merkl',
+        incentive_as_of: '2026-10-19T12:00:00Z',
+        merkl_opportunity_id: null,
+        merkl_native_apr: null,
+        merkl_total_apr: null,
+        incentive_apr: 0.0436,
+        incentive_apr_liquid: 0.0436,
+        incentive_apr_speculative: 0,
+        incentive_share: 0.84,
+        incentive_share_basis: 'realized_share_price',
+        incentive_reward_tokens: [
+          { symbol: 'USDS', chain: 'eth', address: '0xdc03', type: 'TOKEN' },
+        ],
+        incentive_reward_types: ['TOKEN'],
+        incentive_daily_rewards_usd: null,
+        incentive_campaigns_total: 30,
+        incentive_streak_days: 229,
+        incentive_first_seen: '2026-03-03',
+        incentive_current_end: '2026-10-20T16:00:00Z',
+        incentive_median_campaign_days: 7,
+        incentive_funders: [],
+        incentive_self_funded: false,
+        incentive_campaigns_active: [
+          {
+            campaign_id: null,
+            apr: 0.0125,
+            symbol: 'USDS',
+            chain: 'eth',
+            address: '0xdc03',
+            type: 'TOKEN',
+            start: null,
+            end: '2026-10-20T16:00:00Z',
+            funder: null,
+            curator_funded: null,
+            amount_tokens: null,
+            amount_usd_at_current_price: null,
+            eligibility: 'open',
+            boosted: false,
+            hooks: [],
+            reward_quality: 'stable',
+          },
+        ],
+        incentive_campaigns_active_count: 1,
+        incentive_apr_restricted: 0,
+        incentive_apr_liquid_restricted: 0,
+        incentive_apr_liquid_eligibility_unknown: 0,
+        incentive_apr_boosted: 0,
+        incentive_eligibility_hooks: [],
+        incentive_apr_liquid_low_quality: 0,
+        incentive_reward_qualities: ['stable'],
+        incentive_coverage_spans: [{ start: '2026-03-03T00:00:00Z', end: '2026-10-20T16:00:00Z' }],
+        yield_durability: {
+          score: 71,
+          tier: 'medium',
+          flags: ['incentive_dependent'],
+          drivers: { method: 'yield_durability_v1', liquid_fraction: 1, renewal: 0.73, funding: 1 },
+        },
+      };
+      const response: VaultListResponse = {
+        items: [
+          {
+            metadata: {
+              address: '0xe15f',
+              chain: 'eth',
+              name: 'sky.money USDS Flagship',
+              symbol: 'USDS',
+              share_class_id: null,
+              chains: ['eth'],
+              deployments: [],
+              protocol: null,
+              protocol_version: null,
+              contract_type: 'erc-4626',
+              tvl_usd: 41_300_000,
+              underlying_symbol: 'USDS',
+              underlying_address: null,
+              underlying_risk_tier: null,
+              apy: 0.0065,
+              apy_source: 'tradingstrategy.share_price',
+              apy_measure: 'realized_90d',
+              apy_kind: null,
+              apy_native: null,
+              realized_apy_windows: { realized_90d: 0.0065 },
+              incentives,
+            } as VaultListMetadata,
+          } as VaultListResponse['items'][number],
+        ],
+        pagination: {},
+        aggregates: {},
+        filtered_tier_counts: {},
+        stale: false,
+      } as unknown as VaultListResponse;
+      mockHttpClient.get.mockResolvedValueOnce({
+        data: response,
+        status: 200,
+        headers: new Headers(),
+      });
+      const result = await vaults.list({ hasIncentives: true });
+      expect(result.items[0]?.metadata.incentives?.yield_durability?.tier).toBe('medium');
+      expect(result.items[0]?.metadata.incentives?.incentive_campaigns_active[0]?.symbol).toBe(
+        'USDS'
+      );
     });
 
     it('should pass timeout and signal to httpClient', async () => {

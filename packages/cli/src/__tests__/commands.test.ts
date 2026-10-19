@@ -162,6 +162,27 @@ describe('threat groups', () => {
     expect(threat.rwa.list).toHaveBeenCalledWith({ tier: 'critical' });
   });
 
+  it('vaults list forwards the incentive filters and sort', async () => {
+    await runCli([
+      'vaults',
+      'list',
+      '--has-incentives',
+      'false',
+      '--incentive-ending-within-days',
+      '7',
+      '--durability-tier',
+      'low',
+      '--sort',
+      'incentive_apr_desc',
+    ]);
+    expect(threat.vaults.list).toHaveBeenCalledWith({
+      hasIncentives: false,
+      incentiveEndingWithinDays: 7,
+      durabilityTier: 'low',
+      sort: 'incentive_apr_desc',
+    });
+  });
+
   it('vaults get passes chain', async () => {
     await runCli(['vaults', 'get', '0xvault', '--chain', 'eth']);
     expect(threat.vaults.get).toHaveBeenCalledWith('0xvault', { chain: Chain.ETH });

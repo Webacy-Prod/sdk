@@ -1,4 +1,4 @@
-import { HttpResponse, BaseResource } from '@webacy-xyz/sdk-core';
+import { HttpResponse, BaseResource, ValidationError } from '@webacy-xyz/sdk-core';
 import {
   VaultListResponse,
   VaultCursorListResponse,
@@ -404,6 +404,12 @@ export class VaultsResource extends BaseResource {
   private sharedListParams(
     options: VaultListOptions
   ): Record<string, string | number | boolean | undefined> {
+    const days = options.incentiveEndingWithinDays;
+    if (days !== undefined && (!Number.isInteger(days) || days < 1 || days > 365)) {
+      throw new ValidationError('incentiveEndingWithinDays must be an integer between 1 and 365', {
+        errors: { incentiveEndingWithinDays: [`got ${String(days)}`] },
+      });
+    }
     return {
       chain: options.chain || undefined,
       tier: options.tier,

@@ -22,6 +22,16 @@ export function registerVaults(program: Command): void {
       .option('--risk-flags <list>', 'Comma-separated risk flags (pass-through filter)')
       .option('--risk-flags-mode <mode>', 'Risk flag match mode (any|all)')
       .option('--q <query>', 'Search query')
+      .option(
+        '--has-incentives <bool>',
+        'Only vaults with (true) / without (false) a live Merkl incentive'
+      )
+      .option(
+        '--incentive-ending-within-days <n>',
+        'Only vaults whose live Merkl campaigns all end within N days (1-365)',
+        parseNumber
+      )
+      .option('--durability-tier <tier>', 'Yield-durability tier (high|medium|low|no_incentive)')
       .option('--sort <key>', 'Sort key');
 
   const buildListOptions = (
@@ -51,6 +61,13 @@ export function registerVaults(program: Command): void {
       riskFlagsMode: local.riskFlagsMode as VaultListOptions['riskFlagsMode'],
     }),
     ...(local.q !== undefined && { q: local.q as string }),
+    ...(local.hasIncentives !== undefined && { hasIncentives: local.hasIncentives === 'true' }),
+    ...(local.incentiveEndingWithinDays !== undefined && {
+      incentiveEndingWithinDays: local.incentiveEndingWithinDays as number,
+    }),
+    ...(local.durabilityTier !== undefined && {
+      durabilityTier: local.durabilityTier as VaultListOptions['durabilityTier'],
+    }),
     ...(local.sort !== undefined && { sort: local.sort as VaultListOptions['sort'] }),
   });
 

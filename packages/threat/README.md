@@ -196,6 +196,31 @@ const trace = await client.accountTrace.trace('0x...', {
 console.log(`Traced transactions: ${trace.transactions?.length}`);
 ```
 
+### Vaults
+
+```typescript
+// Vaults with a live Merkl incentive, highest incentive APR first.
+const { items } = await client.vaults.list({
+  chain: Chain.ETH,
+  hasIncentives: true,
+  sort: 'incentive_apr_desc',
+});
+
+for (const { metadata } of items) {
+  const inc = metadata.incentives;
+  if (inc === undefined) break; // this API build does not publish incentives: filter not applied
+  if (inc === null) continue; // no live Merkl campaign (not "no rewards")
+  console.log(
+    metadata.name,
+    `base ${metadata.apy} (${metadata.apy_measure})`,
+    `+${inc.incentive_apr} incentive`,
+    `durability ${inc.yield_durability?.tier ?? 'unscored'}`
+  );
+}
+```
+
+APRs are decimals (`0.0265` = 2.65%) and are never part of `apy`. Other filters: `incentiveEndingWithinDays` (1–365), `durabilityTier` (`high` | `medium` | `low` | `no_incentive`), sort `durability_desc`.
+
 ### API Usage
 
 Monitor your API usage and quota.
