@@ -49,8 +49,18 @@ export type VaultSortKey =
   | 'tvl_asc'
   | 'apy_desc'
   | 'looping_desc'
+  | 'utilization_desc'
+  | 'utilization_asc'
   | 'name_asc'
-  | 'lockup_asc';
+  | 'lockup_asc'
+  | 'protocol_asc'
+  /** Highest live Merkl incentive APR first; vaults without a live incentive sort last. */
+  | 'incentive_apr_desc'
+  /** Highest yield-durability score first; vaults without a live incentive sort last. */
+  | 'durability_desc';
+
+/** Yield-durability tier of a vault's Merkl incentives (see {@link VaultYieldDurability}). */
+export type VaultDurabilityTier = 'high' | 'medium' | 'low' | 'no_incentive';
 
 /** Curated event categories returned by the vault events endpoint */
 export enum VaultEventCategory {
@@ -85,6 +95,143 @@ export interface VaultContextItem {
   reason: string;
 }
 
+// ─── Merkl incentives ───────────────────────────────────────────────────────
+
+/** A token Merkl campaigns pay rewards in. `type`: TOKEN (liquid), POINT or PRETGE (no market value yet). */
+export interface VaultIncentiveRewardToken {
+  symbol: string | null;
+  /** Chain the reward token lives on (chain slug, else Merkl's numeric chain id). */
+  chain: string | null;
+  address: string | null;
+  type: string | null;
+}
+
+/** Who can earn a campaign, from its Merkl eligibility hooks. `unknown` = an
+ *  undocumented or unrecognised hook — never treat it as open. */
+export type VaultIncentiveEligibility = 'open' | 'conditional' | 'restricted' | 'unknown';
+
+/** What a campaign's reward token is worth to a depositor. */
+export type VaultIncentiveRewardQuality =
+  | 'stable'
+  | 'stable_depegging'
+  | 'volatile'
+  | 'unverified'
+  | 'unpriced';
+
+/** One live Merkl incentive campaign on a vault. */
+export interface VaultIncentiveCampaign {
+  campaign_id: string | null;
+  /** The campaign's own current APR (decimal: 0.0265 = 2.65%); null when Merkl reports none. */
+  apr: number | null;
+  symbol: string | null;
+  chain: string | null;
+  address: string | null;
+  type: string | null;
+  start: string | null;
+  end: string;
+  funder: string | null;
+  curator_funded: boolean | null;
+  amount_tokens: number | null;
+  /** Campaign budget valued at TODAY's reward-token price, not the price when funded. */
+  amount_usd_at_current_price: number | null;
+  /** Null on snapshots before eligibility shipped. Empty `hooks` with a null
+   *  `eligibility` means unknown, NOT open. */
+  eligibility: VaultIncentiveEligibility | null;
+  /** True when rewards vary per user (referrals, boosts): the APR is an average. */
+  boosted: boolean | null;
+  /** Merkl hook names on the campaign (e.g. COINBASE_ATTESTATION, JUMPER, WHITELIST_ADDRESSES). */
+  hooks: string[];
+  reward_quality: VaultIncentiveRewardQuality | null;
+}
+
+/** A period with at least one live incentive campaign (back-to-back renewals merged). */
+export interface VaultIncentiveCoverageSpan {
+  start: string;
+  end: string;
+}
+
+export interface VaultYieldDurabilityDrivers {
+  method: string | null;
+  liquid_fraction: number | null;
+  renewal: number | null;
+  funding: number | null;
+}
+
+/**
+ * How much of a vault's yield survives if incentives stop being renewed:
+ * score = 100 × [(1 − share) + share × liquid_fraction × renewal × funding].
+ * `tier` is producer-assigned (high ≥ 80, medium 50–79, low < 50,
+ * no_incentive = the live campaign pays 0%). `flags` is an open set
+ * (incentive_dependent, short_streak, pretge_incentive, points_incentive,
+ * self_subsidised, restricted_incentive, boosted_incentive, unknown_eligibility, …)
+ * and is independent of the tier. Informational — no risk score depends on it.
+ */
+export interface VaultYieldDurability {
+  score: number;
+  tier: VaultDurabilityTier;
+  flags: string[];
+  drivers: VaultYieldDurabilityDrivers;
+}
+
+/**
+ * Third-party incentive campaigns on a vault, from Merkl. Separate from `apy`:
+ * incentives are paid from a campaign budget, not earned by the deposits, so
+ * they are never added into `apy`. All APRs are decimal ratios (0.0265 = 2.65%).
+ *
+ * On the eligibility APR fields, `null` means "not computed" and must NOT be
+ * read as 0; when computed and nothing is restricted the value is 0.
+ */
+export interface VaultIncentives {
+  incentive_source: 'merkl';
+  incentive_as_of: string | null;
+  merkl_opportunity_id: string | null;
+  /** Merkl's own base / total APR — a different measure and window from `apy`; do not compare them. */
+  merkl_native_apr: number | null;
+  merkl_total_apr: number | null;
+  /** Authoritative total incentive APR. */
+  incentive_apr: number;
+  /** TOKEN rewards. Liquid + speculative can sum to less than the total; both null when campaign history was unavailable. */
+  incentive_apr_liquid: number | null;
+  /** POINT / PRETGE rewards (no market value yet). */
+  incentive_apr_speculative: number | null;
+  /** incentive_apr / (base + incentive_apr), in [0, 1]. */
+  incentive_share: number | null;
+  incentive_share_basis: 'merkl_native' | 'realized_share_price' | 'merkl_total' | null;
+  incentive_reward_tokens: VaultIncentiveRewardToken[];
+  incentive_reward_types: string[];
+  incentive_daily_rewards_usd: number | null;
+  incentive_campaigns_total: number | null;
+  /** Days of unbroken campaign coverage up to `incentive_as_of`. */
+  incentive_streak_days: number | null;
+  /** YYYY-MM-DD */
+  incentive_first_seen: string | null;
+  /** Latest end among the live campaigns. */
+  incentive_current_end: string | null;
+  incentive_median_campaign_days: number | null;
+  /** Campaign-creator addresses. */
+  incentive_funders: string[];
+  /** True when the vault's curator is one of the funders; null when the curator is unknown. */
+  incentive_self_funded: boolean | null;
+  /** Live campaigns, soonest-ending first (capped at 20). */
+  incentive_campaigns_active: VaultIncentiveCampaign[];
+  /** Uncapped number of live campaigns. */
+  incentive_campaigns_active_count: number | null;
+  /** Incentive APR only some depositors can earn (never above `incentive_apr`). */
+  incentive_apr_restricted: number | null;
+  incentive_apr_liquid_restricted: number | null;
+  incentive_apr_liquid_eligibility_unknown: number | null;
+  /** APR from campaigns with per-user boosts: the headline is an average. */
+  incentive_apr_boosted: number | null;
+  /** Distinct Merkl hook names across the live campaigns, sorted. */
+  incentive_eligibility_hooks: string[];
+  incentive_apr_liquid_low_quality: number | null;
+  incentive_reward_qualities: VaultIncentiveRewardQuality[];
+  /** Merged campaign coverage over the last 365 days (capped at 24). */
+  incentive_coverage_spans: VaultIncentiveCoverageSpan[];
+  /** Null when it could not be scored (base yield unknown) or on older snapshots. */
+  yield_durability: VaultYieldDurability | null;
+}
+
 // ─── Vault metadata ─────────────────────────────────────────────────────────
 
 /** Vault metadata returned in list items */
@@ -115,6 +262,14 @@ export interface VaultListMetadata {
   underlying_address: string | null;
   underlying_risk_tier: UnderlyingRiskTier | null;
   apy: number | null;
+  /** Upstream field `apy` came from (e.g. 'tradingstrategy.share_price', 'morpho.avgNetApy').
+   *  'morpho.avgNetApy' already includes Merkl rewards. Absent on older API builds. */
+  apy_source?: string | null;
+  /** Category of `apy` ('realized_90d', 'realized_30d', 'spot', …). Absent on older API builds. */
+  apy_measure?: string | null;
+  /** Live Merkl incentives. `null` = no live Merkl campaign (NOT "no rewards").
+   *  Absent on API builds that predate the field. */
+  incentives?: VaultIncentives | null;
   looping_rate: number | null;
   listing_verdict: ListingVerdict;
   attention_needed: boolean;
@@ -399,6 +554,14 @@ export interface VaultListOptions {
   riskFlagsMode?: 'any' | 'all';
   /** Search by symbol, name, or address (max 100 chars) */
   q?: string;
+  /** true: only vaults with a live Merkl incentive; false: only vaults without one
+   *  (nothing more — absence from Merkl does not mean no rewards). */
+  hasIncentives?: boolean;
+  /** Only vaults whose live Merkl campaigns ALL end within this many days (1–365). */
+  incentiveEndingWithinDays?: number;
+  /** Yield-durability tier. high/medium/low also require a live incentive;
+   *  no_incentive matches only vaults whose Merkl campaign pays 0%. */
+  durabilityTier?: VaultDurabilityTier;
   /** Sort order */
   sort?: VaultSortKey;
   /** Request timeout in milliseconds */

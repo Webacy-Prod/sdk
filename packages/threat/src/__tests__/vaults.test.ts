@@ -62,11 +62,17 @@ describe('VaultsResource', () => {
         riskFlags: 'vault-high-looping,vault-upgradeable',
         riskFlagsMode: 'any',
         q: 'morpho',
+        hasIncentives: true,
+        incentiveEndingWithinDays: 7,
+        durabilityTier: 'high',
         sort: 'score_desc',
       });
 
       const calledUrl = mockHttpClient.get.mock.calls[0][0] as string;
       expect(calledUrl).toContain('/vaults?');
+      expect(calledUrl).toContain('hasIncentives=true');
+      expect(calledUrl).toContain('incentiveEndingWithinDays=7');
+      expect(calledUrl).toContain('durabilityTier=high');
       expect(calledUrl).toContain('chain=eth');
       expect(calledUrl).toContain('tier=high');
       expect(calledUrl).toContain('underlying=USDC');
@@ -85,6 +91,31 @@ describe('VaultsResource', () => {
       expect(calledUrl).toContain('sort=score_desc');
       expect(calledUrl).toContain('page=2');
       expect(calledUrl).toContain('pageSize=100');
+    });
+
+    it('should serialise hasIncentives=false (not drop it) and the incentive sorts', async () => {
+      mockHttpClient.get.mockResolvedValue({
+        data: { items: [], pagination: {}, aggregates: {}, filtered_tier_counts: {}, stale: false },
+        status: 200,
+        headers: new Headers(),
+      });
+
+      await vaults.list({ hasIncentives: false, sort: 'incentive_apr_desc' });
+      let calledUrl = mockHttpClient.get.mock.calls[0][0] as string;
+      expect(calledUrl).toContain('hasIncentives=false');
+      expect(calledUrl).toContain('sort=incentive_apr_desc');
+
+      await vaults.list({ durabilityTier: 'no_incentive', sort: 'durability_desc' });
+      calledUrl = mockHttpClient.get.mock.calls[1][0] as string;
+      expect(calledUrl).toContain('durabilityTier=no_incentive');
+      expect(calledUrl).toContain('sort=durability_desc');
+
+      // Omitted → not sent at all.
+      await vaults.list({ chain: Chain.ETH });
+      calledUrl = mockHttpClient.get.mock.calls[2][0] as string;
+      expect(calledUrl).not.toContain('hasIncentives');
+      expect(calledUrl).not.toContain('incentiveEndingWithinDays');
+      expect(calledUrl).not.toContain('durabilityTier');
     });
 
     it('should pass timeout and signal to httpClient', async () => {

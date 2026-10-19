@@ -420,6 +420,9 @@ export class VaultsResource extends BaseResource {
       riskFlags: options.riskFlags,
       riskFlagsMode: options.riskFlagsMode,
       q: options.q,
+      hasIncentives: options.hasIncentives,
+      incentiveEndingWithinDays: options.incentiveEndingWithinDays,
+      durabilityTier: options.durabilityTier,
       sort: options.sort,
     };
   }
