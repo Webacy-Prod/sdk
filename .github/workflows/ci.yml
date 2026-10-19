@@ -51,7 +51,9 @@ jobs:
   changeset-status:
     # Advisory gate: fails when a PR touches publishable packages but adds no
     # changeset. Docs/CI/chore PRs can bypass with `pnpm changeset --empty`.
-    if: github.event_name == 'pull_request'
+    # Skipped on the Changesets "Version Packages" PR: that branch consumes the
+    # changesets while bumping versions, so the gate can only ever fail there.
+    if: github.event_name == 'pull_request' && !startsWith(github.head_ref, 'changeset-release/')
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
