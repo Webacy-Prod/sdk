@@ -27,13 +27,6 @@ export function registerUsage(program: Command): void {
     });
 
   group
-    .command('plans')
-    .description('List available usage plans')
-    .action(async (_local, cmd) => {
-      await run(cmd, ({ clients }) => clients.threat.usage.getPlans());
-    });
-
-  group
     .command('max-rps')
     .description('Get peak requests-per-second for an organization')
     .requiredOption('--organization <name>', 'Organization name')

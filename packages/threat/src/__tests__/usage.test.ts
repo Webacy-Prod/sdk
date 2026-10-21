@@ -23,6 +23,12 @@ describe('UsageResource', () => {
     usage = new UsageResource(mockHttpClient as unknown as HttpClient);
   });
 
+  // WEB-5800: the API gateway no longer routes /usage/usagePlans for customer
+  // keys, so the SDK must not expose a method that can only return 403.
+  it('does not expose getPlans', () => {
+    expect('getPlans' in usage).toBe(false);
+  });
+
   describe('getMaxRps', () => {
     it('should throw ValidationError for missing organization', async () => {
       await expect(usage.getMaxRps({ organization: '', from: 1000, to: 2000 })).rejects.toThrow(

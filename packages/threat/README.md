@@ -239,7 +239,6 @@ const client = new ThreatClient({
 | `accountTrace` | `trace(address, options)`           | Trace fund flows        |
 | `usage`        | `getUsage(options)`                 | Get usage history       |
 | `usage`        | `getCurrent()`                      | Get current usage       |
-| `usage`        | `getPlans()`                        | Get available plans     |
 
 ## Risk Modules
 
