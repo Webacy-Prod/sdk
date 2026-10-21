@@ -1,11 +1,5 @@
 import { BaseResource, HttpResponse, ValidationError, Chain } from '@webacy-xyz/sdk-core';
-import {
-  UsageData,
-  CurrentUsageResponse,
-  UsagePlansResponse,
-  UsageOptions,
-  MaxRpsOptions,
-} from '../types';
+import { UsageData, CurrentUsageResponse, UsageOptions, MaxRpsOptions } from '../types';
 
 /**
  * Resource for API usage and quota management
@@ -103,43 +97,6 @@ export class UsageResource extends BaseResource {
   }): Promise<CurrentUsageResponse> {
     const response: HttpResponse<CurrentUsageResponse> = await this.httpClient.get(
       '/usage/current',
-      {
-        timeout: options?.timeout,
-        signal: options?.signal,
-      }
-    );
-
-    return response.data;
-  }
-
-  /**
-   * Get available usage plans
-   *
-   * Returns list of available plans and their features.
-   *
-   * @param options - Request options
-   * @returns Available plans
-   *
-   * @example
-   * ```typescript
-   * const plans = await client.usage.getPlans();
-   *
-   * console.log(`Current plan: ${plans.current_plan}`);
-   *
-   * for (const plan of plans.plans) {
-   *   console.log(`${plan.name}:`);
-   *   console.log(`  Monthly limit: ${plan.monthly_limit}`);
-   *   console.log(`  Rate limit: ${plan.rate_limit}/sec`);
-   *   console.log(`  Features: ${plan.features.join(', ')}`);
-   * }
-   * ```
-   */
-  async getPlans(options?: {
-    timeout?: number;
-    signal?: AbortSignal;
-  }): Promise<UsagePlansResponse> {
-    const response: HttpResponse<UsagePlansResponse> = await this.httpClient.get(
-      '/usage/usagePlans',
       {
         timeout: options?.timeout,
         signal: options?.signal,

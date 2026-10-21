@@ -36,6 +36,9 @@ export interface CurrentUsageResponse {
 
 /**
  * Usage plan information
+ *
+ * @deprecated `client.usage.getPlans()` was removed: the API no longer serves
+ * `/usage/usagePlans` to customer keys. Kept so existing imports still compile.
  */
 export interface UsagePlan {
   /** Plan ID */
@@ -54,6 +57,8 @@ export interface UsagePlan {
 
 /**
  * Usage plans response
+ *
+ * @deprecated See {@link UsagePlan}.
  */
 export interface UsagePlansResponse {
   /** Available plans */

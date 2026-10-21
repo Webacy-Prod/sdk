@@ -26,7 +26,6 @@ const threat = {
   usage: {
     getCurrent: vi.fn(),
     getUsage: vi.fn(),
-    getPlans: vi.fn(),
     getMaxRps: vi.fn(),
   },
   transactions: { analyze: vi.fn() },
