@@ -366,9 +366,11 @@ export interface RwaListOptions {
   /** Return only collapsed/dead tokens (graveyard view). Overrides showAll */
   collapsedOnly?: boolean;
   /**
-   * Also list classified tokens that are neither tracked by the depeg monitor nor
-   * enrolled for tracking, i.e. the whole classified catalog; those rows carry null
-   * metrics. Default false: only tracked or enrolled tokens are served.
+   * Also list classified tokens the depeg monitor has not ingested and that are not
+   * enrolled for monitoring, or were explicitly excluded from it (showAll does not
+   * restore those), i.e. the whole classified catalog; non-ingested rows carry null
+   * metrics. Default false: only ingested or enrolled tokens are served, and
+   * `aggregates` describe that served set.
    */
   includeUnenrolled?: boolean;
   /** Page number (1-indexed, default 1) */
