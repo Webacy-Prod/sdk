@@ -27,7 +27,7 @@ export function registerRwa(program: Command): void {
     .option('--collapsed-only', 'Only show collapsed/dead tokens')
     .option(
       '--include-unenrolled',
-      'Also list classified tokens the monitor does not track (whole catalog)'
+      'Also list classified tokens the monitor has not ingested and that are not enrolled (whole catalog)'
     )
     .option('--page <n>', 'Page number', parseNumber)
     .option('--page-size <n>', 'Page size', parseNumber)

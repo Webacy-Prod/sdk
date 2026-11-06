@@ -65,7 +65,7 @@ export class RwaResource extends BaseResource {
    * // View collapsed/dead tokens
    * const graveyard = await client.rwa.list({ collapsedOnly: true });
    *
-   * // Whole classified catalog, including tokens the monitor does not track
+   * // Whole classified catalog, including tokens the monitor has not ingested
    * const catalog = await client.rwa.list({ includeUnenrolled: true });
    * ```
    */
