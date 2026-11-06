@@ -162,6 +162,11 @@ describe('threat groups', () => {
     expect(threat.rwa.list).toHaveBeenCalledWith({ tier: 'critical' });
   });
 
+  it('rwa list forwards --include-unenrolled', async () => {
+    await runCli(['rwa', 'list', '--include-unenrolled']);
+    expect(threat.rwa.list).toHaveBeenCalledWith({ includeUnenrolled: true });
+  });
+
   it('vaults list forwards the incentive filters and sort', async () => {
     await runCli([
       'vaults',

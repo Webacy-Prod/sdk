@@ -365,6 +365,12 @@ export interface RwaListOptions {
   showAll?: boolean;
   /** Return only collapsed/dead tokens (graveyard view). Overrides showAll */
   collapsedOnly?: boolean;
+  /**
+   * Also list classified tokens that are neither tracked by the depeg monitor nor
+   * enrolled for tracking, i.e. the whole classified catalog; those rows carry null
+   * metrics. Default false: only tracked or enrolled tokens are served.
+   */
+  includeUnenrolled?: boolean;
   /** Page number (1-indexed, default 1) */
   page?: number;
   /** Items per page (default 50, max 500) */
