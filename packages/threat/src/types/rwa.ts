@@ -58,6 +58,13 @@ export interface RwaTokenListItem {
   address: string;
   chain: string;
   symbol: string;
+  /**
+   * Whether the depeg monitor has ingested data for this token. `false` = no
+   * snapshot yet (an enrolled token awaiting its first one, or — under
+   * `includeUnenrolled: true` — a classified token that is not enrolled), so the
+   * risk fields are null because no data exists, not because it scored empty.
+   */
+  has_monitor_data: boolean;
   name: string | null;
   assetType: string;
   denomination: DenominationSummary | null;
@@ -158,7 +165,11 @@ export interface RwaPagination {
   totalPages: number;
 }
 
-/** Ecosystem-wide aggregates computed pre-filter */
+/**
+ * Aggregates over the served set: computed after `segment` and the default
+ * enrollment gate (see `RwaListOptions.includeUnenrolled`) but before every
+ * other filter, so view filters such as `tier` or `q` do not change them.
+ */
 export interface RwaAggregates {
   generated_at: string | null;
   tier_counts: Record<RiskTier, number>;
@@ -166,6 +177,12 @@ export interface RwaAggregates {
   total_volume_24h: number;
   at_peg_count: number;
   at_peg_total: number;
+  /**
+   * Served tokens the depeg monitor has ingested (`has_monitor_data: true`) —
+   * the "assets tracked" figure. `pagination.total` also counts enrolled tokens
+   * not yet ingested and, with `includeUnenrolled: true`, every classified token.
+   */
+  monitored_count: number;
   stability_index: number;
   biggest_depegs: DepegSummary[];
   highest_risk: RwaRiskSummary[];
@@ -361,7 +378,11 @@ export interface RwaListOptions {
   sort?: RwaSortField;
   /** Sort direction */
   order?: 'asc' | 'desc';
-  /** Include excluded/problematic tokens that are normally hidden */
+  /**
+   * Include tokens the scoring marks excluded/problematic, which are normally
+   * hidden. Not the enrollment gate: a token excluded from monitoring is listed
+   * only with `includeUnenrolled: true`.
+   */
   showAll?: boolean;
   /** Return only collapsed/dead tokens (graveyard view). Overrides showAll */
   collapsedOnly?: boolean;

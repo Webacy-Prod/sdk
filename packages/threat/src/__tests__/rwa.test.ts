@@ -127,6 +127,20 @@ describe('RwaResource', () => {
       expect(calledUrl).toContain('includeUnenrolled=true');
     });
 
+    it('should send includeUnenrolled=false when explicitly false, like showAll', async () => {
+      mockHttpClient.get.mockResolvedValueOnce({
+        data: { items: [], pagination: {}, aggregates: {}, tier_counts: {}, stale: false },
+        status: 200,
+        headers: new Headers(),
+      });
+
+      await rwa.list({ includeUnenrolled: false, showAll: false });
+
+      const calledUrl = mockHttpClient.get.mock.calls[0][0] as string;
+      expect(calledUrl).toContain('includeUnenrolled=false');
+      expect(calledUrl).toContain('showAll=false');
+    });
+
     it('should omit includeUnenrolled when not set', async () => {
       mockHttpClient.get.mockResolvedValueOnce({
         data: { items: [], pagination: {}, aggregates: {}, tier_counts: {}, stale: false },
