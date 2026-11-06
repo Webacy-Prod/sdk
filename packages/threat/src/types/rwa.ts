@@ -379,18 +379,18 @@ export interface RwaListOptions {
   /** Sort direction */
   order?: 'asc' | 'desc';
   /**
-   * Include tokens the scoring marks excluded/problematic, which are normally
-   * hidden. Not the enrollment gate: a token excluded from monitoring is listed
-   * only with `includeUnenrolled: true`.
+   * Also include collapsed/dead tokens, which are hidden by default (the rows
+   * `collapsedOnly` selects on their own). Not the monitoring gate: a token not
+   * selected for monitoring is listed only with `includeUnenrolled: true`.
    */
   showAll?: boolean;
   /** Return only collapsed/dead tokens (graveyard view). Overrides showAll */
   collapsedOnly?: boolean;
   /**
-   * Also list classified tokens the depeg monitor has not ingested and that are not
-   * enrolled for monitoring, or were explicitly excluded from it (showAll does not
-   * restore those), i.e. the whole classified catalog; non-ingested rows carry null
-   * metrics. Default false: only ingested or enrolled tokens are served, and
+   * Also list classified tokens Webacy has not selected for monitoring, i.e. the
+   * whole classified catalog (showAll does not restore those); rows the monitor
+   * has not ingested carry null metrics, a token taken out of monitoring keeps its
+   * last data. Default false: only tokens selected for monitoring are served, and
    * `aggregates` describe that served set.
    */
   includeUnenrolled?: boolean;
