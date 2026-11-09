@@ -1,5 +1,20 @@
 # @webacy-xyz/sdk
 
+## 2.2.0
+
+### Minor Changes
+
+- [#65](https://github.com/Webacy-Prod/sdk/pull/65) [`7d050dd`](https://github.com/Webacy-Prod/sdk/commit/7d050dd5a258569d366ac1e3832defb13f44c631) Thanks [@Ignusmart](https://github.com/Ignusmart)! - RWA list: `includeUnenrolled` option (WEB-6443).
+
+  `rwa.list()` now forwards `includeUnenrolled` (boolean). By default `GET /rwa` serves only tokens the depeg monitor has ingested or that are enrolled for monitoring (an explicitly excluded token is hidden too, and `showAll` does not restore it), so `pagination.total` counts the served rows rather than the whole classified catalog and `aggregates` describe that served set; `includeUnenrolled: true` returns every classified token, with `null` metrics on the non-ingested ones. Until now the option was not typed and would have been dropped from the query string. The CLI gains `--include-unenrolled` on `rwa list`. `RwaTokenListItem` now types `has_monitor_data` and `RwaAggregates` types `monitored_count`, both already on the wire, so a consumer can tell a catalog-only row from a monitored one and show "N tracked" without a cast.
+
+  **Requires the API release that carries the default-to-tracked list.** Against an older API the option is ignored and the full catalog comes back either way.
+
+### Patch Changes
+
+- Updated dependencies [[`7d050dd`](https://github.com/Webacy-Prod/sdk/commit/7d050dd5a258569d366ac1e3832defb13f44c631)]:
+  - @webacy-xyz/sdk-threat@3.2.0
+
 ## 2.1.0
 
 ### Minor Changes
