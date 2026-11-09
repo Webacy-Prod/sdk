@@ -25,6 +25,10 @@ export function registerRwa(program: Command): void {
     .option('--order <order>', 'Sort order (asc|desc)')
     .option('--show-all', 'Include all tokens (including collapsed/dead)')
     .option('--collapsed-only', 'Only show collapsed/dead tokens')
+    .option(
+      '--include-unenrolled',
+      'Also list classified tokens the monitor has not ingested and that are not enrolled (whole catalog)'
+    )
     .option('--page <n>', 'Page number', parseNumber)
     .option('--page-size <n>', 'Page size', parseNumber)
     .action(async (local, cmd) => {
@@ -48,6 +52,9 @@ export function registerRwa(program: Command): void {
           ...(local.showAll !== undefined && { showAll: local.showAll as boolean }),
           ...(local.collapsedOnly !== undefined && {
             collapsedOnly: local.collapsedOnly as boolean,
+          }),
+          ...(local.includeUnenrolled !== undefined && {
+            includeUnenrolled: local.includeUnenrolled as boolean,
           }),
           ...(local.page !== undefined && { page: local.page as number }),
           ...(local.pageSize !== undefined && { pageSize: local.pageSize as number }),
