@@ -71,7 +71,6 @@ console.log(`Sniper Count: ${holders.sniper_analysis?.sniper_count}`);
 | Polygon | `pol` |
 | Arbitrum | `arb` |
 | Optimism | `opt` |
-| TON | `ton` |
 | Sui | `sui` |
 | Stellar | `stellar` |
 

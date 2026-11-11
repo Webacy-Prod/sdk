@@ -329,7 +329,7 @@ export interface VaultListOptions {
   page?: number;
   /** Items per page (default 50, max 500) */
   pageSize?: number;
-  /** Filter by chain: eth, sol, base, bsc, pol, arb, opt, ton, sui, stellar, btc, sei */
+  /** Filter by chain: eth, sol, base, bsc, pol, arb, opt, sui, stellar, btc, sei */
   chain?: Chain;
   /** Filter by risk tier */
   tier?: VaultTier;
@@ -382,7 +382,7 @@ export interface VaultCursorListOptions extends VaultListOptions {
  * Options for getting detailed risk data for a specific vault
  */
 export interface VaultDetailOptions {
-  /** Chain (required) — eth, sol, base, bsc, pol, arb, opt, ton, sui, stellar, btc, sei */
+  /** Chain (required) — eth, sol, base, bsc, pol, arb, opt, sui, stellar, btc, sei */
   chain: Chain;
   /** Request timeout in milliseconds */
   timeout?: number;
@@ -445,7 +445,7 @@ export interface VaultEventsOptions {
  * Options for listing curated incidents scoped to a specific vault
  */
 export interface VaultEventsForAddressOptions {
-  /** Chain (required) — eth, sol, base, bsc, pol, arb, opt, ton, sui, stellar, btc, sei */
+  /** Chain (required) — eth, sol, base, bsc, pol, arb, opt, sui, stellar, btc, sei */
   chain: Chain;
   /** Filter by curated event category */
   category?: VaultEventCategory;
@@ -530,7 +530,7 @@ export interface VaultTvlHistoryResponse {
 
 /** Options for getting the TVL history of a specific vault */
 export interface VaultTvlHistoryOptions {
-  /** Chain (required) — eth, sol, base, bsc, pol, arb, opt, ton, sui, stellar, btc, sei */
+  /** Chain (required) — eth, sol, base, bsc, pol, arb, opt, sui, stellar, btc, sei */
   chain: Chain;
   /** Window length to return. Defaults to `30d` server-side when omitted. */
   range?: VaultHistoryRange;
@@ -612,7 +612,7 @@ export interface VaultSharePriceHistoryResponse {
 
 /** Options for getting the share-price history of a specific vault */
 export interface VaultSharePriceHistoryOptions {
-  /** Chain (required) — eth, sol, base, bsc, pol, arb, opt, ton, sui, stellar, btc, sei */
+  /** Chain (required) — eth, sol, base, bsc, pol, arb, opt, sui, stellar, btc, sei */
   chain: Chain;
   /** Window length to return. Defaults to `30d` server-side when omitted. */
   range?: VaultHistoryRange;

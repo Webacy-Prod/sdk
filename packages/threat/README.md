@@ -263,7 +263,6 @@ const modules = [
 - Arbitrum (`arb`)
 - Optimism (`opt`)
 - Solana (`sol`)
-- TON (`ton`)
 - Sui (`sui`)
 - Stellar (`stellar`)
 - Bitcoin (`btc`)
