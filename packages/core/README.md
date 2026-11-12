@@ -86,7 +86,6 @@ isValidSolanaAddress('EPjFWdd5Aufq...'); // true
 | Arbitrum | `arb` | Yes |
 | Optimism | `opt` | Yes |
 | Solana | `sol` | No |
-| TON | `ton` | No |
 | Sui | `sui` | No |
 | Stellar | `stellar` | No |
 | Bitcoin | `btc` | No |

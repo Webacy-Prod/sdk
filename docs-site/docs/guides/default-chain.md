@@ -62,7 +62,6 @@ Chain.BASE   // Base
 // Non-EVM Chains
 Chain.SOL    // Solana
 Chain.BTC    // Bitcoin
-Chain.TON    // TON
 Chain.SUI    // Sui
 Chain.STELLAR // Stellar
 Chain.SEI    // Sei

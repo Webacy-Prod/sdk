@@ -23,7 +23,7 @@ Webacy SDK is a TypeScript SDK for the Webacy API, providing blockchain security
 
 ### Key Features
 
-- Multi-chain support: ETH, SOL, BTC, ARB, POL, OPT, BASE, BSC, TON, SUI, STELLAR, SEI
+- Multi-chain support: ETH, SOL, BTC, ARB, POL, OPT, BASE, BSC, SUI, STELLAR, SEI (TON is frozen, WEB-6620: still in the `Chain` enum and accepted, but no longer documented)
 - Type-safe Chain enum for all API calls
 - ESM and CommonJS dual build support
 - Debug/logging mode with granular control
@@ -257,4 +257,4 @@ pnpm --filter @webacy-xyz/sdk publish --access public
 
 ## Supported Chains
 
-Chain codes: `eth`, `sol`, `base`, `bsc`, `pol`, `arb`, `opt`, `ton`, `sui`, `stellar`, `btc`, `sei`
+Chain codes: `eth`, `sol`, `base`, `bsc`, `pol`, `arb`, `opt`, `sui`, `stellar`, `btc`, `sei` (`ton` still accepted but frozen, WEB-6620)

@@ -179,4 +179,3 @@ async function checkBeforeTransfer(to: string): Promise<void> {
 | Optimism | `opt` | ✅ |
 | Base | `base` | ✅ |
 | Bitcoin | `btc` | Partial |
-| TON | `ton` | Partial |

@@ -200,7 +200,6 @@ import type {
 | Polygon | `pol` | Yes | Yes |
 | Arbitrum | `arb` | Yes | Yes |
 | Optimism | `opt` | Yes | Yes |
-| TON | `ton` | - | Yes |
 | Sui | `sui` | - | Yes |
 | Stellar | `stellar` | - | Yes |
 | Bitcoin | `btc` | - | Yes |

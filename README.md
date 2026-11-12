@@ -174,7 +174,6 @@ Full flag reference lives in [`packages/cli/README.md`](./packages/cli/README.md
 | Polygon | `pol` |
 | Arbitrum | `arb` |
 | Optimism | `opt` |
-| TON | `ton` |
 | Sui | `sui` |
 | Stellar | `stellar` |
 | Bitcoin | `btc` |
