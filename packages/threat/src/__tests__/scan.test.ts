@@ -205,6 +205,21 @@ describe('ScanResource', () => {
       expectTypeOf(result.descriptor).toEqualTypeOf<string>();
     });
 
+    it('accepts a request typed as either chain and returns the union', async () => {
+      mockHttpClient.post.mockResolvedValueOnce({
+        data: solTxScanResponse,
+        status: 200,
+        headers: new Headers(),
+      });
+      // Via a function so TS does not narrow the declared union to the sol type.
+      const pick = (): ScanTransactionRequest | ScanSolanaTransactionRequest => solRequest;
+      const request = pick();
+      const result = await scan.scanTransaction(signer, request);
+      expectTypeOf(result).toEqualTypeOf<ScanResponse | ScanSolanaResponse>();
+      // `ScanResponse.chain` is `string`, so narrow on `hash` (sol only).
+      expect('hash' in result && result.hash).toBe(solTxScanResponse.hash);
+    });
+
     it('returns the unverified fields of a reverted simulation', async () => {
       mockHttpClient.post.mockResolvedValueOnce({
         data: solRevertedScanResponse,

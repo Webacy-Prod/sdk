@@ -111,6 +111,12 @@ export class ScanResource extends BaseResource {
     request: ScanTransactionRequest,
     options?: ScanOptions
   ): Promise<ScanResponse>;
+  /** Either chain: narrow the result with `'hash' in result` (Solana only) */
+  async scanTransaction(
+    fromAddress: string,
+    request: ScanTransactionRequest | ScanSolanaTransactionRequest,
+    options?: ScanOptions
+  ): Promise<ScanResponse | ScanSolanaResponse>;
   async scanTransaction(
     fromAddress: string,
     request: ScanTransactionRequest | ScanSolanaTransactionRequest,
