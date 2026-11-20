@@ -191,5 +191,57 @@ describe('429 handling', () => {
     expect(err.limitType).toBeUndefined();
     expect(err.limit).toBeUndefined(); // not a string
     expect(err.isRetryable()).toBe(false);
+    expect(err.getRecoverySuggestion()).toContain('plan limit');
+    expect(err.getRecoverySuggestion()).not.toContain('compute unit');
+  });
+
+  it.each([
+    ['an empty details object', {}],
+    ['details with no known field', { reason: 'concurrency' }],
+  ])('retries a 429 with %s like one without details', async (_name, details) => {
+    const fetchMock = mockFetch(
+      [429, { ...SERVICE, details }],
+      [429, { ...SERVICE, details }],
+      [200, { ok: true }]
+    );
+    const pending = makeClient(2).get('/vaults');
+    await vi.runAllTimersAsync();
+    await pending;
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+  });
+
+  it('measures the rate wait from the body timestamp, not the client clock', async () => {
+    vi.setSystemTime(new Date('2026-11-19T18:33:24.237Z')); // client 10 minutes behind
+    mockFetch([429, REQUEST_RATE]);
+    const err = await makeClient(0)
+      .get('/vaults')
+      .catch((e) => e);
+    expect(err.retryAfter).toBe(1);
+  });
+
+  it('caps the rate wait at 300 s like Retry-After', async () => {
+    const far = {
+      ...REQUEST_RATE,
+      details: { ...REQUEST_RATE.details, resetAt: '2026-11-19T20:00:00.000Z' },
+    };
+    mockFetch([429, far]);
+    const err = await makeClient(0)
+      .get('/vaults')
+      .catch((e) => e);
+    expect(err.retryAfter).toBe(300);
+  });
+
+  it('serializes the details and retryAfter in toJSON', async () => {
+    mockFetch([429, REQUEST_RATE]);
+    const err = await makeClient(0)
+      .get('/vaults')
+      .catch((e) => e);
+    expect(err.toJSON()).toMatchObject({
+      status: 429,
+      retryAfter: 1,
+      limitType: 'rate',
+      limit: '1',
+      upgradeUrl: 'https://developers.webacy.com/billing',
+    });
   });
 });

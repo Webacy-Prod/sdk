@@ -56,10 +56,10 @@ try {
 
     if (error.upgradeUrl && !error.isRetryable()) {
       // Quota or compute units used up: retrying won't help before the reset
-      console.log(
-        `Used ${error.currentUsage} of ${error.limit}, resets at ${new Date(error.resetAt! * 1000)}`
-      );
-      console.log(`Upgrade at ${error.upgradeUrl}`);
+      console.log(`Used ${error.currentUsage} of ${error.limit}, upgrade at ${error.upgradeUrl}`);
+      if (error.resetAt) {
+        console.log(`Resets at ${new Date(error.resetAt * 1000).toISOString()}`);
+      }
     } else if (error.retryAfter) {
       await sleep(error.retryAfter * 1000);
     }

@@ -1,19 +1,5 @@
 import { WebacyError } from './base';
-
-/**
- * `details` of a plan-limit 429 body, as the API sends it (all values are strings).
- *
- * Present only when the organization reached a limit of its plan. `limitType` is
- * `quota` (monthly request quota) or `rate` (requests per second), and absent when
- * the monthly compute unit allowance is used up.
- */
-export interface RateLimitDetails {
-  limitType?: string;
-  currentUsage?: string;
-  limit?: string;
-  resetAt?: string;
-  upgradeUrl?: string;
-}
+import type { RateLimitDetails } from './rate-limit-details';
 
 /**
  * Thrown when a request gets a 429 Too Many Requests.
@@ -65,6 +51,9 @@ export class RateLimitError extends WebacyError {
   /** Whether the body carried plan-limit `details` */
   private readonly planLimit: boolean;
 
+  /** Whether `details.limitType` was a value this SDK does not know */
+  private readonly unknownLimitType: boolean;
+
   constructor(
     message = 'Rate limit exceeded',
     options: {
@@ -88,19 +77,14 @@ export class RateLimitError extends WebacyError {
       details?.limitType === 'quota' || details?.limitType === 'rate'
         ? details.limitType
         : undefined;
+    this.unknownLimitType = details?.limitType !== undefined && this.limitType === undefined;
     this.limit = details?.limit;
     this.currentUsage = details?.currentUsage;
     this.upgradeUrl = details?.upgradeUrl;
 
     const resetMs = details?.resetAt ? Date.parse(details.resetAt) : NaN;
     this.resetAt = Number.isNaN(resetMs) ? options.resetAt : Math.ceil(resetMs / 1000);
-    // A rate 429 says when the next request is admitted: wait that long unless the
-    // server sent Retry-After. Never 0, so the retry delay never falls back to backoff.
-    this.retryAfter =
-      options.retryAfter ??
-      (this.limitType === 'rate' && !Number.isNaN(resetMs)
-        ? Math.max(1, Math.ceil((resetMs - Date.now()) / 1000))
-        : undefined);
+    this.retryAfter = options.retryAfter;
   }
 
   /**
@@ -114,6 +98,7 @@ export class RateLimitError extends WebacyError {
   override toJSON(): Record<string, unknown> {
     return {
       ...super.toJSON(),
+      retryAfter: this.retryAfter,
       limitType: this.limitType,
       limit: this.limit,
       currentUsage: this.currentUsage,
@@ -125,7 +110,11 @@ export class RateLimitError extends WebacyError {
   override getRecoverySuggestion(): string {
     if (this.planLimit && this.limitType !== 'rate') {
       const what =
-        this.limitType === 'quota' ? 'monthly request quota' : 'monthly compute unit allowance';
+        this.limitType === 'quota'
+          ? 'monthly request quota'
+          : this.unknownLimitType
+            ? 'plan limit'
+            : 'monthly compute unit allowance';
       const until = this.resetAt ? ` until ${new Date(this.resetAt * 1000).toISOString()}` : '';
       const upgrade = this.upgradeUrl ? ` at ${this.upgradeUrl}` : '';
       return `Your organization's ${what} is used up${until}. Upgrade your plan${upgrade} or wait for the reset.`;

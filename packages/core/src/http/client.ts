@@ -16,6 +16,9 @@ import {
 } from './retry';
 import { DebugMode, Logger, defaultLogger } from '../config';
 
+/** Longest wait the SDK takes from a 429 (Retry-After or a rate `resetAt`), in seconds */
+const MAX_RETRY_AFTER_SECONDS = 300;
+
 /**
  * HTTP request configuration
  */
@@ -442,6 +445,7 @@ export class HttpClient {
       error?: string;
       errors?: Record<string, string[]>;
       details?: unknown;
+      timestamp?: unknown;
     } = {};
 
     try {
@@ -463,10 +467,12 @@ export class HttpClient {
       case 429: {
         const retryAfter = response.headers.get('retry-after');
         const resetAt = response.headers.get('x-ratelimit-reset');
+        const details = this.parseRateLimitDetails(errorBody.details);
         return new RateLimitError(message, {
-          retryAfter: this.parseRetryAfter(retryAfter),
+          retryAfter:
+            this.parseRetryAfter(retryAfter) ?? this.rateRetryAfter(details, errorBody.timestamp),
           resetAt: this.parseResetAt(resetAt),
-          details: this.parseRateLimitDetails(errorBody.details),
+          details,
           requestId,
           endpoint,
         });
@@ -533,7 +539,6 @@ export class HttpClient {
     }
 
     // Cap at 5 minutes to prevent excessive delays from malformed headers
-    const MAX_RETRY_AFTER_SECONDS = 300;
     return Math.min(parsed, MAX_RETRY_AFTER_SECONDS);
   }
 
@@ -568,9 +573,26 @@ export class HttpClient {
     const raw = value as Record<string, unknown>;
     const details: RateLimitDetails = {};
     for (const key of ['limitType', 'currentUsage', 'limit', 'resetAt', 'upgradeUrl'] as const) {
-      if (typeof raw[key] === 'string') details[key] = raw[key];
+      const field = raw[key];
+      if (typeof field === 'string') details[key] = field;
     }
-    return details;
+    return Object.keys(details).length > 0 ? details : undefined;
+  }
+
+  /**
+   * Seconds until a `rate` 429's `resetAt`, measured from the body's own `timestamp`
+   * (server clock, so client clock skew does not matter), else from now. At least 1 s
+   * and capped like Retry-After; undefined for any other 429.
+   */
+  private rateRetryAfter(details?: RateLimitDetails, timestamp?: unknown): number | undefined {
+    if (details?.limitType !== 'rate' || !details.resetAt) return undefined;
+    const resetMs = Date.parse(details.resetAt);
+    if (Number.isNaN(resetMs)) return undefined;
+    const serverNow = typeof timestamp === 'string' ? Date.parse(timestamp) : NaN;
+    const seconds = Math.ceil(
+      (resetMs - (Number.isNaN(serverNow) ? Date.now() : serverNow)) / 1000
+    );
+    return Math.min(Math.max(1, seconds), MAX_RETRY_AFTER_SECONDS);
   }
 
   /**

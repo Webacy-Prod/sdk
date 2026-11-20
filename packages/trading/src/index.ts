@@ -43,6 +43,7 @@ export {
   WebacyError,
   AuthenticationError,
   RateLimitError,
+  type RateLimitDetails,
   ValidationError,
   NotFoundError,
   NetworkError,
