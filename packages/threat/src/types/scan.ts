@@ -29,6 +29,34 @@ export interface ScanTransactionRequest {
 }
 
 /**
+ * Request body for scanning a Solana transaction (`chain: 'sol'`)
+ *
+ * Note: the Solana scan ships behind a server-side flag and is not enabled for
+ * customers yet; until it is, the API answers 400 "Transaction simulation is
+ * not enabled for Solana".
+ */
+export interface ScanSolanaTransactionRequest {
+  /** Transaction data */
+  tx: {
+    /**
+     * Signer — must match the `fromAddress` path parameter exactly (base58 is
+     * case-sensitive) and be one of the message's required signers
+     */
+    from: string;
+    /**
+     * Base64 serialized Solana transaction (legacy or v0, signed or unsigned,
+     * at most 1232 bytes), e.g. `Buffer.from(tx.serialize({ requireAllSignatures: false })).toString('base64')`
+     * with `@solana/web3.js`
+     */
+    raw: string;
+  };
+  /** Solana has no numeric chain id: pass the slug */
+  chain: 'sol';
+  /** Domain of the dApp (optional) */
+  domain?: string;
+}
+
+/**
  * EIP-712 type definition
  */
 export interface EIP712TypeDefinition {
@@ -164,8 +192,14 @@ export type ScanAssetRisk = Omit<ScanAddressRisk, 'address'> & { address: string
  * - `receipt` — decoded from the receipt of a mined transaction (hash input)
  * - `calldata` — derived from the transaction's calldata / value when the
  *   simulation produced nothing to score (an `APPROVE`, a reverting call, …)
+ * - `solana_simulate` — a Solana transaction simulation (`chain: 'sol'`)
  */
-export type ScanAssetChangeSource = 'tenderly' | 'debug_trace' | 'receipt' | 'calldata';
+export type ScanAssetChangeSource =
+  | 'tenderly'
+  | 'debug_trace'
+  | 'receipt'
+  | 'calldata'
+  | 'solana_simulate';
 
 /**
  * One simulated asset movement (or approval) of a transaction
@@ -182,7 +216,10 @@ export interface ScanAssetChange {
    * placeholder item described above.
    */
   changeType?: 'TRANSFER' | 'APPROVE' | 'CALL';
-  /** Asset standard (`NATIVE`, `ERC20`, `ERC721`, `ERC1155`); absent on standard-agnostic entries */
+  /**
+   * Asset standard (`NATIVE`, `ERC20`, `ERC721`, `ERC1155`; on Solana `NATIVE`,
+   * `SPL`, `SPL_TOKEN_2022`); absent on standard-agnostic entries
+   */
   assetType?: string;
   /** Raw amount in the asset's smallest unit (absent for approvals) */
   rawAmount?: string;
@@ -302,6 +339,40 @@ export interface ScanResponse extends ScanResponseBase {
   domainRisk?: ScanDomainRisk;
   /** Chain slug (e.g. `eth`) */
   chain: string;
+}
+
+/**
+ * Solana transaction scan response (`chain: 'sol'`)
+ *
+ * Same shape as {@link ScanResponse} without the Ledger signature: no
+ * `descriptor` / `public_key_id`, and `block` is always `null`. Items carry
+ * `txData.source: 'solana_simulate'`; the first 10 balance changes are scored.
+ */
+export interface ScanSolanaResponse extends Omit<
+  ScanResponse,
+  'public_key_id' | 'descriptor' | 'block' | 'chain'
+> {
+  /**
+   * `base58(sha256(message bytes))` — an unsigned transaction has no signature
+   * to key it by. The key for `GET tx/scan-results/:hash?chain=sol`.
+   */
+  hash: string;
+  /** Always `null` on Solana */
+  block: null;
+  /** Chain slug */
+  chain: 'sol';
+  /**
+   * `true` when the simulation could not vouch for the transaction: it would
+   * fail, or it moved no balances (an SPL `Approve`, a `SetAuthority`).
+   * The response carries no verdict field, so treat `unverified: true` itself
+   * as a risk signal (the API rates it at least Risk), never as benign. Such a
+   * scan is not stored or cached.
+   */
+  unverified?: true;
+  /** Set with `unverified`: whether the simulation reverted */
+  simulationReverted?: boolean;
+  /** Set when the simulation reverted: the failing program's log line */
+  revertReason?: string;
 }
 
 /**
