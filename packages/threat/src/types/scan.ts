@@ -364,7 +364,9 @@ export interface ScanSolanaResponse extends Omit<
   /**
    * `true` when the simulation could not vouch for the transaction: it would
    * fail, or it moved no balances (an SPL `Approve`, a `SetAuthority`).
-   * Its verdict is raised to at least Risk, and it is not stored or cached.
+   * The response carries no verdict field, so treat `unverified: true` itself
+   * as a risk signal (the API rates it at least Risk), never as benign. Such a
+   * scan is not stored or cached.
    */
   unverified?: true;
   /** Set with `unverified`: whether the simulation reverted */

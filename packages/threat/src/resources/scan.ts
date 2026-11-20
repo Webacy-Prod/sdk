@@ -124,14 +124,10 @@ export class ScanResource extends BaseResource {
   ): Promise<ScanResponse | ScanSolanaResponse> {
     this.validateSignerAddress(fromAddress);
     this.validateTransactionRequest(request);
-    if (request.chain === 'sol') {
-      // Base58 is case-sensitive: compare exactly, unlike EVM hex.
-      if (fromAddress !== request.tx.from) {
-        throw new ValidationError('Signer address must match tx.from.');
-      }
-    } else {
-      this.validateSignerAddressMatch(fromAddress, request.tx.from, 'tx.from');
-    }
+    // Base58 is case-sensitive: compare Solana signers exactly, unlike EVM hex.
+    this.validateSignerAddressMatch(fromAddress, request.tx.from, 'tx.from', {
+      caseSensitive: request.chain === 'sol',
+    });
 
     const path = this.buildPath(`/scan/${encodeURIComponent(fromAddress)}/transactions`, {
       refreshCache: options.refreshCache,
@@ -316,9 +312,11 @@ export class ScanResource extends BaseResource {
   private validateSignerAddressMatch(
     signerAddress: string,
     requestAddress: string,
-    fieldName: string
+    fieldName: string,
+    { caseSensitive = false }: { caseSensitive?: boolean } = {}
   ): void {
-    if (signerAddress.toLowerCase() !== requestAddress.toLowerCase()) {
+    const norm = (a: string) => (caseSensitive ? a.trim() : a.toLowerCase());
+    if (norm(signerAddress) !== norm(requestAddress)) {
       throw new ValidationError(`Signer address must match ${fieldName}.`);
     }
   }
@@ -343,11 +341,17 @@ export class ScanResource extends BaseResource {
     }
     if (request.chain === 'sol') {
       const raw = request.tx.raw.trim();
-      // `0x…` is EVM hex; no serialized Solana transaction encodes to that prefix.
-      if (raw.startsWith('0x') || raw.length % 4 !== 0 || !BASE64.test(raw)) {
+      // Same check as the API. `0x…` is EVM hex; no serialized Solana
+      // transaction encodes to that prefix.
+      if (raw.startsWith('0x') || !BASE64.test(raw)) {
         throw new ValidationError(
           'Solana raw transaction (tx.raw) must be a base64 serialized transaction.'
         );
+      }
+      // JS callers can still send the EVM-only knobs, which the API rejects.
+      const evmOnly = request as { block?: unknown; operation?: unknown };
+      if (evmOnly.block !== undefined || evmOnly.operation !== undefined) {
+        throw new ValidationError('`block` and `operation` are not supported for Solana.');
       }
       return;
     }

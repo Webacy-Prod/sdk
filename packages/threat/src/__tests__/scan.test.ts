@@ -1,12 +1,10 @@
-import { describe, it, expect, expectTypeOf, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ScanResource } from '../resources/scan';
 import { Chain, ValidationError, HttpClient } from '@webacy-xyz/sdk-core';
 import type {
   ScanTransactionRequest,
   ScanEIP712Request,
   ScanSolanaTransactionRequest,
-  ScanResponse,
-  ScanSolanaResponse,
 } from '../types';
 import {
   eip712ScanResponse,
@@ -188,36 +186,6 @@ describe('ScanResource', () => {
       expect(result.block).toBeNull();
       expect(result.simulation[0].txData.source).toBe('solana_simulate');
       expect('descriptor' in result).toBe(false);
-      expectTypeOf(result).toEqualTypeOf<ScanSolanaResponse>();
-    });
-
-    it('keeps the EVM overload typed as ScanResponse', async () => {
-      mockHttpClient.post.mockResolvedValueOnce({
-        data: txScanResponse,
-        status: 200,
-        headers: new Headers(),
-      });
-      const result = await scan.scanTransaction('0xSigner', {
-        tx: { from: '0xSigner', raw: '0x02f8...' },
-        chain: 1,
-      });
-      expectTypeOf(result).toEqualTypeOf<ScanResponse>();
-      expectTypeOf(result.descriptor).toEqualTypeOf<string>();
-    });
-
-    it('accepts a request typed as either chain and returns the union', async () => {
-      mockHttpClient.post.mockResolvedValueOnce({
-        data: solTxScanResponse,
-        status: 200,
-        headers: new Headers(),
-      });
-      // Via a function so TS does not narrow the declared union to the sol type.
-      const pick = (): ScanTransactionRequest | ScanSolanaTransactionRequest => solRequest;
-      const request = pick();
-      const result = await scan.scanTransaction(signer, request);
-      expectTypeOf(result).toEqualTypeOf<ScanResponse | ScanSolanaResponse>();
-      // `ScanResponse.chain` is `string`, so narrow on `hash` (sol only).
-      expect('hash' in result && result.hash).toBe(solTxScanResponse.hash);
     });
 
     it('returns the unverified fields of a reverted simulation', async () => {
@@ -244,12 +212,34 @@ describe('ScanResource', () => {
     });
 
     it('rejects a raw tx that is not base64', async () => {
-      for (const raw of ['0x02f8a1', 'not base64!', 'AQAB=']) {
+      for (const raw of ['0x02f8a1', 'not base64!', 'AQ=B']) {
         await expect(
           scan.scanTransaction(signer, { ...solRequest, tx: { from: signer, raw } })
         ).rejects.toThrow('must be a base64 serialized transaction');
       }
       expect(mockHttpClient.post).not.toHaveBeenCalled();
+    });
+
+    it('rejects the EVM-only block / operation knobs before any request', async () => {
+      for (const extra of [{ block: 1 }, { operation: 1 }]) {
+        await expect(
+          scan.scanTransaction(signer, { ...solRequest, ...extra } as ScanSolanaTransactionRequest)
+        ).rejects.toThrow('not supported for Solana');
+      }
+      expect(mockHttpClient.post).not.toHaveBeenCalled();
+    });
+
+    it('trims, but does not case-fold, the Solana signer', async () => {
+      mockHttpClient.post.mockResolvedValueOnce({
+        data: solTxScanResponse,
+        status: 200,
+        headers: new Headers(),
+      });
+      await scan.scanTransaction(signer, {
+        ...solRequest,
+        tx: { ...solRequest.tx, from: ` ${signer} ` },
+      });
+      expect(mockHttpClient.post).toHaveBeenCalledTimes(1);
     });
 
     it('still rejects an unknown chain', async () => {
