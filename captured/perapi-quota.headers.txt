@@ -1,0 +1,26 @@
+HTTP/1.1 429 Too Many Requests
+X-Request-Id: d4c66f6b-76d0-40ff-bfea-73c1cccd5473
+Cross-Origin-Opener-Policy: same-origin
+Cross-Origin-Resource-Policy: cross-origin
+Origin-Agent-Cluster: ?1
+Referrer-Policy: no-referrer
+Strict-Transport-Security: max-age=31536000; includeSubDomains
+X-Content-Type-Options: nosniff
+X-DNS-Prefetch-Control: off
+X-Download-Options: noopen
+X-Frame-Options: DENY
+X-Permitted-Cross-Domain-Policies: none
+X-XSS-Protection: 0
+Access-Control-Allow-Origin: *
+Access-Control-Expose-Headers: X-Request-Id
+Cache-Control: no-store, no-cache, must-revalidate, private
+X-RateLimit-Limit: 6000
+X-RateLimit-Remaining: 5993
+X-RateLimit-Reset: 39
+Content-Type: application/json; charset=utf-8
+Content-Length: 469
+ETag: W/"1d5-DFIOLF/lPTNn8x3mE5fc8fT7d6M"
+Date: Thu, 19 Nov 2026 18:43:28 GMT
+Connection: keep-alive
+Keep-Alive: timeout=65
+

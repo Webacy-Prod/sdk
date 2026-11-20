@@ -1,0 +1,171 @@
+$ turbo run test
+• turbo 2.7.2
+• Packages in scope: @webacy-xyz/cli, @webacy-xyz/sdk, @webacy-xyz/sdk-core, @webacy-xyz/sdk-threat, @webacy-xyz/sdk-trading
+• Running test in 5 packages
+• Remote caching disabled
+@webacy-xyz/sdk-core:build: cache miss, executing 1d5e3b44c80761c5
+@webacy-xyz/sdk-core:build: $ npm run build:esm && npm run build:cjs && npm run build:types && npm run postbuild
+@webacy-xyz/sdk-core:build: 
+@webacy-xyz/sdk-core:build: > @webacy-xyz/sdk-core@1.10.0 build:esm
+@webacy-xyz/sdk-core:build: > tsc -p tsconfig.esm.json
+@webacy-xyz/sdk-core:build: 
+@webacy-xyz/sdk-core:build: 
+@webacy-xyz/sdk-core:build: > @webacy-xyz/sdk-core@1.10.0 build:cjs
+@webacy-xyz/sdk-core:build: > tsc -p tsconfig.cjs.json
+@webacy-xyz/sdk-core:build: 
+@webacy-xyz/sdk-core:build: 
+@webacy-xyz/sdk-core:build: > @webacy-xyz/sdk-core@1.10.0 build:types
+@webacy-xyz/sdk-core:build: > tsc -p tsconfig.types.json
+@webacy-xyz/sdk-core:build: 
+@webacy-xyz/sdk-core:build: 
+@webacy-xyz/sdk-core:build: > @webacy-xyz/sdk-core@1.10.0 postbuild
+@webacy-xyz/sdk-core:build: > node ../../scripts/fix-esm-imports.mjs dist/esm && echo '{"type":"module"}' > dist/esm/package.json && echo '{"type":"commonjs"}' > dist/cjs/package.json
+@webacy-xyz/sdk-core:build: 
+@webacy-xyz/sdk-core:build: Fixed imports in 15 files in dist/esm
+@webacy-xyz/sdk-threat:build: cache miss, executing 34a7ff3850a83129
+@webacy-xyz/sdk-trading:build: cache miss, executing 419221ae66e60715
+@webacy-xyz/sdk-core:test: cache miss, executing ff7aa73ac613767e
+@webacy-xyz/sdk-threat:build: $ npm run build:esm && npm run build:cjs && npm run build:types && npm run postbuild
+@webacy-xyz/sdk-core:test: $ vitest run
+@webacy-xyz/sdk-trading:build: $ npm run build:esm && npm run build:cjs && npm run build:types && npm run postbuild
+@webacy-xyz/sdk-trading:build: 
+@webacy-xyz/sdk-trading:build: > @webacy-xyz/sdk-trading@1.9.3 build:esm
+@webacy-xyz/sdk-trading:build: > tsc -p tsconfig.esm.json
+@webacy-xyz/sdk-trading:build: 
+@webacy-xyz/sdk-threat:build: 
+@webacy-xyz/sdk-threat:build: > @webacy-xyz/sdk-threat@3.2.0 build:esm
+@webacy-xyz/sdk-threat:build: > tsc -p tsconfig.esm.json
+@webacy-xyz/sdk-threat:build: 
+@webacy-xyz/sdk-core:test: [33mThe CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.[39m
+@webacy-xyz/sdk-core:test: 
+@webacy-xyz/sdk-core:test:  RUN  v1.6.1 /Users/jobeloquintero/Repos/webacy/sdk-web6970/packages/core
+@webacy-xyz/sdk-core:test: 
+@webacy-xyz/sdk-core:test:  ✓ src/__tests__/chain.test.ts  (11 tests) 2ms
+@webacy-xyz/sdk-core:test:  ✓ src/__tests__/address-validation.test.ts  (31 tests) 4ms
+@webacy-xyz/sdk-core:test:  ✓ src/__tests__/url-validation.test.ts  (13 tests) 3ms
+@webacy-xyz/sdk-core:test:  ✓ src/__tests__/errors.test.ts  (16 tests) 3ms
+@webacy-xyz/sdk-core:test:  ✓ src/__tests__/rate-limit-429.test.ts  (8 tests) 7ms
+@webacy-xyz/sdk-core:test:  ✓ src/__tests__/http-client.test.ts  (8 tests) 29ms
+@webacy-xyz/sdk-core:test:  ✓ src/__tests__/retry.test.ts  (15 tests) 55ms
+@webacy-xyz/sdk-core:test: 
+@webacy-xyz/sdk-core:test:  Test Files  7 passed (7)
+@webacy-xyz/sdk-core:test:       Tests  102 passed (102)
+@webacy-xyz/sdk-core:test:    Start at  14:41:36
+@webacy-xyz/sdk-core:test:    Duration  371ms (transform 254ms, setup 0ms, collect 478ms, tests 103ms, environment 1ms, prepare 405ms)
+@webacy-xyz/sdk-core:test: 
+@webacy-xyz/sdk-trading:build: 
+@webacy-xyz/sdk-trading:build: > @webacy-xyz/sdk-trading@1.9.3 build:cjs
+@webacy-xyz/sdk-trading:build: > tsc -p tsconfig.cjs.json
+@webacy-xyz/sdk-trading:build: 
+@webacy-xyz/sdk-threat:build: 
+@webacy-xyz/sdk-threat:build: > @webacy-xyz/sdk-threat@3.2.0 build:cjs
+@webacy-xyz/sdk-threat:build: > tsc -p tsconfig.cjs.json
+@webacy-xyz/sdk-threat:build: 
+@webacy-xyz/sdk-trading:build: 
+@webacy-xyz/sdk-trading:build: > @webacy-xyz/sdk-trading@1.9.3 build:types
+@webacy-xyz/sdk-trading:build: > tsc -p tsconfig.types.json
+@webacy-xyz/sdk-trading:build: 
+@webacy-xyz/sdk-threat:build: 
+@webacy-xyz/sdk-threat:build: > @webacy-xyz/sdk-threat@3.2.0 build:types
+@webacy-xyz/sdk-threat:build: > tsc -p tsconfig.types.json
+@webacy-xyz/sdk-threat:build: 
+@webacy-xyz/sdk-trading:build: 
+@webacy-xyz/sdk-trading:build: > @webacy-xyz/sdk-trading@1.9.3 postbuild
+@webacy-xyz/sdk-trading:build: > node ../../scripts/fix-esm-imports.mjs dist/esm && echo '{"type":"module"}' > dist/esm/package.json && echo '{"type":"commonjs"}' > dist/cjs/package.json
+@webacy-xyz/sdk-trading:build: 
+@webacy-xyz/sdk-trading:build: Fixed imports in 4 files in dist/esm
+@webacy-xyz/sdk-trading:test: cache miss, executing 6bcb65b47c1a593f
+@webacy-xyz/sdk-threat:build: 
+@webacy-xyz/sdk-threat:build: > @webacy-xyz/sdk-threat@3.2.0 postbuild
+@webacy-xyz/sdk-threat:build: > node ../../scripts/fix-esm-imports.mjs dist/esm && echo '{"type":"module"}' > dist/esm/package.json && echo '{"type":"commonjs"}' > dist/cjs/package.json
+@webacy-xyz/sdk-threat:build: 
+@webacy-xyz/sdk-threat:build: Fixed imports in 7 files in dist/esm
+@webacy-xyz/sdk-trading:test: $ vitest run
+@webacy-xyz/cli:build: cache miss, executing 2f0cf48dc999e68a
+@webacy-xyz/sdk:build: cache miss, executing ceadcff60a3429d5
+@webacy-xyz/sdk-threat:test: cache miss, executing ef8774700c80f86f
+@webacy-xyz/sdk-trading:test: [33mThe CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.[39m
+@webacy-xyz/sdk-trading:test: 
+@webacy-xyz/sdk-trading:test:  RUN  v1.6.1 /Users/jobeloquintero/Repos/webacy/sdk-web6970/packages/trading
+@webacy-xyz/sdk-trading:test: 
+@webacy-xyz/sdk-threat:test: $ vitest run
+@webacy-xyz/cli:build: $ tsc && chmod +x dist/cli.js
+@webacy-xyz/sdk:build: $ npm run build:esm && npm run build:cjs && npm run build:types && npm run postbuild
+@webacy-xyz/sdk:build: 
+@webacy-xyz/sdk:build: > @webacy-xyz/sdk@2.2.0 build:esm
+@webacy-xyz/sdk:build: > tsc -p tsconfig.esm.json
+@webacy-xyz/sdk:build: 
+@webacy-xyz/sdk-trading:test:  ✓ src/__tests__/trading-lite.test.ts  (6 tests) 4ms
+@webacy-xyz/sdk-trading:test:  ✓ src/__tests__/holder-analysis.test.ts  (8 tests) 5ms
+@webacy-xyz/sdk-threat:test: [33mThe CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.[39m
+@webacy-xyz/sdk-trading:test:  ✓ src/__tests__/tokens.test.ts  (13 tests) 7ms
+@webacy-xyz/sdk-trading:test: 
+@webacy-xyz/sdk-trading:test:  Test Files  3 passed (3)
+@webacy-xyz/sdk-trading:test:       Tests  27 passed (27)
+@webacy-xyz/sdk-trading:test:    Start at  14:41:37
+@webacy-xyz/sdk-trading:test:    Duration  285ms (transform 102ms, setup 0ms, collect 261ms, tests 16ms, environment 0ms, prepare 126ms)
+@webacy-xyz/sdk-trading:test: 
+@webacy-xyz/sdk-threat:test: 
+@webacy-xyz/sdk-threat:test:  RUN  v1.6.1 /Users/jobeloquintero/Repos/webacy/sdk-web6970/packages/threat
+@webacy-xyz/sdk-threat:test: 
+@webacy-xyz/cli:test: cache miss, executing 5142a57072aea22a
+@webacy-xyz/sdk-threat:test:  ✓ src/__tests__/batch.test.ts  (7 tests) 4ms
+@webacy-xyz/sdk-threat:test:  ✓ src/__tests__/ledger.test.ts  (5 tests) 4ms
+@webacy-xyz/sdk-threat:test:  ✓ src/__tests__/account-trace.test.ts  (5 tests) 4ms
+@webacy-xyz/sdk-threat:test:  ✓ src/__tests__/wallets.test.ts  (9 tests) 5ms
+@webacy-xyz/sdk-threat:test:  ✓ src/__tests__/url.test.ts  (11 tests) 5ms
+@webacy-xyz/sdk-threat:test:  ✓ src/__tests__/rwa.test.ts  (13 tests) 6ms
+@webacy-xyz/sdk-threat:test:  ✓ src/__tests__/contracts.test.ts  (14 tests) 7ms
+@webacy-xyz/sdk-threat:test:  ✓ src/__tests__/usage.test.ts  (7 tests) 7ms
+@webacy-xyz/sdk-threat:test:  ✓ src/__tests__/transactions.test.ts  (8 tests) 6ms
+@webacy-xyz/sdk-threat:test:  ✓ src/__tests__/addresses.test.ts  (30 tests) 9ms
+@webacy-xyz/sdk-threat:test:  ✓ src/__tests__/scan.test.ts  (29 tests) 8ms
+@webacy-xyz/sdk-threat:test:  ✓ src/__tests__/vaults.test.ts  (46 tests) 17ms
+@webacy-xyz/sdk-threat:test: 
+@webacy-xyz/sdk-threat:test:  Test Files  12 passed (12)
+@webacy-xyz/sdk-threat:test:       Tests  184 passed (184)
+@webacy-xyz/sdk-threat:test:    Start at  14:41:38
+@webacy-xyz/sdk-threat:test:    Duration  438ms (transform 994ms, setup 0ms, collect 2.19s, tests 82ms, environment 1ms, prepare 861ms)
+@webacy-xyz/sdk-threat:test: 
+@webacy-xyz/sdk:build: 
+@webacy-xyz/sdk:build: > @webacy-xyz/sdk@2.2.0 build:cjs
+@webacy-xyz/sdk:build: > tsc -p tsconfig.cjs.json
+@webacy-xyz/sdk:build: 
+@webacy-xyz/cli:test: $ vitest run
+@webacy-xyz/cli:test: [33mThe CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.[39m
+@webacy-xyz/cli:test: 
+@webacy-xyz/cli:test:  RUN  v1.6.1 /Users/jobeloquintero/Repos/webacy/sdk-web6970/packages/cli
+@webacy-xyz/cli:test: 
+@webacy-xyz/sdk:build: 
+@webacy-xyz/sdk:build: > @webacy-xyz/sdk@2.2.0 build:types
+@webacy-xyz/sdk:build: > tsc -p tsconfig.types.json
+@webacy-xyz/sdk:build: 
+@webacy-xyz/cli:test:  ✓ src/__tests__/options.test.ts  (6 tests) 2ms
+@webacy-xyz/cli:test:  ✓ src/__tests__/parsers.test.ts  (31 tests) 3ms
+@webacy-xyz/cli:test:  ✓ src/__tests__/output.test.ts  (21 tests) 13ms
+@webacy-xyz/cli:test:  ✓ src/__tests__/context.test.ts  (4 tests) 2ms
+@webacy-xyz/cli:test:  ✓ src/__tests__/commands.test.ts  (29 tests) 113ms
+@webacy-xyz/cli:test: 
+@webacy-xyz/cli:test:  Test Files  5 passed (5)
+@webacy-xyz/cli:test:       Tests  91 passed (91)
+@webacy-xyz/cli:test:    Start at  14:41:38
+@webacy-xyz/cli:test:    Duration  360ms (transform 271ms, setup 0ms, collect 526ms, tests 133ms, environment 0ms, prepare 217ms)
+@webacy-xyz/cli:test: 
+@webacy-xyz/sdk:build: 
+@webacy-xyz/sdk:build: > @webacy-xyz/sdk@2.2.0 postbuild
+@webacy-xyz/sdk:build: > node ../../scripts/fix-esm-imports.mjs dist/esm && echo '{"type":"module"}' > dist/esm/package.json && echo '{"type":"commonjs"}' > dist/cjs/package.json
+@webacy-xyz/sdk:build: 
+@webacy-xyz/sdk:build: Fixed imports in 1 files in dist/esm
+@webacy-xyz/sdk:test: cache miss, executing c2d172f295b3ddeb
+@webacy-xyz/sdk:test: $ echo "Tests covered by sub-packages"
+@webacy-xyz/sdk:test: Tests covered by sub-packages
+
+ Tasks:    10 successful, 10 total
+Cached:    0 cached, 10 total
+  Time:    6.205s 
+
+ WARNING  no output files found for task @webacy-xyz/cli#test. Please check your `outputs` key in `turbo.json`
+ WARNING  no output files found for task @webacy-xyz/sdk#test. Please check your `outputs` key in `turbo.json`
+ WARNING  no output files found for task @webacy-xyz/sdk-core#test. Please check your `outputs` key in `turbo.json`
+ WARNING  no output files found for task @webacy-xyz/sdk-threat#test. Please check your `outputs` key in `turbo.json`
+ WARNING  no output files found for task @webacy-xyz/sdk-trading#test. Please check your `outputs` key in `turbo.json`

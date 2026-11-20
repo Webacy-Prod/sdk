@@ -1,0 +1,87 @@
+[
+  {
+    "case": "cu-limit",
+    "requests": 4,
+    "msBetweenRequests": [
+      239,
+      472,
+      1008
+    ],
+    "elapsedMs": 1734,
+    "result": "threw",
+    "name": "RateLimitError",
+    "isRetryable": true,
+    "resetAt": 40,
+    "resetAtIso": "1970-01-01T00:00:40.000Z",
+    "requestId": "40fdcef5-3279-4207-88d4-79eec27588ce",
+    "recoverySuggestion": "Wait a moment before retrying. Consider implementing request throttling or upgrading your API plan for higher limits."
+  },
+  {
+    "case": "quota",
+    "requests": 4,
+    "msBetweenRequests": [
+      256,
+      519,
+      923
+    ],
+    "elapsedMs": 1702,
+    "result": "threw",
+    "name": "RateLimitError",
+    "isRetryable": true,
+    "resetAt": 36,
+    "resetAtIso": "1970-01-01T00:00:36.000Z",
+    "requestId": "7f939381-7eb6-4dfc-8510-d5ed757c5a8b",
+    "recoverySuggestion": "Wait a moment before retrying. Consider implementing request throttling or upgrading your API plan for higher limits."
+  },
+  {
+    "case": "perapi-quota",
+    "requests": 4,
+    "msBetweenRequests": [
+      210,
+      492,
+      943
+    ],
+    "elapsedMs": 1654,
+    "result": "threw",
+    "name": "RateLimitError",
+    "isRetryable": true,
+    "resetAt": 39,
+    "resetAtIso": "1970-01-01T00:00:39.000Z",
+    "requestId": "d4c66f6b-76d0-40ff-bfea-73c1cccd5473",
+    "recoverySuggestion": "Wait a moment before retrying. Consider implementing request throttling or upgrading your API plan for higher limits."
+  },
+  {
+    "case": "rate",
+    "requests": 2,
+    "msBetweenRequests": [
+      218
+    ],
+    "elapsedMs": 223,
+    "result": "success",
+    "status": 200
+  },
+  {
+    "case": "rate-resetAt-plus-2s",
+    "requests": 2,
+    "msBetweenRequests": [
+      247
+    ],
+    "elapsedMs": 249,
+    "result": "success",
+    "status": 200
+  },
+  {
+    "case": "gateway-per-key",
+    "requests": 4,
+    "msBetweenRequests": [
+      253,
+      478,
+      941
+    ],
+    "elapsedMs": 1673,
+    "result": "threw",
+    "name": "RateLimitError",
+    "isRetryable": true,
+    "recoverySuggestion": "Wait a moment before retrying. Consider implementing request throttling or upgrading your API plan for higher limits."
+  }
+]

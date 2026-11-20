@@ -1,0 +1,7 @@
+# API Gateway THROTTLED / QUOTA_EXCEEDED gateway responses (read-only get-gateway-response, 2026-11-19T18:49:46Z)
+gpemv6o57b THROTTLED: ["429",{"application/json":"{\"message\":$context.error.messageString}"}]
+gpemv6o57b QUOTA_EXCEEDED: ["429",{"application/json":"{\"message\":$context.error.messageString}"}]
+mwhlhtc86j THROTTLED: ["429",{"application/json":"{\"message\":$context.error.messageString}"}]
+mwhlhtc86j QUOTA_EXCEEDED: ["429",{"application/json":"{\"message\":$context.error.messageString}"}]
+hui1kio1x1 THROTTLED: ["429",{"application/json":"{\"message\":$context.error.messageString}"}]
+hui1kio1x1 QUOTA_EXCEEDED: ["429",{"application/json":"{\"message\":$context.error.messageString}"}]

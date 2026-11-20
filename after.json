@@ -1,0 +1,86 @@
+[
+  {
+    "case": "cu-limit",
+    "requests": 1,
+    "msBetweenRequests": [],
+    "elapsedMs": 17,
+    "result": "threw",
+    "name": "RateLimitError",
+    "isRetryable": false,
+    "limit": "1000",
+    "currentUsage": "1004",
+    "resetAt": 1796083200,
+    "resetAtIso": "2026-12-01T00:00:00.000Z",
+    "upgradeUrl": "https://developers.webacy.com/billing",
+    "requestId": "40fdcef5-3279-4207-88d4-79eec27588ce",
+    "recoverySuggestion": "Your organization's monthly compute unit allowance is used up until 2026-12-01T00:00:00.000Z. Upgrade your plan at https://developers.webacy.com/billing or wait for the reset."
+  },
+  {
+    "case": "quota",
+    "requests": 1,
+    "msBetweenRequests": [],
+    "elapsedMs": 2,
+    "result": "threw",
+    "name": "RateLimitError",
+    "isRetryable": false,
+    "limitType": "quota",
+    "limit": "3",
+    "currentUsage": "3",
+    "resetAt": 1796083200,
+    "resetAtIso": "2026-12-01T00:00:00.000Z",
+    "upgradeUrl": "https://developers.webacy.com/billing",
+    "requestId": "7f939381-7eb6-4dfc-8510-d5ed757c5a8b",
+    "recoverySuggestion": "Your organization's monthly request quota is used up until 2026-12-01T00:00:00.000Z. Upgrade your plan at https://developers.webacy.com/billing or wait for the reset."
+  },
+  {
+    "case": "perapi-quota",
+    "requests": 1,
+    "msBetweenRequests": [],
+    "elapsedMs": 1,
+    "result": "threw",
+    "name": "RateLimitError",
+    "isRetryable": false,
+    "limitType": "quota",
+    "limit": "2",
+    "currentUsage": "2",
+    "resetAt": 1796083200,
+    "resetAtIso": "2026-12-01T00:00:00.000Z",
+    "upgradeUrl": "https://developers.webacy.com/billing",
+    "requestId": "d4c66f6b-76d0-40ff-bfea-73c1cccd5473",
+    "recoverySuggestion": "Your organization's monthly request quota is used up until 2026-12-01T00:00:00.000Z. Upgrade your plan at https://developers.webacy.com/billing or wait for the reset."
+  },
+  {
+    "case": "rate",
+    "requests": 2,
+    "msBetweenRequests": [
+      1002
+    ],
+    "elapsedMs": 1003,
+    "result": "success",
+    "status": 200
+  },
+  {
+    "case": "rate-resetAt-plus-2s",
+    "requests": 2,
+    "msBetweenRequests": [
+      2002
+    ],
+    "elapsedMs": 2004,
+    "result": "success",
+    "status": 200
+  },
+  {
+    "case": "gateway-per-key",
+    "requests": 4,
+    "msBetweenRequests": [
+      228,
+      521,
+      906
+    ],
+    "elapsedMs": 1656,
+    "result": "threw",
+    "name": "RateLimitError",
+    "isRetryable": true,
+    "recoverySuggestion": "Wait a moment before retrying. Consider implementing request throttling or upgrading your API plan for higher limits."
+  }
+]

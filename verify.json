@@ -1,0 +1,197 @@
+{
+  "rows": [
+    {
+      "check": "after cu-limit limitType",
+      "expected": null,
+      "actual": null,
+      "pass": true
+    },
+    {
+      "check": "after cu-limit limit",
+      "expected": "1000",
+      "actual": "1000",
+      "pass": true
+    },
+    {
+      "check": "after cu-limit currentUsage",
+      "expected": "1004",
+      "actual": "1004",
+      "pass": true
+    },
+    {
+      "check": "after cu-limit upgradeUrl",
+      "expected": "https://developers.webacy.com/billing",
+      "actual": "https://developers.webacy.com/billing",
+      "pass": true
+    },
+    {
+      "check": "after cu-limit resetAt",
+      "expected": 1796083200,
+      "actual": 1796083200,
+      "pass": true
+    },
+    {
+      "check": "after cu-limit requests (no retry)",
+      "expected": 1,
+      "actual": 1,
+      "pass": true
+    },
+    {
+      "check": "after cu-limit isRetryable",
+      "expected": false,
+      "actual": false,
+      "pass": true
+    },
+    {
+      "check": "before cu-limit requests (1 + 3 retries)",
+      "expected": 4,
+      "actual": 4,
+      "pass": true
+    },
+    {
+      "check": "after quota limitType",
+      "expected": "quota",
+      "actual": "quota",
+      "pass": true
+    },
+    {
+      "check": "after quota limit",
+      "expected": "3",
+      "actual": "3",
+      "pass": true
+    },
+    {
+      "check": "after quota currentUsage",
+      "expected": "3",
+      "actual": "3",
+      "pass": true
+    },
+    {
+      "check": "after quota upgradeUrl",
+      "expected": "https://developers.webacy.com/billing",
+      "actual": "https://developers.webacy.com/billing",
+      "pass": true
+    },
+    {
+      "check": "after quota resetAt",
+      "expected": 1796083200,
+      "actual": 1796083200,
+      "pass": true
+    },
+    {
+      "check": "after quota requests (no retry)",
+      "expected": 1,
+      "actual": 1,
+      "pass": true
+    },
+    {
+      "check": "after quota isRetryable",
+      "expected": false,
+      "actual": false,
+      "pass": true
+    },
+    {
+      "check": "before quota requests (1 + 3 retries)",
+      "expected": 4,
+      "actual": 4,
+      "pass": true
+    },
+    {
+      "check": "after perapi-quota limitType",
+      "expected": "quota",
+      "actual": "quota",
+      "pass": true
+    },
+    {
+      "check": "after perapi-quota limit",
+      "expected": "2",
+      "actual": "2",
+      "pass": true
+    },
+    {
+      "check": "after perapi-quota currentUsage",
+      "expected": "2",
+      "actual": "2",
+      "pass": true
+    },
+    {
+      "check": "after perapi-quota upgradeUrl",
+      "expected": "https://developers.webacy.com/billing",
+      "actual": "https://developers.webacy.com/billing",
+      "pass": true
+    },
+    {
+      "check": "after perapi-quota resetAt",
+      "expected": 1796083200,
+      "actual": 1796083200,
+      "pass": true
+    },
+    {
+      "check": "after perapi-quota requests (no retry)",
+      "expected": 1,
+      "actual": 1,
+      "pass": true
+    },
+    {
+      "check": "after perapi-quota isRetryable",
+      "expected": false,
+      "actual": false,
+      "pass": true
+    },
+    {
+      "check": "before perapi-quota requests (1 + 3 retries)",
+      "expected": 4,
+      "actual": 4,
+      "pass": true
+    },
+    {
+      "check": "after rate requests",
+      "expected": 2,
+      "actual": 2,
+      "pass": true
+    },
+    {
+      "check": "after rate waited >= 1000 ms",
+      "expected": true,
+      "actual": true,
+      "pass": true
+    },
+    {
+      "check": "after rate result",
+      "expected": "success",
+      "actual": "success",
+      "pass": true
+    },
+    {
+      "check": "after rate+2s waited >= 2000 ms",
+      "expected": true,
+      "actual": true,
+      "pass": true
+    },
+    {
+      "check": "before rate+2s waited < 2000 ms (ignored resetAt)",
+      "expected": true,
+      "actual": true,
+      "pass": true
+    },
+    {
+      "check": "after gateway requests (1 + 3 retries)",
+      "expected": 4,
+      "actual": 4,
+      "pass": true
+    },
+    {
+      "check": "after gateway isRetryable",
+      "expected": true,
+      "actual": true,
+      "pass": true
+    },
+    {
+      "check": "after gateway limitType",
+      "expected": null,
+      "actual": null,
+      "pass": true
+    }
+  ],
+  "failed": []
+}

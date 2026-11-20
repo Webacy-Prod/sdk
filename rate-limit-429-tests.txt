@@ -1,0 +1,18 @@
+[33mThe CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.[39m
+
+ RUN  v1.6.1 /Users/jobeloquintero/Repos/webacy/sdk-web6970/packages/core
+
+ ✓ src/__tests__/rate-limit-429.test.ts > 429 handling > throws a compute unit 429 at once with its details
+ ✓ src/__tests__/rate-limit-429.test.ts > 429 handling > throws a request quota 429 at once with its details
+ ✓ src/__tests__/rate-limit-429.test.ts > 429 handling > retries a rate 429 once resetAt has passed
+ ✓ src/__tests__/rate-limit-429.test.ts > 429 handling > exposes the rate details when the retries run out
+ ✓ src/__tests__/rate-limit-429.test.ts > 429 handling > retries the per-key gateway 429 (message only) with bounded backoff
+ ✓ src/__tests__/rate-limit-429.test.ts > 429 handling > retries a temporary service 429 (no details) with bounded backoff
+ ✓ src/__tests__/rate-limit-429.test.ts > 429 handling > prefers a Retry-After header over the rate resetAt
+ ✓ src/__tests__/rate-limit-429.test.ts > 429 handling > treats unknown details as a plan limit and does not retry
+
+ Test Files  1 passed (1)
+      Tests  8 passed (8)
+   Start at  14:41:40
+   Duration  197ms (transform 43ms, setup 0ms, collect 49ms, tests 6ms, environment 0ms, prepare 33ms)
+
