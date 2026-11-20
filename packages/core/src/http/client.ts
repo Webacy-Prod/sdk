@@ -5,6 +5,7 @@ import {
   ValidationError,
   NotFoundError,
   NetworkError,
+  type RateLimitDetails,
 } from '../errors';
 import {
   RetryConfig,
@@ -436,7 +437,12 @@ export class HttpClient {
     requestId?: string,
     endpoint?: string
   ): Promise<WebacyError> {
-    let errorBody: { message?: string; error?: string; errors?: Record<string, string[]> } = {};
+    let errorBody: {
+      message?: string;
+      error?: string;
+      errors?: Record<string, string[]>;
+      details?: unknown;
+    } = {};
 
     try {
       errorBody = (await response.json()) as typeof errorBody;
@@ -460,6 +466,7 @@ export class HttpClient {
         return new RateLimitError(message, {
           retryAfter: this.parseRetryAfter(retryAfter),
           resetAt: this.parseResetAt(resetAt),
+          details: this.parseRateLimitDetails(errorBody.details),
           requestId,
           endpoint,
         });
@@ -550,6 +557,20 @@ export class HttpClient {
     }
 
     return parsed;
+  }
+
+  /**
+   * Read the `details` of a plan-limit 429 body, keeping only string fields.
+   * Anything that is not an object means the 429 carried no plan-limit details.
+   */
+  private parseRateLimitDetails(value: unknown): RateLimitDetails | undefined {
+    if (typeof value !== 'object' || value === null || Array.isArray(value)) return undefined;
+    const raw = value as Record<string, unknown>;
+    const details: RateLimitDetails = {};
+    for (const key of ['limitType', 'currentUsage', 'limit', 'resetAt', 'upgradeUrl'] as const) {
+      if (typeof raw[key] === 'string') details[key] = raw[key];
+    }
+    return details;
   }
 
   /**
