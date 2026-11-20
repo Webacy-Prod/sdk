@@ -3,7 +3,7 @@
     "case": "cu-limit",
     "requests": 1,
     "msBetweenRequests": [],
-    "elapsedMs": 19,
+    "elapsedMs": 18,
     "result": "threw",
     "name": "RateLimitError",
     "isRetryable": false,
@@ -36,7 +36,7 @@
     "case": "perapi-quota",
     "requests": 1,
     "msBetweenRequests": [],
-    "elapsedMs": 2,
+    "elapsedMs": 1,
     "result": "threw",
     "name": "RateLimitError",
     "isRetryable": false,
@@ -53,9 +53,9 @@
     "case": "rate",
     "requests": 2,
     "msBetweenRequests": [
-      1002
+      1004
     ],
-    "elapsedMs": 1004,
+    "elapsedMs": 1007,
     "result": "success",
     "status": 200
   },
@@ -63,9 +63,9 @@
     "case": "rate-resetAt-plus-2s",
     "requests": 2,
     "msBetweenRequests": [
-      30003
+      2004
     ],
-    "elapsedMs": 30005,
+    "elapsedMs": 2008,
     "result": "success",
     "status": 200
   },
@@ -73,11 +73,11 @@
     "case": "gateway-per-key",
     "requests": 4,
     "msBetweenRequests": [
-      249,
-      445,
-      810
+      242,
+      430,
+      1033
     ],
-    "elapsedMs": 1505,
+    "elapsedMs": 1706,
     "result": "threw",
     "name": "RateLimitError",
     "isRetryable": true,

@@ -24,10 +24,11 @@ const cases = [
   { name: 'perapi-quota', body: () => fs.readFileSync(path.join(capturesDir, 'perapi-quota.body.json'), 'utf8'), headers: capturedHeaders('perapi-quota') },
   { name: 'rate', body: () => fs.readFileSync(path.join(capturesDir, 'rate.body.json'), 'utf8'), headers: capturedHeaders('rate') },
   {
-    // Same captured rate body, only resetAt moved to 2 s after the response, to show the wait tracks resetAt.
+    // Same captured rate body with timestamp set to now and resetAt 2 s later, to show the wait tracks resetAt.
     name: 'rate-resetAt-plus-2s',
     body: () => {
       const b = JSON.parse(fs.readFileSync(path.join(capturesDir, 'rate.body.json'), 'utf8'));
+      b.timestamp = new Date().toISOString();
       b.details.resetAt = new Date(Date.now() + 2000).toISOString();
       return JSON.stringify(b);
     },
