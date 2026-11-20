@@ -8,5 +8,5 @@ No screenshots: library change. One row per evidence file.
 | after.json | rate 429 waits until `resetAt` then succeeds (captured body: 1002 ms, floor 1 s since its resetAt is past; +2 s variant: 2002 ms) | verify.json `after rate*` rows pass | pass |
 | after.json | gateway `{message}` 429 still retried with backoff, bounded at 1 + 3 requests | verify.json `after gateway *` rows pass | pass |
 | before-1.10.0.json | published 1.10.0 retries every plan-limit 429 3 times (4 requests) and ignores body `resetAt`; its `resetAt` is the relative `X-RateLimit-Reset` header (36-40) read as a Unix timestamp | verify.json `before *` rows pass | pass |
-| pnpm-test.txt | full suite green: core 102, threat 184, trading 27, cli 91 | grep `Tests` lines | pass |
-| rate-limit-429-tests.txt | 8 new tests on the spec's 3 example bodies + gateway + service shapes pass; 5 of them fail against origin/main's code | verbose output | pass |
+| pnpm-test.txt | full suite green: core 107, threat 184, trading 27, cli 91 | grep `Tests` lines | pass |
+| rate-limit-429-tests.txt | 13 new tests (spec bodies, gateway, service, empty details, clock skew, cap, toJSON) pass at 00efbe5; the first 8 were checked to fail 5/8 against origin/main | verbose output | pass |

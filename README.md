@@ -1,6 +1,6 @@
 # WEB-6970 evidence: RateLimitError reads the 429 body
 
-Feature commit: `6d751d0` on `jobelo/web-6970-ratelimiterror-429-body`.
+Feature commit: `00efbe5` (first run at `6d751d0`) on `jobelo/web-6970-ratelimiterror-429-body`.
 
 - `captured/`: the real 429 bodies and headers captured from rsapi for WEB-6507 (local run of the real guard, Redis
   limit script and exception filter, `GET /api/v2/vaults`), plus the API Gateway THROTTLED/QUOTA_EXCEEDED templates.
