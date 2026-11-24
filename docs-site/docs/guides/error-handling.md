@@ -35,7 +35,17 @@ try {
 
 ### RateLimitError
 
-Thrown when you've exceeded your API rate limit.
+Thrown on a `429 Too Many Requests`. Your plan's limits apply to your organization as a whole (every API key counts against the same allowance). When a plan limit was reached, the error carries the API's `details`:
+
+| Property       | Meaning                                                                                                                 |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `limitType`    | `'quota'` (monthly request quota) or `'rate'` (requests per second); `undefined` for the monthly compute unit allowance |
+| `limit`        | The limit that was reached, as a decimal string                                                                         |
+| `currentUsage` | Usage this period, as a decimal string (absent for `rate`)                                                              |
+| `resetAt`      | When the limit resets (Unix timestamp, seconds)                                                                         |
+| `upgradeUrl`   | Developer Portal page where you can upgrade your plan (set on every plan-limit 429)                                     |
+
+The SDK retries a `rate` 429 after `resetAt`, and a 429 without `details` (a per-key gateway limit or a temporary service limit) with backoff, both up to `maxRetries`. A quota or compute unit 429 keeps failing until `resetAt` unless you upgrade, so it is thrown at once and `isRetryable()` returns `false`.
 
 ```typescript
 try {
@@ -44,16 +54,14 @@ try {
   if (error instanceof RateLimitError) {
     console.error('Rate limited:', error.message);
 
-    // Wait for the suggested retry time
-    if (error.retryAfter) {
-      console.log(`Retry after ${error.retryAfter} seconds`);
+    if (error.upgradeUrl && !error.isRetryable()) {
+      // Quota or compute units used up: retrying won't help before the reset
+      console.log(`Used ${error.currentUsage} of ${error.limit}, upgrade at ${error.upgradeUrl}`);
+      if (error.resetAt) {
+        console.log(`Resets at ${new Date(error.resetAt * 1000).toISOString()}`);
+      }
+    } else if (error.retryAfter) {
       await sleep(error.retryAfter * 1000);
-    }
-
-    // Or check the reset timestamp
-    if (error.resetAt) {
-      const resetDate = new Date(error.resetAt * 1000);
-      console.log(`Rate limit resets at: ${resetDate}`);
     }
   }
 }
