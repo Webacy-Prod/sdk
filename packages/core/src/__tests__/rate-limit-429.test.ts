@@ -137,6 +137,22 @@ describe('429 handling', () => {
     expect((await pending).data.ok).toBe(true);
   });
 
+  it('waits for a rate reset beyond maxDelay instead of retrying early', async () => {
+    const later = {
+      ...REQUEST_RATE,
+      details: { ...REQUEST_RATE.details, resetAt: '2026-11-19T18:44:24.237Z' },
+    };
+    const fetchMock = mockFetch([429, later], [200, { ok: true }]);
+    const pending = makeClient().get<{ ok: boolean }>('/vaults');
+
+    // 60 s, double the default 30 s maxDelay.
+    await vi.advanceTimersByTimeAsync(59_999);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    await vi.advanceTimersByTimeAsync(1);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect((await pending).data.ok).toBe(true);
+  });
+
   it('exposes the rate details when the retries run out', async () => {
     mockFetch([429, REQUEST_RATE]);
     const err = await makeClient(0)

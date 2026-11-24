@@ -307,9 +307,14 @@ export class HttpClient {
           throw lastError;
         }
 
-        // Calculate retry delay
+        // Calculate retry delay. A plan-limit rate 429 waits for its reset
+        // (already capped at MAX_RETRY_AFTER_SECONDS), not maxDelay: retrying
+        // before the reset only gets the same 429 and spends a retry.
         const retryAfter = lastError instanceof RateLimitError ? lastError.retryAfter : undefined;
-        const delay = calculateRetryDelay(attempt, this.retryConfig, retryAfter);
+        const delay =
+          lastError instanceof RateLimitError && lastError.limitType === 'rate' && retryAfter
+            ? retryAfter * 1000
+            : calculateRetryDelay(attempt, this.retryConfig, retryAfter);
 
         await sleep(delay);
         attempt++;
