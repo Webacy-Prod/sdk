@@ -17,8 +17,12 @@ import { VALID_SCAN_CHAIN_IDS } from '../constants';
 /** Standard base64 (what `Buffer#toString('base64')` and `@solana/web3.js` emit) */
 const BASE64 = /^[A-Za-z0-9+/]+={0,2}$/;
 
-/** Largest serialized Solana transaction (packet size), as the API enforces */
+/** Largest serialized legacy / v0 Solana transaction (packet size), as the API enforces */
 const MAX_SOLANA_TX_BYTES = 1232;
+/** Largest serialized version 1 Solana transaction (SIMD-0385), as the API enforces */
+const MAX_SOLANA_V1_TX_BYTES = 4096;
+/** First byte of a version 1 transaction, which serializes its message first */
+const SOLANA_V1_PREFIX = 0x81;
 
 /**
  * Resource for transaction and message scanning
@@ -352,10 +356,13 @@ export class ScanResource extends BaseResource {
           'Solana raw transaction (tx.raw) must be a base64 serialized transaction.'
         );
       }
+      // Same version check as the API: only the first byte, no full decode.
+      const v1 = raw.length >= 4 && atob(raw.slice(0, 4)).charCodeAt(0) === SOLANA_V1_PREFIX;
+      const limit = v1 ? MAX_SOLANA_V1_TX_BYTES : MAX_SOLANA_TX_BYTES;
       const padding = raw.endsWith('==') ? 2 : raw.endsWith('=') ? 1 : 0;
-      if (Math.floor((raw.length * 3) / 4) - padding > MAX_SOLANA_TX_BYTES) {
+      if (Math.floor((raw.length * 3) / 4) - padding > limit) {
         throw new ValidationError(
-          `Solana raw transaction (tx.raw) is over ${MAX_SOLANA_TX_BYTES} bytes, the largest a transaction can be.`
+          `Solana raw transaction (tx.raw) is over ${limit} bytes, the largest a ${v1 ? 'version 1' : 'legacy or v0'} transaction can be.`
         );
       }
       // JS callers can still send the EVM-only knobs, which the API rejects.

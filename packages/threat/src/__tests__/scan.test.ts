@@ -10,6 +10,7 @@ import {
   eip712ScanResponse,
   solRevertedScanResponse,
   solTxScanResponse,
+  solV1Tx,
   txScanResponse,
 } from './fixtures/scan';
 
@@ -220,15 +221,50 @@ describe('ScanResource', () => {
       expect(mockHttpClient.post).not.toHaveBeenCalled();
     });
 
-    it('rejects a raw tx over 1232 bytes before any request', async () => {
+    it('rejects a legacy / v0 raw tx over 1232 bytes before any request', async () => {
       const ok = Buffer.alloc(1232).toString('base64');
       const tooBig = Buffer.alloc(1233).toString('base64');
       await expect(
         scan.scanTransaction(signer, { ...solRequest, tx: { from: signer, raw: tooBig } })
-      ).rejects.toThrow('is over 1232 bytes');
+      ).rejects.toThrow('is over 1232 bytes, the largest a legacy or v0 transaction can be.');
       expect(mockHttpClient.post).not.toHaveBeenCalled();
       await scan
         .scanTransaction(signer, { ...solRequest, tx: { from: signer, raw: ok } })
+        .catch(() => undefined);
+      expect(mockHttpClient.post).toHaveBeenCalledTimes(1);
+    });
+
+    it('posts real version 1 transactions, including one over 1232 bytes', async () => {
+      for (const { signer: from, raw } of [solV1Tx.over1232Bytes, solV1Tx.jupiterSwap]) {
+        mockHttpClient.post.mockResolvedValueOnce({
+          data: solTxScanResponse,
+          status: 200,
+          headers: new Headers(),
+        });
+        const request: ScanSolanaTransactionRequest = { tx: { from, raw }, chain: 'sol' };
+        await scan.scanTransaction(from, request);
+        expect(mockHttpClient.post).toHaveBeenLastCalledWith(
+          `/scan/${from}/transactions`,
+          request,
+          expect.any(Object)
+        );
+      }
+      expect(Buffer.from(solV1Tx.over1232Bytes.raw, 'base64').length).toBe(1687);
+      expect(mockHttpClient.post).toHaveBeenCalledTimes(2);
+    });
+
+    it('rejects a version 1 raw tx over 4096 bytes before any request', async () => {
+      const v1 = (size: number) => {
+        const bytes = Buffer.alloc(size);
+        bytes[0] = 0x81;
+        return bytes.toString('base64');
+      };
+      await expect(
+        scan.scanTransaction(signer, { ...solRequest, tx: { from: signer, raw: v1(4097) } })
+      ).rejects.toThrow('is over 4096 bytes, the largest a version 1 transaction can be.');
+      expect(mockHttpClient.post).not.toHaveBeenCalled();
+      await scan
+        .scanTransaction(signer, { ...solRequest, tx: { from: signer, raw: v1(4096) } })
         .catch(() => undefined);
       expect(mockHttpClient.post).toHaveBeenCalledTimes(1);
     });
