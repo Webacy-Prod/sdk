@@ -1,5 +1,18 @@
 # @webacy-xyz/sdk
 
+## 2.4.0
+
+### Minor Changes
+
+- [#69](https://github.com/Webacy-Prod/sdk/pull/69) [`d012f87`](https://github.com/Webacy-Prod/sdk/commit/d012f879b79ce8e239e45fceca3b563a7516115a) Thanks [@Ignusmart](https://github.com/Ignusmart)! - Scan: type the Solana pre-sign scan (WEB-6929). `scan.scanTransaction` accepts `chain: 'sol'` with a base64 serialized transaction as `tx.raw` (legacy or v0, at most 1232 bytes, checked before the request) and returns `ScanSolanaResponse`: the EVM shape plus `hash` (`base58(sha256(message bytes))`) and, when the simulation reverts or moves no balances, `unverified`, `simulationReverted` and `revertReason`; no `descriptor` / `public_key_id`, `block` is `null`. New exports `ScanSolanaTransactionRequest` and `ScanSolanaResponse`; `ScanAssetChangeSource` adds `solana_simulate`. EVM typing is unchanged: the EVM overload is declared first, so an untyped (`any`) request still returns `ScanResponse`.
+
+  The Solana scan is behind a server-side flag and not enabled for customers yet: until it is, the API answers 400 "Transaction simulation is not enabled for Solana".
+
+### Patch Changes
+
+- Updated dependencies [[`d012f87`](https://github.com/Webacy-Prod/sdk/commit/d012f879b79ce8e239e45fceca3b563a7516115a)]:
+  - @webacy-xyz/sdk-threat@3.4.0
+
 ## 2.3.0
 
 ### Minor Changes
