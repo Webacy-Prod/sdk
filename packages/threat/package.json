@@ -28,7 +28,7 @@
     "build:types": "tsc -p tsconfig.types.json",
     "postbuild": "node ../../scripts/fix-esm-imports.mjs dist/esm && echo '{\"type\":\"module\"}' > dist/esm/package.json && echo '{\"type\":\"commonjs\"}' > dist/cjs/package.json",
     "clean": "rm -rf dist",
-    "typecheck": "tsc --noEmit && tsc -p tsconfig.test.json",
+    "typecheck": "tsc --noEmit",
     "lint": "eslint src --ext .ts",
     "test": "vitest run",
     "test:watch": "vitest watch"

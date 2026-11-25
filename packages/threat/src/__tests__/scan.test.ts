@@ -220,6 +220,19 @@ describe('ScanResource', () => {
       expect(mockHttpClient.post).not.toHaveBeenCalled();
     });
 
+    it('rejects a raw tx over 1232 bytes before any request', async () => {
+      const ok = Buffer.alloc(1232).toString('base64');
+      const tooBig = Buffer.alloc(1233).toString('base64');
+      await expect(
+        scan.scanTransaction(signer, { ...solRequest, tx: { from: signer, raw: tooBig } })
+      ).rejects.toThrow('is over 1232 bytes');
+      expect(mockHttpClient.post).not.toHaveBeenCalled();
+      await scan
+        .scanTransaction(signer, { ...solRequest, tx: { from: signer, raw: ok } })
+        .catch(() => undefined);
+      expect(mockHttpClient.post).toHaveBeenCalledTimes(1);
+    });
+
     it('rejects the EVM-only block / operation knobs before any request', async () => {
       for (const extra of [{ block: 1 }, { operation: 1 }]) {
         await expect(

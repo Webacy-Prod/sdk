@@ -17,6 +17,9 @@ import { VALID_SCAN_CHAIN_IDS } from '../constants';
 /** Standard base64 (what `Buffer#toString('base64')` and `@solana/web3.js` emit) */
 const BASE64 = /^[A-Za-z0-9+/]+={0,2}$/;
 
+/** Largest serialized Solana transaction (packet size), as the API enforces */
+const MAX_SOLANA_TX_BYTES = 1232;
+
 /**
  * Resource for transaction and message scanning
  *
@@ -103,14 +106,15 @@ export class ScanResource extends BaseResource {
    */
   async scanTransaction(
     fromAddress: string,
-    request: ScanSolanaTransactionRequest,
-    options?: ScanOptions
-  ): Promise<ScanSolanaResponse>;
-  async scanTransaction(
-    fromAddress: string,
     request: ScanTransactionRequest,
     options?: ScanOptions
   ): Promise<ScanResponse>;
+  /** Solana (`chain: 'sol'`): the response carries `hash` instead of the EVM `descriptor` */
+  async scanTransaction(
+    fromAddress: string,
+    request: ScanSolanaTransactionRequest,
+    options?: ScanOptions
+  ): Promise<ScanSolanaResponse>;
   /** Either chain: narrow the result with `'hash' in result` (Solana only) */
   async scanTransaction(
     fromAddress: string,
@@ -346,6 +350,12 @@ export class ScanResource extends BaseResource {
       if (raw.startsWith('0x') || !BASE64.test(raw)) {
         throw new ValidationError(
           'Solana raw transaction (tx.raw) must be a base64 serialized transaction.'
+        );
+      }
+      const padding = raw.endsWith('==') ? 2 : raw.endsWith('=') ? 1 : 0;
+      if (Math.floor((raw.length * 3) / 4) - padding > MAX_SOLANA_TX_BYTES) {
+        throw new ValidationError(
+          `Solana raw transaction (tx.raw) is over ${MAX_SOLANA_TX_BYTES} bytes, the largest a transaction can be.`
         );
       }
       // JS callers can still send the EVM-only knobs, which the API rejects.
