@@ -45,8 +45,9 @@ export interface ScanSolanaTransactionRequest {
     from: string;
     /**
      * Base64 serialized Solana transaction, signed or unsigned: legacy or v0
-     * (at most 1232 bytes) or version 1 (at most 4096 bytes), e.g. `Buffer.from(tx.serialize({ requireAllSignatures: false })).toString('base64')`
-     * with `@solana/web3.js`
+     * (at most 1232 bytes) or version 1 (at most 4096 bytes). With `@solana/web3.js`:
+     * `Buffer.from(tx.serialize({ requireAllSignatures: false })).toString('base64')` for a
+     * legacy `Transaction`, `Buffer.from(vtx.serialize()).toString('base64')` for a `VersionedTransaction`
      */
     raw: string;
   };

@@ -21,8 +21,6 @@ const BASE64 = /^[A-Za-z0-9+/]+={0,2}$/;
 const MAX_SOLANA_TX_BYTES = 1232;
 /** Largest serialized version 1 Solana transaction (SIMD-0385), as the API enforces */
 const MAX_SOLANA_V1_TX_BYTES = 4096;
-/** First byte of a version 1 transaction, which serializes its message first */
-const SOLANA_V1_PREFIX = 0x81;
 
 /**
  * Resource for transaction and message scanning
@@ -101,6 +99,7 @@ export class ScanResource extends BaseResource {
    * const result = await client.scan.scanTransaction('SignerBase58...', {
    *   tx: {
    *     from: 'SignerBase58...',
+   *     // legacy `Transaction`; for a `VersionedTransaction` (v0 / v1): Buffer.from(vtx.serialize())
    *     raw: Buffer.from(tx.serialize({ requireAllSignatures: false })).toString('base64'),
    *   },
    *   chain: 'sol',
@@ -356,8 +355,10 @@ export class ScanResource extends BaseResource {
           'Solana raw transaction (tx.raw) must be a base64 serialized transaction.'
         );
       }
-      // Same version check as the API: only the first byte, no full decode.
-      const v1 = raw.length >= 4 && atob(raw.slice(0, 4)).charCodeAt(0) === SOLANA_V1_PREFIX;
+      // Same version check as the API (first byte 0x81), read off the base64 text
+      // so no runtime base64 global is needed: 0b100000_01xxxx encodes as 'g'
+      // (index 32) then one of 'Q'-'Z' / 'a'-'f' (index 16-31).
+      const v1 = /^g[Q-Za-f]/.test(raw);
       const limit = v1 ? MAX_SOLANA_V1_TX_BYTES : MAX_SOLANA_TX_BYTES;
       const padding = raw.endsWith('==') ? 2 : raw.endsWith('=') ? 1 : 0;
       if (Math.floor((raw.length * 3) / 4) - padding > limit) {
