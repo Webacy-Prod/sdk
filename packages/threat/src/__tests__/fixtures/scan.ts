@@ -1,4 +1,9 @@
-import type { ScanEIP712Response, ScanResponse, ScanSimulationItem } from '../../types';
+import type {
+  ScanEIP712Response,
+  ScanResponse,
+  ScanSimulationItem,
+  ScanSolanaResponse,
+} from '../../types';
 
 /**
  * Real transaction-simulation payloads (trimmed) from the API. Typed, so
@@ -87,4 +92,51 @@ export const eip712ScanResponse: ScanEIP712Response = {
     domainRisk: { riskLevel: 'unknown', description: 'Inconclusive.' },
   },
   chain: 'eth',
+};
+
+/** A pending 0.001 SOL transfer (`chain: 'sol'`, Helius simulation), local API 2026-11-20. */
+export const solTxScanResponse: ScanSolanaResponse = {
+  hash: 'FdSYWc9sUE5K4BgXZfAZXpGrS2NVeTJJ78rUEvqmbuzV',
+  block: null,
+  simulation: [
+    {
+      partyRisk: {
+        address: '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM',
+        overallRisk: 0,
+        high: 0,
+        medium: 0,
+        addressType: 'EOA',
+      },
+      counterpartyRisk: {
+        address: '5tzFkiKscXHK5ZXCGbXZxdw7gTjjD1mBwuoFbhUvuAi9',
+        overallRisk: 50,
+        high: 0,
+        medium: 1,
+      },
+      assetRisk: { address: null },
+      txData: {
+        partyAddress: '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM',
+        counterpartyAddress: '5tzFkiKscXHK5ZXCGbXZxdw7gTjjD1mBwuoFbhUvuAi9',
+        assetAddress: null,
+        assetType: 'NATIVE',
+        changeType: 'TRANSFER',
+        rawAmount: '1000000',
+        source: 'solana_simulate',
+      },
+    },
+  ],
+  timestamp: '2026-11-20T15:38:52.349Z',
+  chain: 'sol',
+};
+
+/** A transfer whose simulation reverted: answered `unverified`, nothing scored. */
+export const solRevertedScanResponse: ScanSolanaResponse = {
+  hash: 'EXwG5UKz9h6aXesuj56ek7XjsCn3FTjeBmwLFsNouUDY',
+  block: null,
+  simulation: [],
+  timestamp: '2026-11-20T15:39:20.426Z',
+  unverified: true,
+  simulationReverted: true,
+  revertReason: '"InvalidAccountForFee"',
+  chain: 'sol',
 };

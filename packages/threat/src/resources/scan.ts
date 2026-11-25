@@ -1,8 +1,10 @@
 import { BaseResource, HttpResponse, ValidationError, Chain } from '@webacy-xyz/sdk-core';
 import {
   ScanTransactionRequest,
+  ScanSolanaTransactionRequest,
   ScanEIP712Request,
   ScanResponse,
+  ScanSolanaResponse,
   ScanEIP712Response,
   ScanOptions,
   ScanChainId,
@@ -12,6 +14,12 @@ import {
 } from '../types/scan';
 import { VALID_SCAN_CHAIN_IDS } from '../constants';
 
+/** Standard base64 (what `Buffer#toString('base64')` and `@solana/web3.js` emit) */
+const BASE64 = /^[A-Za-z0-9+/]+={0,2}$/;
+
+/** Largest serialized Solana transaction (packet size), as the API enforces */
+const MAX_SOLANA_TX_BYTES = 1232;
+
 /**
  * Resource for transaction and message scanning
  *
@@ -20,7 +28,9 @@ import { VALID_SCAN_CHAIN_IDS } from '../constants';
  * - EIP-712 typed message scanning
  *
  * Note: This resource uses numeric chain IDs (1, 56, 137, etc.) in the request body
- * rather than the Chain enum, as required by the underlying API.
+ * rather than the Chain enum, as required by the underlying API. Solana, which has
+ * no numeric id, is the slug `chain: 'sol'` (behind a server-side flag, not
+ * enabled for customers yet).
  *
  * @example
  * ```typescript
@@ -79,21 +89,55 @@ export class ScanResource extends BaseResource {
    *   }
    * }
    * ```
+   *
+   * @example
+   * ```typescript
+   * // Solana (behind a server-side flag, not enabled for customers yet: until
+   * // it is, the API answers 400 "Transaction simulation is not enabled for Solana")
+   * const result = await client.scan.scanTransaction('SignerBase58...', {
+   *   tx: {
+   *     from: 'SignerBase58...',
+   *     raw: Buffer.from(tx.serialize({ requireAllSignatures: false })).toString('base64'),
+   *   },
+   *   chain: 'sol',
+   * });
+   * console.log(result.hash, result.unverified ? result.revertReason : result.simulation.length);
+   * ```
    */
   async scanTransaction(
     fromAddress: string,
     request: ScanTransactionRequest,
+    options?: ScanOptions
+  ): Promise<ScanResponse>;
+  /** Solana (`chain: 'sol'`): the response carries `hash` instead of the EVM `descriptor` */
+  async scanTransaction(
+    fromAddress: string,
+    request: ScanSolanaTransactionRequest,
+    options?: ScanOptions
+  ): Promise<ScanSolanaResponse>;
+  /** Either chain: narrow the result with `'hash' in result` (Solana only) */
+  async scanTransaction(
+    fromAddress: string,
+    request: ScanTransactionRequest | ScanSolanaTransactionRequest,
+    options?: ScanOptions
+  ): Promise<ScanResponse | ScanSolanaResponse>;
+  async scanTransaction(
+    fromAddress: string,
+    request: ScanTransactionRequest | ScanSolanaTransactionRequest,
     options: ScanOptions = {}
-  ): Promise<ScanResponse> {
+  ): Promise<ScanResponse | ScanSolanaResponse> {
     this.validateSignerAddress(fromAddress);
     this.validateTransactionRequest(request);
-    this.validateSignerAddressMatch(fromAddress, request.tx.from, 'tx.from');
+    // Base58 is case-sensitive: compare Solana signers exactly, unlike EVM hex.
+    this.validateSignerAddressMatch(fromAddress, request.tx.from, 'tx.from', {
+      caseSensitive: request.chain === 'sol',
+    });
 
     const path = this.buildPath(`/scan/${encodeURIComponent(fromAddress)}/transactions`, {
       refreshCache: options.refreshCache,
     });
 
-    const response: HttpResponse<ScanResponse> = await this.httpClient.post(
+    const response: HttpResponse<ScanResponse | ScanSolanaResponse> = await this.httpClient.post(
       path,
       request,
       this.requestOptions(options)
@@ -257,8 +301,8 @@ export class ScanResource extends BaseResource {
   /**
    * Validate signer address format (basic non-empty check)
    *
-   * Note: This is a simpler validation than the chain-aware validation in BaseResource,
-   * as scan requests accept EVM addresses only.
+   * Note: This is a simpler validation than the chain-aware validation in BaseResource;
+   * the API validates the address for the scan's chain.
    */
   private validateSignerAddress(address: string): void {
     if (!address || typeof address !== 'string' || address.trim() === '') {
@@ -272,9 +316,11 @@ export class ScanResource extends BaseResource {
   private validateSignerAddressMatch(
     signerAddress: string,
     requestAddress: string,
-    fieldName: string
+    fieldName: string,
+    { caseSensitive = false }: { caseSensitive?: boolean } = {}
   ): void {
-    if (signerAddress.toLowerCase() !== requestAddress.toLowerCase()) {
+    const norm = (a: string) => (caseSensitive ? a.trim() : a.toLowerCase());
+    if (norm(signerAddress) !== norm(requestAddress)) {
       throw new ValidationError(`Signer address must match ${fieldName}.`);
     }
   }
@@ -282,7 +328,9 @@ export class ScanResource extends BaseResource {
   /**
    * Validate transaction scan request
    */
-  private validateTransactionRequest(request: ScanTransactionRequest): void {
+  private validateTransactionRequest(
+    request: ScanTransactionRequest | ScanSolanaTransactionRequest
+  ): void {
     if (!request) {
       throw new ValidationError('Request body is required.');
     }
@@ -295,9 +343,31 @@ export class ScanResource extends BaseResource {
     if (!request.tx.raw || typeof request.tx.raw !== 'string') {
       throw new ValidationError('Raw transaction data (tx.raw) is required.');
     }
+    if (request.chain === 'sol') {
+      const raw = request.tx.raw.trim();
+      // Same check as the API. `0x…` is EVM hex; no serialized Solana
+      // transaction encodes to that prefix.
+      if (raw.startsWith('0x') || !BASE64.test(raw)) {
+        throw new ValidationError(
+          'Solana raw transaction (tx.raw) must be a base64 serialized transaction.'
+        );
+      }
+      const padding = raw.endsWith('==') ? 2 : raw.endsWith('=') ? 1 : 0;
+      if (Math.floor((raw.length * 3) / 4) - padding > MAX_SOLANA_TX_BYTES) {
+        throw new ValidationError(
+          `Solana raw transaction (tx.raw) is over ${MAX_SOLANA_TX_BYTES} bytes, the largest a transaction can be.`
+        );
+      }
+      // JS callers can still send the EVM-only knobs, which the API rejects.
+      const evmOnly = request as { block?: unknown; operation?: unknown };
+      if (evmOnly.block !== undefined || evmOnly.operation !== undefined) {
+        throw new ValidationError('`block` and `operation` are not supported for Solana.');
+      }
+      return;
+    }
     if (!VALID_SCAN_CHAIN_IDS.includes(request.chain)) {
       throw new ValidationError(
-        `Invalid chain ID. Supported chain IDs: ${VALID_SCAN_CHAIN_IDS.join(', ')} (1=ETH, 56=BSC, 137=POL, 10=OPT, 42161=ARB, 8453=BASE)`
+        `Invalid chain ID. Supported chain IDs: ${VALID_SCAN_CHAIN_IDS.join(', ')} (1=ETH, 56=BSC, 137=POL, 10=OPT, 42161=ARB, 8453=BASE), or 'sol'`
       );
     }
   }

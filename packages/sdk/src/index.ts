@@ -108,6 +108,7 @@ export type {
   // Scan types
   ScanChainId,
   ScanTransactionRequest,
+  ScanSolanaTransactionRequest,
   EIP712TypeDefinition,
   EIP712Domain,
   ScanEIP712Request,
@@ -123,6 +124,7 @@ export type {
   ScanSimulationItem,
   ScanResponseBase,
   ScanResponse,
+  ScanSolanaResponse,
   ScanEIP712Simulation,
   ScanEIP712Response,
   ScanOptions,
